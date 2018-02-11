@@ -3,5 +3,5 @@
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 
-# Frontend Build
-build/
+# Frontend
+storytime-frontend/

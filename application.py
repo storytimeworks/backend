@@ -2,8 +2,8 @@ from flask import Flask, render_template
 
 # EB looks for an 'application' callable by default.
 application = Flask(__name__,
-                    static_folder="storytime-frontend/build/static",
-                    template_folder="storytime-frontend/build")
+                    static_folder="build/static",
+                    template_folder="build")
 
 # add a rule for the index page.
 application.add_url_rule("/", "index", (lambda: render_template("index.html")))
