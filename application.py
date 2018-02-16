@@ -30,6 +30,13 @@ def vocabulary():
 
     return jsonify(translations)
 
+@application.route("/vocabulary/<vocabulary_id>")
+def vocabulary_specific(vocabulary_id):
+    cursor = sql.connection.cursor()
+    cursor.execute("SELECT * FROM chinese_vocabulary WHERE id = %s", vocabulary_id)
+    data = Translation(cursor.fetchall()[0]).dict()
+    return jsonify(data)
+
 if __name__ == "__main__":
     application.debug = True
     application.run()
