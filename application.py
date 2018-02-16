@@ -35,12 +35,12 @@ def vocabulary():
 
 @application.route("/vocabulary", methods=["POST"])
 def create_vocabulary():
-    source = request.args.get("source")
-    target = request.args.get("target")
-    pinyin = request.args.get("pinyin")
-    meaning = request.args.get("meaning")
-    source_sentence = request.args.get("source_sentence")
-    target_sentence = request.args.get("target_sentence")
+    source = request.form["source"]
+    target = request.form["target"]
+    pinyin = request.form["pinyin"]
+    meaning = request.form["meaning"]
+    source_sentence = request.form["source_sentence"]
+    target_sentence = request.form["target_sentence"]
 
     translation = [{
         "meaning": meaning,
@@ -48,7 +48,7 @@ def create_vocabulary():
         "target_sentence": target_sentence
     }]
 
-    translation_json = json.dumps(translation)
+    translation_json = json.dumps(translation, ensure_ascii=False)
 
     cursor = sql.connection.cursor()
     cursor.execute("INSERT INTO chinese_vocabulary (source, target, pinyin, definitions) VALUES (%s, %s, %s, %s)", (source, target, pinyin, translation_json,))
@@ -60,7 +60,7 @@ def create_vocabulary():
 @application.route("/vocabulary/<vocabulary_id>")
 def vocabulary_specific(vocabulary_id):
     cursor = sql.connection.cursor()
-    cursor.execute("SELECT * FROM chinese_vocabulary WHERE id = %s", vocabulary_id)
+    cursor.execute("SELECT * FROM chinese_vocabulary WHERE id = %s", (vocabulary_id,))
     data = Translation(cursor.fetchall()[0]).dict()
     return jsonify(data)
 
