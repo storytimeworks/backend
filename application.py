@@ -1,4 +1,5 @@
-import os
+import json, os
+from normalize import normalize
 from translation import Translation
 
 from flask import Flask, jsonify, request
@@ -17,10 +18,12 @@ application.config["MYSQL_DB"] = os.environ["RDS_DB_NAME"]
 application.config["MYSQL_HOST"] = os.environ["RDS_HOSTNAME"]
 sql.init_app(application)
 
-@application.route("/vocabulary")
+@application.route("/vocabulary", methods=["GET"])
 def vocabulary():
+    query = "%" + normalize(request.args.get("q")) + "%"
+
     cursor = sql.connection.cursor()
-    cursor.execute("SELECT * FROM chinese_vocabulary WHERE pinyin LIKE \"%" + request.args.get("q") + "%\" collate utf8_general_ci")
+    cursor.execute("SELECT * FROM chinese_vocabulary WHERE pinyin LIKE %s OR source LIKE %s OR target LIKE %s", (query, query, query,))
     result = cursor.fetchall()
     translations = []
 
@@ -29,6 +32,30 @@ def vocabulary():
         translations.append(translation.dict())
 
     return jsonify(translations)
+
+@application.route("/vocabulary", methods=["POST"])
+def create_vocabulary():
+    source = request.args.get("source")
+    target = request.args.get("target")
+    pinyin = request.args.get("pinyin")
+    meaning = request.args.get("meaning")
+    source_sentence = request.args.get("source_sentence")
+    target_sentence = request.args.get("target_sentence")
+
+    translation = [{
+        "meaning": meaning,
+        "source_sentence": source_sentence,
+        "target_sentence": target_sentence
+    }]
+
+    translation_json = json.dumps(translation)
+
+    cursor = sql.connection.cursor()
+    cursor.execute("INSERT INTO chinese_vocabulary (source, target, pinyin, definitions) VALUES (%s, %s, %s, %s)", (source, target, pinyin, translation_json,))
+    sql.connection.commit()
+    cursor.close()
+
+    return ("", 204)
 
 @application.route("/vocabulary/<vocabulary_id>")
 def vocabulary_specific(vocabulary_id):
