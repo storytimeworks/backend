@@ -1,26 +1,34 @@
-from flask import Flask, jsonify
+import os
+from translation import Translation
+
+from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
+from flask_mysqldb import MySQL
 
 application = Flask(__name__)
+
 cors = CORS(application)
 application.config["CORS_HEADERS"] = "Content-Type"
 
+sql = MySQL()
+application.config["MYSQL_USER"] = os.environ["RDS_USERNAME"]
+application.config["MYSQL_PASSWORD"] = os.environ["RDS_PASSWORD"]
+application.config["MYSQL_DB"] = os.environ["RDS_DB_NAME"]
+application.config["MYSQL_HOST"] = os.environ["RDS_HOSTNAME"]
+sql.init_app(application)
+
 @application.route("/vocabulary")
 def vocabulary():
-    data = {
-        "source": "你好",
-        "pinyin": "nǐ hǎo",
-        "translation": "hello",
-        "definitions": [
-            {
-                "meaning": "(greeting)",
-                "source_sentence": "{你好}！我是沙拉。",
-                "target_sentence": "{Hello}! I'm Sarah."
-            }
-        ]
-    }
+    cursor = sql.connection.cursor()
+    cursor.execute("SELECT * FROM chinese_vocabulary WHERE pinyin LIKE \"%" + request.args.get("q") + "%\" collate utf8_general_ci")
+    result = cursor.fetchall()
+    translations = []
 
-    return jsonify(data)
+    for row in result:
+        translation = Translation(row)
+        translations.append(translation.dict())
+
+    return jsonify(translations)
 
 if __name__ == "__main__":
     application.debug = True
