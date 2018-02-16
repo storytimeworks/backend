@@ -1,5 +1,4 @@
 import json, os
-from normalize import normalize
 from translation import Translation
 
 from flask import Flask, jsonify, request
@@ -20,7 +19,7 @@ sql.init_app(application)
 
 @application.route("/vocabulary", methods=["GET"])
 def vocabulary():
-    query = "%" + normalize(request.args.get("q")) + "%"
+    query = "%" + request.args.get("q") + "%"
 
     cursor = sql.connection.cursor()
     cursor.execute("SELECT * FROM chinese_vocabulary WHERE pinyin LIKE %s OR source LIKE %s OR target LIKE %s", (query, query, query,))
