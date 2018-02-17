@@ -1,4 +1,5 @@
 import json, os
+from sentence import Sentence
 from translation import Translation
 
 from flask import Flask, jsonify, request
@@ -62,6 +63,21 @@ def vocabulary_specific(vocabulary_id):
     cursor.execute("SELECT * FROM chinese_vocabulary WHERE id = %s", (vocabulary_id,))
     data = Translation(cursor.fetchall()[0]).dict()
     return jsonify(data)
+
+@application.route("/sentences")
+def sentences():
+    query = "%" + request.args.get("q") + "%"
+    
+    cursor = sql.connection.cursor()
+    cursor.execute("SELECT * FROM chinese_sentences WHERE chinese LIKE %s OR english LIKE %s LIMIT 10", (query, query,))
+    result = cursor.fetchall()
+    sentences = []
+
+    for row in result:
+        sentence = Sentence(row)
+        sentences.append(sentence.dict())
+
+    return jsonify(sentences)
 
 if __name__ == "__main__":
     application.debug = True
