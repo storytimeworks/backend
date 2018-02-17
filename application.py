@@ -22,7 +22,7 @@ def vocabulary():
     query = "%" + request.args.get("q") + "%"
 
     cursor = sql.connection.cursor()
-    cursor.execute("SELECT * FROM chinese_vocabulary WHERE pinyin LIKE %s OR source LIKE %s OR target LIKE %s", (query, query, query,))
+    cursor.execute("SELECT * FROM chinese_vocabulary WHERE pinyin LIKE %s OR chinese LIKE %s OR english LIKE %s", (query, query, query,))
     result = cursor.fetchall()
     translations = []
 
@@ -34,23 +34,23 @@ def vocabulary():
 
 @application.route("/vocabulary", methods=["POST"])
 def create_vocabulary():
-    source = request.form["source"]
-    target = request.form["target"]
+    chinese = request.form["chinese"]
+    english = request.form["english"]
     pinyin = request.form["pinyin"]
     meaning = request.form["meaning"]
-    source_sentence = request.form["source_sentence"]
-    target_sentence = request.form["target_sentence"]
+    chinese_sentence = request.form["chinese_sentence"]
+    english_sentence = request.form["english_sentence"]
 
     translation = [{
         "meaning": meaning,
-        "source_sentence": source_sentence,
-        "target_sentence": target_sentence
+        "chinese_sentence": chinese_sentence,
+        "english_sentence": english_sentence
     }]
 
     translation_json = json.dumps(translation, ensure_ascii=False)
 
     cursor = sql.connection.cursor()
-    cursor.execute("INSERT INTO chinese_vocabulary (source, target, pinyin, definitions) VALUES (%s, %s, %s, %s)", (source, target, pinyin, translation_json,))
+    cursor.execute("INSERT INTO chinese_vocabulary (chinese, english, pinyin, definitions) VALUES (%s, %s, %s, %s)", (chinese, english, pinyin, translation_json,))
     sql.connection.commit()
     cursor.close()
 
