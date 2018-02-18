@@ -80,7 +80,7 @@ def sentences():
     query = "%" + request.args.get("q") + "%"
     
     cursor = sql.connection.cursor()
-    cursor.execute("SELECT * FROM chinese_sentences WHERE chinese LIKE %s LIMIT 10", (query, query,))
+    cursor.execute("SELECT * FROM chinese_sentences WHERE chinese LIKE %s LIMIT 10", (query,))
     result = cursor.fetchall()
     sentences = []
 
