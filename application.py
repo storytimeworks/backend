@@ -65,10 +65,31 @@ def update_entry(entry_id):
     
     return get_entry_specific(entry_id)
 
-@application.route("/vocabulary/sentences")
-def sentences():
-    query = "%" + request.args.get("q") + "%"
+@application.route("/vocabulary/translations/<translation_id>", methods=["GET"])
+def get_translation_specific(translation_id):
+    cursor = sql.connection.cursor()
+    cursor.execute("SELECT * FROM chinese_translations WHERE id = %s", (translation_id,))
+    translation = Translation(cursor.fetchall()[0])
+    return jsonify(translation.dict())
+
+@application.route("/vocabulary/translations/<translation_id>", methods=["PUT"])
+def update_translation(translation_id):
+    key = list(request.json.keys())[0]
+    value = request.json[key]
     
+    if key == "chineseSentence": key = "chinese_sentence"
+    elif key == "englishSentence": key = "english_sentence"
+    
+    cursor = sql.connection.cursor()
+    cursor.execute("UPDATE chinese_translations SET " + key + " = %s WHERE id = %s", (value, translation_id,))
+    sql.connection.commit()
+    
+    return get_translation_specific(translation_id)
+
+@application.route("/vocabulary/sentences")
+def get_sentences():
+    query = "%" + request.args.get("q") + "%"
+
     cursor = sql.connection.cursor()
     cursor.execute("SELECT * FROM chinese_sentences WHERE chinese LIKE %s LIMIT 10", (query,))
     result = cursor.fetchall()

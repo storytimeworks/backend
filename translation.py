@@ -28,6 +28,6 @@ class Translation:
             "pinyin": self.pinyin,
             "definition": self.definition,
             "pos": self.pos,
-            "chinese_sentence": self.chinese_sentence,
-            "english_sentence": self.english_sentence
+            "chineseSentence": self.chinese_sentence,
+            "englishSentence": self.english_sentence
         }
