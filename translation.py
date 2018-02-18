@@ -2,6 +2,9 @@ import json
 
 class Translation:
     id = 0
+    chinese = ""
+    english = ""
+    pinyin = ""
     definition = ""
     pos = ""
     chinese_sentence = ""
@@ -9,14 +12,20 @@ class Translation:
 
     def __init__(self, row):
         self.id = row[0]
-        self.definition = row[1]
-        self.pos = row[2]
-        self.chinese_sentence = row[3]
-        self.english_sentence = row[4]
+        self.chinese = row[1]
+        self.english = row[2]
+        self.pinyin = row[3]
+        self.definition = row[4]
+        self.pos = row[5]
+        self.chinese_sentence = row[6]
+        self.english_sentence = row[7]
 
     def dict(self):
         return {
             "id": self.id,
+            "chinese": self.chinese,
+            "english": self.english,
+            "pinyin": self.pinyin,
             "definition": self.definition,
             "pos": self.pos,
             "chinese_sentence": self.chinese_sentence,
