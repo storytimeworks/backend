@@ -1,5 +1,6 @@
 import json, os
 from sentence import Sentence
+from entry import Entry
 from translation import Translation
 
 from flask import Flask, jsonify, request
@@ -23,15 +24,32 @@ def vocabulary():
     query = "%" + request.args.get("q") + "%"
 
     cursor = sql.connection.cursor()
-    cursor.execute("SELECT * FROM chinese_vocabulary WHERE pinyin LIKE %s OR chinese LIKE %s OR english LIKE %s", (query, query, query,))
+    cursor.execute("SELECT * FROM chinese_entries WHERE chinese LIKE %s OR english LIKE %s OR pinyin LIKE %s", (query, query, query,))
+    result = cursor.fetchall()
+    entries = []
+
+    for row in result:
+        entry = Entry(row)
+        entries.append(entry.dict())
+
+    return jsonify(entries)
+
+@application.route("/vocabulary/<vocabulary_id>")
+def vocabulary_specific(vocabulary_id):
+    cursor = sql.connection.cursor()
+    cursor.execute("SELECT * FROM chinese_entries WHERE id = %s", (vocabulary_id,))
+    entry = Entry(cursor.fetchall()[0])
+    
+    cursor.execute("SELECT * FROM chinese_translations WHERE id IN (%s) ORDER BY FIELD(id, %s)", (entry.translation_ids, entry.translation_ids,))
     result = cursor.fetchall()
     translations = []
-
+    
     for row in result:
         translation = Translation(row)
         translations.append(translation.dict())
-
-    return jsonify(translations)
+    
+    entry.translations = translations
+    return jsonify(entry.dict())
 
 @application.route("/vocabulary", methods=["POST"])
 def create_vocabulary():
@@ -56,13 +74,6 @@ def create_vocabulary():
     cursor.close()
 
     return ("", 204)
-
-@application.route("/vocabulary/<vocabulary_id>")
-def vocabulary_specific(vocabulary_id):
-    cursor = sql.connection.cursor()
-    cursor.execute("SELECT * FROM chinese_vocabulary WHERE id = %s", (vocabulary_id,))
-    data = Translation(cursor.fetchall()[0]).dict()
-    return jsonify(data)
 
 @application.route("/sentences")
 def sentences():

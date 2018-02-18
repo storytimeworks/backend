@@ -2,23 +2,23 @@ import json
 
 class Translation:
     id = 0
-    source = ""
-    target = ""
-    pinyin = ""
-    definitions = []
+    definition = ""
+    pos = ""
+    chinese_sentence = ""
+    english_sentence = ""
 
     def __init__(self, row):
         self.id = row[0]
-        self.source = row[1]
-        self.target = row[2]
-        self.pinyin = row[3]
-        self.definitions = json.loads(row[4])
+        self.definition = row[1]
+        self.pos = row[2]
+        self.chinese_sentence = row[3]
+        self.english_sentence = row[4]
 
     def dict(self):
         return {
             "id": self.id,
-            "source": self.source,
-            "target": self.target,
-            "pinyin": self.pinyin,
-            "definitions": self.definitions
+            "definition": self.definition,
+            "pos": self.pos,
+            "chinese_sentence": self.chinese_sentence,
+            "english_sentence": self.english_sentence
         }
