@@ -24,7 +24,7 @@ def get_entries():
     query = "%" + request.args.get("q") + "%"
     
     cursor = sql.connection.cursor()
-    cursor.execute("SELECT * FROM chinese_entries WHERE chinese LIKE %s OR english LIKE %s OR pinyin LIKE %s", (query, query, query,))
+    cursor.execute("SELECT * FROM chinese_entries WHERE (chinese LIKE %s OR pinyin LIKE %s AND source_is_chinese = 1) OR (english LIKE %s AND source_is_chinese = 0)", (query, query, query,))
     entries = [Entry(row).dict() for row in cursor.fetchall()]
     
     return jsonify(entries)
@@ -48,7 +48,7 @@ def create_entry():
     source_is_chinese = request.form["source_is_chinese"]
 
     cursor = sql.connection.cursor()
-    cursor.execute("INSERT INTO chinese_vocabulary (chinese, english, pinyin, source_is_chinese, translations) VALUES (%s, %s, %s, %s, \"\")", (chinese, english, pinyin, source_is_chinese,))
+    cursor.execute("INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations) VALUES (%s, %s, %s, %s, \"\")", (chinese, english, pinyin, source_is_chinese,))
     sql.connection.commit()
     cursor.close()
 
@@ -64,6 +64,19 @@ def update_entry(entry_id):
     sql.connection.commit()
     
     return get_entry_specific(entry_id)
+
+# @application.route("/vocabulary/entries/<entry_id>/translations", methods=["POST"])
+# def create_translation(entry_id):
+#     cursor = sql.connection.cursor()
+#     cursor.execute("SELECT * FROM chinese_entries WHERE id = %s", (entry_id,))
+#     entry = Entry(cursor.fetchall()[0])
+# 
+#     cursor.execute("INSERT INTO chinese_translations (chinese, english, pinyin, definition, pos, chinese_sentence, english_sentence) VALUES (%s, %s, %s, %s, %s, %s, %s)", ())
+#     entry.translation_ids.append(translation_id)
+# 
+#     translation_ids = ",".join([str(x) for x in entry.translation_ids])
+#     cursor.execute("UPDATE chinese_entries SET translations = %s", (translation_ids,))
+#     sql.connection.commit()
 
 @application.route("/vocabulary/translations/<translation_id>", methods=["GET"])
 def get_translation_specific(translation_id):
