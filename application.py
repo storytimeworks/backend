@@ -46,10 +46,10 @@ def get_entry_specific(entry_id):
 
 @application.route("/vocabulary/entries", methods=["POST"])
 def create_entry():
-    chinese = request.form["chinese"]
-    english = request.form["english"]
-    pinyin = request.form["pinyin"]
-    source_is_chinese = request.form["source_is_chinese"]
+    chinese = request.json["chinese"]
+    english = request.json["english"]
+    pinyin = request.json["pinyin"]
+    source_is_chinese = request.json["source_is_chinese"]
 
     cursor = sql.connection.cursor()
     cursor.execute("INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations) VALUES (%s, %s, %s, %s, \"\")", (chinese, english, pinyin, source_is_chinese,))
@@ -102,13 +102,13 @@ def delete_translation(entry_id, translation_id):
 
 @application.route("/vocabulary/translations", methods=["POST"])
 def create_translation():
-    chinese = request.form["chinese"]
-    english = request.form["english"]
-    pinyin = request.form["pinyin"]
-    definition = request.form["definition"]
-    pos = request.form["pos"]
-    chinese_sentence = request.form["chinese_sentence"]
-    english_sentence = request.form["english_sentence"]
+    chinese = request.json["chinese"]
+    english = request.json["english"]
+    pinyin = request.json["pinyin"]
+    definition = request.json["definition"]
+    pos = request.json["pos"]
+    chinese_sentence = request.json["chinese_sentence"]
+    english_sentence = request.json["english_sentence"]
     data = (chinese, english, pinyin, definition, pos, chinese_sentence, english_sentence,)
 
     cursor = sql.connection.cursor()
