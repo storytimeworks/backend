@@ -85,6 +85,21 @@ def update_translations(entry_id, translation_id):
     
     return get_entry_specific(entry_id)
 
+@application.route("/vocabulary/entries/<entry_id>/translations/<translation_id>", methods=["DELETE"])
+def delete_translation(entry_id, translation_id):
+    cursor = sql.connection.cursor()
+    cursor.execute("SELECT * FROM chinese_entries WHERE id = %s", (entry_id,))
+    entry = Entry(cursor.fetchall()[0])
+    
+    while int(translation_id) in entry.translation_ids:
+        entry.translation_ids.remove(int(translation_id))
+    
+    translation_ids = ",".join([str(x) for x in entry.translation_ids])
+    cursor.execute("UPDATE chinese_entries SET translations = %s WHERE id = %s", (translation_ids, entry_id,))
+    sql.connection.commit()
+    
+    return get_entry_specific(entry_id)
+
 @application.route("/vocabulary/translations", methods=["POST"])
 def create_translation():
     chinese = request.form["chinese"]
