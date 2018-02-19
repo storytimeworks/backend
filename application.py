@@ -1,7 +1,6 @@
 import json, os
 from sentence import Sentence
 from entry import Entry
-from translation import Translation
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
@@ -34,14 +33,6 @@ def get_entry_specific(entry_id):
     cursor = sql.connection.cursor()
     cursor.execute("SELECT * FROM chinese_entries WHERE id = %s", (entry_id,))
     entry = Entry(cursor.fetchall()[0])
-    
-    if len(entry.translation_ids) > 0:
-        translation_ids = ",".join([str(x) for x in entry.translation_ids])
-        cursor.execute("SELECT * FROM chinese_translations WHERE id IN (" + translation_ids + ") ORDER BY FIELD(id, " + translation_ids + ")")
-        entry.translations = [Translation(row).dict() for row in cursor.fetchall()]
-    else:
-        entry.translations = []
-    
     return jsonify(entry.dict())
 
 @application.route("/vocabulary/entries", methods=["POST"])
@@ -50,9 +41,10 @@ def create_entry():
     english = request.json["english"]
     pinyin = request.json["pinyin"]
     source_is_chinese = request.json["source_is_chinese"]
+    translations = json.dumps(request.json["translations"])
 
     cursor = sql.connection.cursor()
-    cursor.execute("INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations) VALUES (%s, %s, %s, %s, \"\")", (chinese, english, pinyin, source_is_chinese,))
+    cursor.execute("INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations) VALUES (%s, %s, %s, %s, %s)", (chinese, english, pinyin, source_is_chinese, translations,))
     sql.connection.commit()
     
     entry_id = cursor.lastrowid
@@ -65,79 +57,14 @@ def update_entry(entry_id):
     key = list(request.json.keys())[0]
     value = request.json[key]
     
+    if key == "translations":
+        value = json.dumps(value)
+    
     cursor = sql.connection.cursor()
     cursor.execute("UPDATE chinese_entries SET " + key + " = %s WHERE id = %s", (value, entry_id,))
     sql.connection.commit()
     
     return get_entry_specific(entry_id)
-
-@application.route("/vocabulary/entries/<entry_id>/translations/<translation_id>", methods=["PUT"])
-def update_translations(entry_id, translation_id):
-    cursor = sql.connection.cursor()
-    cursor.execute("SELECT * FROM chinese_entries WHERE id = %s", (entry_id,))
-    entry = Entry(cursor.fetchall()[0])
-    
-    if int(translation_id) not in entry.translation_ids:
-        entry.translation_ids.append(translation_id)
-        translation_ids = ",".join([str(x) for x in entry.translation_ids])
-        cursor.execute("UPDATE chinese_entries SET translations = %s WHERE id = %s", (translation_ids, entry_id,))
-        sql.connection.commit()
-    
-    return get_entry_specific(entry_id)
-
-@application.route("/vocabulary/entries/<entry_id>/translations/<translation_id>", methods=["DELETE"])
-def delete_translation(entry_id, translation_id):
-    cursor = sql.connection.cursor()
-    cursor.execute("SELECT * FROM chinese_entries WHERE id = %s", (entry_id,))
-    entry = Entry(cursor.fetchall()[0])
-    
-    while int(translation_id) in entry.translation_ids:
-        entry.translation_ids.remove(int(translation_id))
-    
-    translation_ids = ",".join([str(x) for x in entry.translation_ids])
-    cursor.execute("UPDATE chinese_entries SET translations = %s WHERE id = %s", (translation_ids, entry_id,))
-    sql.connection.commit()
-    
-    return get_entry_specific(entry_id)
-
-@application.route("/vocabulary/translations", methods=["POST"])
-def create_translation():
-    chinese = request.json["chinese"]
-    english = request.json["english"]
-    pinyin = request.json["pinyin"]
-    definition = request.json["definition"]
-    pos = request.json["pos"]
-    chinese_sentence = request.json["chinese_sentence"]
-    english_sentence = request.json["english_sentence"]
-    data = (chinese, english, pinyin, definition, pos, chinese_sentence, english_sentence,)
-
-    cursor = sql.connection.cursor()
-    cursor.execute("INSERT INTO chinese_translations (chinese, english, pinyin, definition, pos, chinese_sentence, english_sentence) VALUES (%s, %s, %s, %s, %s, %s, %s)", data)
-    sql.connection.commit()
-
-    translation_id = cursor.lastrowid
-    return get_translation_specific(translation_id)
-
-@application.route("/vocabulary/translations/<translation_id>", methods=["GET"])
-def get_translation_specific(translation_id):
-    cursor = sql.connection.cursor()
-    cursor.execute("SELECT * FROM chinese_translations WHERE id = %s", (translation_id,))
-    translation = Translation(cursor.fetchall()[0])
-    return jsonify(translation.dict())
-
-@application.route("/vocabulary/translations/<translation_id>", methods=["PUT"])
-def update_translation(translation_id):
-    key = list(request.json.keys())[0]
-    value = request.json[key]
-    
-    if key == "chineseSentence": key = "chinese_sentence"
-    elif key == "englishSentence": key = "english_sentence"
-    
-    cursor = sql.connection.cursor()
-    cursor.execute("UPDATE chinese_translations SET " + key + " = %s WHERE id = %s", (value, translation_id,))
-    sql.connection.commit()
-    
-    return get_translation_specific(translation_id)
 
 @application.route("/vocabulary/sentences")
 def get_sentences():
