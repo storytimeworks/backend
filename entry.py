@@ -15,7 +15,11 @@ class Entry:
         self.english = row[2]
         self.pinyin = row[3]
         self.source_is_chinese = row[4]
-        self.translation_ids = [int(x) for x in row[5].split(",")]
+        
+        if len(row[5]) > 0:
+            self.translation_ids = [int(x) for x in row[5].split(",")]
+        else:
+            self.translation_ids = []
 
     def dict(self):
         data = {"id": self.id}
