@@ -5,10 +5,11 @@ CREATE TABLE chinese_entries (
   pinyin TEXT NOT NULL,
   source_is_chinese BOOLEAN NOT NULL,
   translations TEXT NOT NULL,
+  categories TEXT NOT NULL,
   PRIMARY KEY (id)
 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
-INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations) VALUES ("我", "I, me", "wǒ", 1, "[]");
-INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations) VALUES ("是", "to be", "shì", 1, "[]");
-INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations) VALUES ("我", "I", "wǒ", 0, "[]");
-INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations) VALUES ("是", "be", "shì", 0, "[]");
+INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations, categories) VALUES ("我", "I, me", "wǒ", 1, "[]", "[]");
+INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations, categories) VALUES ("是", "to be", "shì", 1, "[]", "[]");
+INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations, categories) VALUES ("我", "I", "wǒ", 0, "[]", "[]");
+INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations, categories) VALUES ("是", "be", "shì", 0, "[]", "[]");

@@ -42,9 +42,10 @@ def create_entry():
     pinyin = request.json["pinyin"]
     source_is_chinese = request.json["source_is_chinese"]
     translations = json.dumps(request.json["translations"])
+    categories = json.dumps(request.json["categories"])
 
     cursor = sql.connection.cursor()
-    cursor.execute("INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations) VALUES (%s, %s, %s, %s, %s)", (chinese, english, pinyin, source_is_chinese, translations,))
+    cursor.execute("INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations, categories) VALUES (%s, %s, %s, %s, %s, %s)", (chinese, english, pinyin, source_is_chinese, translations, categories,))
     sql.connection.commit()
     
     entry_id = cursor.lastrowid

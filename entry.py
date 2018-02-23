@@ -7,6 +7,7 @@ class Entry:
     pinyin = None
     source_is_chinese = None
     translations = None
+    categories = None
 
     def __init__(self, row):
         self.id = row[0]
@@ -15,6 +16,7 @@ class Entry:
         self.pinyin = row[3]
         self.source_is_chinese = row[4]
         self.translations = json.loads(row[5])
+        self.categories = json.loads(row[6])
 
     def dict(self):
         return {
@@ -23,5 +25,6 @@ class Entry:
             "english": self.english,
             "pinyin": self.pinyin,
             "source_is_chinese": self.source_is_chinese,
-            "translations": self.translations
+            "translations": self.translations,
+            "categories": self.categories
         }
