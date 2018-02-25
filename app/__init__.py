@@ -8,7 +8,7 @@ def configure_app(app):
 
     app.config.from_object("config")
 
-    cors = CORS(app, supports_credentials=True)
+    cors = CORS(app)
     db = SQLAlchemy(app)
 
     from app.mod_vocab.controllers import mod_vocab as vocab_module

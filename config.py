@@ -1,7 +1,8 @@
 import os
 
-# CSRF settings, come back to this later
-CORS_HEADERS = "Content-Type"
+# CORS settings
+CORS_ORIGINS = "http://storytime.works" if os.environ["ENVIRONMENT"] else "http://localhost:3000"
+CORS_SUPPORTS_CREDENTIALS = True
 
 # MySQL database credentials, fetched from environment variables
 MYSQL_USER = os.environ["RDS_USERNAME"]
