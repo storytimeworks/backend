@@ -1,9 +1,11 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 
 import json
 
 from app import db
+import app.mod_vocab.errors as errors
 from app.mod_vocab.models import Entry, Sentence
+from app.mod_users.models import User
 
 mod_vocab = Blueprint("vocab", __name__, url_prefix="/vocabulary")
 
@@ -30,6 +32,21 @@ def get_entry_specific(entry_id):
 
 @mod_vocab.route("/entries", methods=["POST"])
 def create_entry():
+    if "user_id" not in session:
+        return errors.missing_authentication()
+    else:
+        user_id = session["user_id"]
+        user = User.query.filter_by(id=user_id).first()
+
+        if user:
+            if 1 not in json.loads(user.groups):
+                return errors.not_authorized()
+            else:
+                # User is authenticated and authorized to do this
+                pass
+        else:
+            return errors.invalid_session()
+
     chinese = request.json["chinese"]
     english = request.json["english"]
     pinyin = request.json["pinyin"]
@@ -43,6 +60,21 @@ def create_entry():
 
 @mod_vocab.route("/entries/<entry_id>", methods=["PUT"])
 def update_entry(entry_id):
+    if "user_id" not in session:
+        return errors.missing_authentication()
+    else:
+        user_id = session["user_id"]
+        user = User.query.filter_by(id=user_id).first()
+
+        if user:
+            if 1 not in json.loads(user.groups):
+                return errors.not_authorized()
+            else:
+                # User is authenticated and authorized to do this
+                pass
+        else:
+            return errors.invalid_session()
+
     key = list(request.json.keys())[0]
     value = request.json[key]
 
@@ -65,7 +97,7 @@ def update_entry(entry_id):
 
     return get_entry_specific(entry_id)
 
-@mod_vocab.route("/sentences")
+@mod_vocab.route("/sentences", methods=["GET"])
 def get_sentences():
     query = "%" + request.args.get("q") + "%"
     sentences = Sentence.query.filter(Sentence.chinese.like(query)).limit(10).all()

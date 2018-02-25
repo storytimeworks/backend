@@ -1,4 +1,5 @@
 from app import db
+import json
 
 class Base(db.Model):
 
@@ -15,11 +16,13 @@ class User(Base):
     username = db.Column(db.Text, nullable=False)
     email = db.Column(db.Text, nullable=False)
     password = db.Column(db.Text, nullable=False)
+    groups = db.Column(db.Text, nullable=False)
 
     def __init__(self, username, email, password):
         self.username = username
         self.email = email
         self.password = password
+        self.groups = groups
 
     def serialize(self):
         return {
@@ -27,5 +30,6 @@ class User(Base):
             "username": self.username,
             "email": self.email,
             "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "updated_at": self.updated_at,
+            "groups": json.loads(self.groups)
         }

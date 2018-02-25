@@ -6,6 +6,8 @@ class Base(db.Model):
     __abstract__  = True
 
     id            = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
 class Entry(Base):
 
@@ -34,7 +36,9 @@ class Entry(Base):
             "pinyin": self.pinyin,
             "source_is_chinese": self.source_is_chinese,
             "translations": json.loads(self.translations),
-            "categories": json.loads(self.categories)
+            "categories": json.loads(self.categories),
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
         }
 
 class Sentence(Base):
@@ -52,5 +56,7 @@ class Sentence(Base):
         return {
             "id": self.id,
             "chinese": self.chinese,
-            "english": self.english
+            "english": self.english,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
         }
