@@ -1,5 +1,7 @@
-from flask_cors import CORS, cross_origin
+from flask import redirect, request
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+import os
 
 db = None
 
@@ -16,5 +18,13 @@ def configure_app(app):
 
     app.register_blueprint(vocab_module)
     app.register_blueprint(users_module)
+
+    if os.environ["ENVIRONMENT"] == "production":
+        @app.before_request
+        def before_request():
+            if request.url.startswith("http://"):
+                url = request.url.replace("http://", "https://", 1)
+                code = 301
+                return redirect(url, code=code)
 
     db.create_all()

@@ -1,7 +1,7 @@
 import os
 
 # CORS settings
-CORS_ORIGINS = "https://storytime.works" if os.environ["ENVIRONMENT"] else "http://localhost:3000"
+CORS_ORIGINS = "https://storytime.works" if os.environ["ENVIRONMENT"] == "production" else "http://localhost:3000"
 CORS_SUPPORTS_CREDENTIALS = True
 
 # MySQL database credentials, fetched from environment variables
