@@ -22,7 +22,7 @@ class User(Base):
         self.username = username
         self.email = email
         self.password = password
-        self.groups = groups
+        self.groups = "[]"
 
     def serialize(self):
         return {
