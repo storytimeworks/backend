@@ -114,7 +114,7 @@ def get_entries_info():
         else:
             return errors.invalid_session()
 
-    entries = Entry.query.filter_by(translations="[]").all()
+    entries = Entry.query.filter_by(source_is_chinese=True, translations="[]").all()
     entries_data = [entry.serialize() for entry in entries]
     return jsonify(no_translations=entries_data)
 
