@@ -97,6 +97,27 @@ def update_entry(entry_id):
 
     return get_entry_specific(entry_id)
 
+@mod_vocab.route("/health", methods=["GET"])
+def get_entries_info():
+    if "user_id" not in session:
+        return errors.missing_authentication()
+    else:
+        user_id = session["user_id"]
+        user = User.query.filter_by(id=user_id).first()
+
+        if user:
+            if 1 not in json.loads(user.groups):
+                return errors.not_authorized()
+            else:
+                # User is authenticated and authorized to do this
+                pass
+        else:
+            return errors.invalid_session()
+
+    entries = Entry.query.filter_by(translations="[]").all()
+    entries_data = [entry.serialize() for entry in entries]
+    return jsonify(no_translations=entries_data)
+
 @mod_vocab.route("/sentences", methods=["GET"])
 def get_sentences():
     query = "%" + request.args.get("q") + "%"
