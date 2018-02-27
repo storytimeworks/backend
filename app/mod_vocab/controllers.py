@@ -116,7 +116,9 @@ def get_entries_info():
 
     entries = Entry.query.filter_by(source_is_chinese=True, translations="[]").all()
     entries_data = [entry.serialize() for entry in entries]
-    return jsonify(no_translations=entries_data)
+
+    entries_num = Entry.query.count()
+    return jsonify(no_translations=entries_data, data={"total": entries_num})
 
 @mod_vocab.route("/sentences", methods=["GET"])
 def get_sentences():
