@@ -83,5 +83,5 @@ def get_current_user():
 
 @mod_users.route("/current", methods=["DELETE"])
 def logout():
-    session.pop("user_id", None)
+    session.clear()
     return ("", 204)
