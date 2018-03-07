@@ -20,7 +20,7 @@ def get_user_specific(user_id):
 
 @mod_users.route("", methods=["POST"])
 def register():
-    if "username" not in request.json or "email" not in request.json or "password" not in request.json:
+    if request.json == None or "username" not in request.json or "email" not in request.json or "password" not in request.json:
         return errors.missing_registration_parameters()
 
     username = request.json["username"]
@@ -59,7 +59,7 @@ def register():
 
 @mod_users.route("/login", methods=["POST"])
 def login():
-    if "email" not in request.json or "password" not in request.json:
+    if request.json == None or "email" not in request.json or "password" not in request.json:
         return errors.missing_login_parameters()
 
     email = request.json["email"]
