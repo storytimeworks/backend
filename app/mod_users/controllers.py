@@ -27,6 +27,10 @@ def register():
     email = request.json["email"]
     password = request.json["password"]
 
+    # zxcvbn throws an error if password is empty string, so catch this early
+    if len(password) == 0:
+        return errors.missing_registration_parameters()
+
     if len(username) < 4:
         return errors.short_username()
     elif len(username) > 16:
