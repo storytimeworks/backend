@@ -10,6 +10,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "dev":
     os.environ["RDS_PASSWORD"] = ""
     os.environ["RDS_USERNAME"] = "root"
     os.environ["SECRET_KEY"] = "secret"
+    os.environ["SENTRY_DSN"] = "https://80e67f6e6518406d847acd07ef2bb0bb:51e96f1b19d24198ab8c8d8cc4ebd9f9@sentry.io/294045"
 
 # Include application callable here so it can be used by WSGI
 application = Flask(__name__)
