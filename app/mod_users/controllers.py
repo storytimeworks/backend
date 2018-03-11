@@ -59,16 +59,17 @@ def register():
 
 @mod_users.route("/login", methods=["POST"])
 def login():
-    if request.json == None or "email" not in request.json or "password" not in request.json:
+    if request.json == None or "username" not in request.json or "password" not in request.json:
         return errors.missing_login_parameters()
 
-    email = request.json["email"]
+    username = request.json["username"]
     password = request.json["password"]
 
-    user = User.query.filter_by(email=email).first()
+    # Allow login with username or email
+    user = User.query.filter((User.username == username) | (User.email == username)).first()
 
     if user == None:
-        return errors.missing_login_parameters()
+        return errors.invalid_credentials()
 
     password_is_correct = bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8"))
 
