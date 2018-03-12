@@ -22,6 +22,12 @@ def synthesize_chinese():
         # If the recording has already been saved, load it from S3
         url = "https://s3.amazonaws.com/storytime-speech/" + recording.filename
     else:
+        # Don't save new recordings in development environment
+        if os.environ["ENVIRONMENT"] == "production":
+            pass
+        else:
+            return errors.speech_not_found()
+
         # If the recording hasn't been saved, check if the user is authenticated
         # If they are authenticated, save a new transcription from Baidu
         if "user_id" in session:
