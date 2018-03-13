@@ -16,7 +16,7 @@ def configure_app(app):
     db = SQLAlchemy(app)
     sslify = SSLify(app, permanent=True)
 
-    if os.environ["ENVIRONMENT"] == "PRODUCTION":
+    if os.environ["ENVIRONMENT"] == "production":
         # Only run Sentry in production
         sentry = Sentry(app)
 
