@@ -137,7 +137,8 @@ def synthesize_english():
         polly = boto3.client(
             "polly",
             aws_access_key_id=os.environ["POLLY_AWS_ACCESS_KEY_ID"],
-            aws_secret_access_key=os.environ["POLLY_AWS_SECRET_ACCESS_KEY"]
+            aws_secret_access_key=os.environ["POLLY_AWS_SECRET_ACCESS_KEY"],
+            region_name="us-east-1"
         )
 
         # 0 = female, 1 = male
