@@ -59,7 +59,7 @@ def synthesize_chinese():
             "&cuid=backend" + \
             "&tok=24.e052ae1a8291d52184779359fecc7a40.2592000.1523387524.282335-10910985" + \
             "&tex=" + text + \
-            "&vol=9" + \
+            "&vol=2" + \
             "&per=" + str(voice) + \
             "&spd=3" + \
             "&pit=5"
