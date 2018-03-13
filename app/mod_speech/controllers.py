@@ -16,6 +16,8 @@ def synthesize_chinese():
 
     recording = SpeechSynthesis.query.filter_by(source=text).first()
 
+    # voice is defined out here so it can be sent to the database later
+    voice = 0
     url = ""
 
     if recording:
@@ -81,7 +83,7 @@ def synthesize_chinese():
         s3.put_object(Body=BytesIO(r.content), Bucket="storytime-speech", Key=filename)
 
         # Add new audio file to speech database
-        synthesis = SpeechSynthesis(text, filename)
+        synthesis = SpeechSynthesis(text, filename, voice)
         db.session.add(synthesis)
         db.session.commit()
 

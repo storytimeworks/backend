@@ -15,7 +15,9 @@ class SpeechSynthesis(Base):
 
     source = db.Column(db.Text, nullable=False)
     filename = db.Column(db.String(40), nullable=False)
+    voice = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, source, filename):
+    def __init__(self, source, filename, voice):
         self.source = source
         self.filename = filename
+        self.voice = voice
