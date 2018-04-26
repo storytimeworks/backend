@@ -97,7 +97,10 @@ def synthesize_chinese():
         # Perform the request again, with the new access token
         r = requests.get(url)
 
-    if not r.headers.get("Content-Type").startswith("audio/"):
+    # Valid content types that we're okay with returning to the user
+    content_types = ["audio/mp3", "binary/octet-stream"]
+
+    if r.headers.get("Content-Type") not in content_types:
         # At this point, we should have an audio file. If not, don't expose
         # anything we don't have to
         return errors.issue_generating_speech()
