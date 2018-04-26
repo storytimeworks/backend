@@ -8,10 +8,17 @@ import app.mod_speech.errors as errors
 from app.mod_speech.models import ChineseSpeechSynthesis, EnglishSpeechSynthesis
 from app.mod_users.models import User
 
+# Variable used to store the Baidu access token. Is replaced with the actual
+# access token when the first speech request is made
+baidu_access_token = "replace me"
+
 mod_speech = Blueprint("speech", __name__, url_prefix="/speech")
 
 @mod_speech.route("/chinese", methods=["GET"])
 def synthesize_chinese():
+    # Save Baidu access token outside of this method
+    global baidu_access_token
+
     text = request.args.get("text")
 
     recording = ChineseSpeechSynthesis.query.filter_by(source=text).first()
@@ -57,7 +64,7 @@ def synthesize_chinese():
             "?lan=zh" + \
             "&ctp=1" + \
             "&cuid=backend" + \
-            "&tok=24.e052ae1a8291d52184779359fecc7a40.2592000.1523387524.282335-10910985" + \
+            "&tok=" + baidu_access_token + \
             "&tex=" + text + \
             "&vol=9" + \
             "&per=" + str(voice) + \
@@ -66,6 +73,34 @@ def synthesize_chinese():
 
     # Download the audio file, from S3 or from Baidu
     r = requests.get(url)
+
+    # Valid Baidu errors that we want to respond to
+    baidu_errors = ["Access token invalid or no longer valid", "Access token expired"]
+
+    if r.headers.get("Content-Type") == "application/json" and r.json()["err_detail"] in baidu_errors:
+        # Request a new access token from Baidu if the one we have has expired
+        # or if we haven't requested one yet
+        token_url = "https://openapi.baidu.com/oauth/2.0/token" + \
+            "?grant_type=client_credentials" + \
+            "&client_id=" + os.environ["BAIDU_CLIENT_ID"] + \
+            "&client_secret=" + os.environ["BAIDU_CLIENT_SECRET"]
+
+        token_request = requests.get(token_url)
+
+        # Retrieve the new access token and put it in the request URL
+        new_access_token = token_request.json()["access_token"]
+        url = url.replace(baidu_access_token, new_access_token)
+
+        # Store the new access token
+        baidu_access_token = new_access_token
+
+        # Perform the request again, with the new access token
+        r = requests.get(url)
+
+    if not r.headers.get("Content-Type").startswith("audio/"):
+        # At this point, we should have an audio file. If not, don't expose
+        # anything we don't have to
+        return errors.issue_generating_speech()
 
     if not recording:
         # Save this recording in S3 if it isn't already there
