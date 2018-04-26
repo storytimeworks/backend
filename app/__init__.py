@@ -14,11 +14,11 @@ def configure_app(app):
 
     cors = CORS(app)
     db = SQLAlchemy(app)
-    sslify = SSLify(app, permanent=True)
 
     if os.environ["ENVIRONMENT"] == "production":
-        # Only run Sentry in production
+        # Only use Sentry and SSL in production
         sentry = Sentry(app)
+        sslify = SSLify(app, permanent=True)
 
     from app.mod_speech.controllers import mod_speech as speech_module
     from app.mod_vocab.controllers import mod_vocab as vocab_module
