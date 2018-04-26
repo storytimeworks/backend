@@ -17,7 +17,7 @@ def configure_app(app):
     sslify = SSLify(app, permanent=True)
 
     if os.environ["ENVIRONMENT"] == "production":
-        Only run Sentry in production
+        # Only run Sentry in production
         sentry = Sentry(app)
 
     from app.mod_speech.controllers import mod_speech as speech_module
