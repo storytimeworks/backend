@@ -2,7 +2,7 @@ from flask import redirect, request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_sslify import SSLify
-# from raven.contrib.flask import Sentry
+from raven.contrib.flask import Sentry
 import os
 
 db = None
@@ -16,9 +16,9 @@ def configure_app(app):
     db = SQLAlchemy(app)
     sslify = SSLify(app, permanent=True)
 
-    # if os.environ["ENVIRONMENT"] == "production":
-        # Only run Sentry in production
-        # sentry = Sentry(app)
+    if os.environ["ENVIRONMENT"] == "production":
+        Only run Sentry in production
+        sentry = Sentry(app)
 
     from app.mod_speech.controllers import mod_speech as speech_module
     from app.mod_vocab.controllers import mod_vocab as vocab_module
