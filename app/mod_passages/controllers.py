@@ -48,3 +48,34 @@ def create_passage():
     db.session.commit()
 
     return get_passage_specific(passage.id)
+
+@mod_passages.route("/<passage_id>", methods=["PUT"])
+def update_passage(passage_id):
+    if "user_id" not in session:
+        return errors.missing_authentication()
+    else:
+        user_id = session["user_id"]
+        user = User.query.filter_by(id=user_id).first()
+
+        if user:
+            if 1 not in json.loads(user.groups):
+                return errors.not_authorized()
+            else:
+                # User is authenticated and authorized to do this
+                pass
+        else:
+            return errors.invalid_session()
+
+    key = list(request.json.keys())[0]
+    value = request.json[key]
+
+    passage = Passage.query.filter_by(id=passage_id).first()
+
+    if key == "name":
+        passage.name = value
+    elif key == "data":
+        passage.data = json.dumps(value)
+
+    db.session.commit()
+
+    return get_passage_specific(passage_id)
