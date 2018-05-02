@@ -100,7 +100,7 @@ def update_user_specific(user_id):
         return errors.invalid_settings_section()
 
     settings[section] = data
-    user.settings = settings
+    user.settings = json.dumps(settings)
 
     db.session.commit()
 
