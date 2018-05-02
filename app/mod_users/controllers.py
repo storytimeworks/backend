@@ -99,8 +99,17 @@ def update_user_specific(user_id):
 
     if section not in settings:
         return errors.invalid_settings_section()
+    elif section == "profile":
+        user.username = data["username"]
+        user.email = data["email"]
 
-    settings[section] = data
+        settings[section] = {
+            "first_name": data["first_name"],
+            "last_name": data["last_name"]
+        }
+    else:
+        settings[section] = data
+
     user.settings = json.dumps(settings)
 
     db.session.commit()
