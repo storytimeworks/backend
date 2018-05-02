@@ -59,11 +59,17 @@ class User(Base):
 
         return settings
 
-    def serialize(self):
-        return {
+    def serialize(self, full=False):
+        data = {
             "id": self.id,
             "username": self.username,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "groups": json.loads(self.groups)
         }
+
+        if full:
+            data["email"] = self.email
+            data["settings"] = self.get_settings()
+
+        return data

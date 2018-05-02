@@ -13,10 +13,19 @@ mod_users = Blueprint("users", __name__, url_prefix="/users")
 def get_user_specific(user_id):
     user = User.query.filter_by(id=user_id).first()
 
-    if user is not None:
-        return jsonify(user.serialize())
-    else:
+    if not user:
         return errors.user_not_found()
+
+    full = False
+
+    if "user_id" in session:
+        session_user_id = session["user_id"]
+        session_user = User.query.filter_by(id=session_user_id).first()
+
+        if session_user_id == user_id or 1 in json.loads(session_user.groups):
+            full = True
+
+    return jsonify(user.serialize(full))
 
 @mod_users.route("", methods=["POST"])
 def register():
@@ -63,6 +72,9 @@ def register():
 
 @mod_users.route("/<user_id>", methods=["PUT"])
 def update_user_specific(user_id):
+    if "user_id" not in session:
+        return errors.missing_authentication()
+
     if request.json == None or "section" not in request.json or "data" not in request.json:
         return errors.missing_update_parameters()
 
