@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request, session
 import bcrypt, json, re, validators
 from zxcvbn import zxcvbn
 
-from app import db
+from app import db, log_error
 import app.mod_users.errors as errors
 from app.mod_users.models import User
 
@@ -89,6 +89,7 @@ def update_user_specific(user_id):
     if not user:
         return errors.user_not_found()
     elif not session_user:
+        log_error("Session user does not exist, something is wrong")
         return errors.missing_authentication()
     elif user_id != session_user_id and 1 not in json.loads(session_user.groups):
         # Only the authenticated user and admins can update a user's settings

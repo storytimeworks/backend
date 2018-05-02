@@ -1,14 +1,24 @@
+from datetime import datetime
 from flask import redirect, request
+from flask.json import JSONEncoder
+import os
+
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_sslify import SSLify
 from raven.contrib.flask import Sentry
-import os
 
 db = None
+sentry = None
+
+def log_error(message):
+    global sentry
+
+    if os.environ["ENVIRONMENT"] == "production":
+        sentry.captureMessage(message)
 
 def configure_app(app):
-    global db
+    global db, sentry
 
     app.config.from_object("config")
 
@@ -30,4 +40,13 @@ def configure_app(app):
     app.register_blueprint(vocab_module)
     app.register_blueprint(users_module)
 
+    app.json_encoder = StorytimeJSONEncoder
+
     db.create_all()
+
+class StorytimeJSONEncoder(JSONEncoder):
+    def default(self, obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            else:
+                return JSONEncoder.default(self, obj)
