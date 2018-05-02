@@ -61,6 +61,39 @@ def register():
     session["user_id"] = user.id
     return get_user_specific(user.id)
 
+@mod_users.route("/<user_id>", methods=["PUT"])
+def update_user_specific(user_id):
+    if request.json == None or "section" not in request.json or "data" not in request.json:
+        return errors.missing_update_parameters()
+
+    section = request.json["section"]
+    data = request.json["data"]
+
+    user = User.query.filter_by(id=user_id).first()
+
+    session_user_id = session["user_id"]
+    session_user = User.query.filter_by(id=session_user_id).first()
+
+    if not user:
+        return errors.user_not_found()
+    elif not session_user:
+        return errors.missing_authentication()
+    elif user_id != session_user_id and 1 not in json.loads(session_user.groups):
+        # Only the authenticated user and admins can update a user's settings
+        return errors.not_authorized()
+
+    settings = user.get_settings()
+
+    if section not in settings:
+        return errors.invalid_settings_section()
+
+    settings[section] = data
+    user.settings = settings
+
+    db.session.commit()
+
+    return get_user_specific(user.id)
+
 @mod_users.route("/login", methods=["POST"])
 def login():
     if request.json == None or "username" not in request.json or "password" not in request.json:

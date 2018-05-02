@@ -43,3 +43,12 @@ def invalid_email():
 
 def missing_login_parameters():
     return error(400, 113, "Missing necessary login parameters")
+
+def missing_update_parameters():
+    return error(400, 114, "Missing necessary update parameters")
+
+def not_authorized():
+    return error(403, 115, "Not authorized to do this")
+
+def invalid_settings_section():
+    return error(400, 116, "Invalid settings section")
