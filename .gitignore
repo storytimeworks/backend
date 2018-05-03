@@ -4,7 +4,10 @@
 !.elasticbeanstalk/*.global.yml
 
 # Python
+.eggs
 __pycache__
+.pytest_cache
+Storytime.egg-info
 
 # macOS
 .DS_Store
