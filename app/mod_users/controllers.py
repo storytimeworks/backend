@@ -173,6 +173,20 @@ def update_password(user_id):
 
     return get_user_specific(user.id)
 
+@mod_users.route("/password/reset", methods=["POST"])
+def reset_password():
+    if request.json == None or "username" not in request.json:
+        return errors.missing_password_reset_parameters()
+
+    username = request.json["username"]
+
+    # Allow password reset with username or email
+    user = User.query.filter((User.username == username) | (User.email == username)).first()
+
+    # Implement the actual forgot password logic soon
+
+    return ("", 204)
+
 @mod_users.route("/current", methods=["GET"])
 def get_current_user():
     if "user_id" in session:

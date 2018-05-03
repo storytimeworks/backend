@@ -58,3 +58,6 @@ def missing_password_update_parameters():
 
 def incorrect_password():
     return error(400, 118, "Incorrect password while trying to change password")
+
+def missing_password_reset_parameters():
+    return error(400, 119, "Missing necessary password reset parameters")
