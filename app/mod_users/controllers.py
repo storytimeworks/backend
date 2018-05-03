@@ -91,7 +91,7 @@ def update_user_specific(user_id):
     elif not session_user:
         log_error("Session user does not exist, something is wrong")
         return errors.missing_authentication()
-    elif user_id != session_user_id and 1 not in json.loads(session_user.groups):
+    elif user.id != session_user_id and 1 not in json.loads(session_user.groups):
         # Only the authenticated user and admins can update a user's settings
         return errors.not_authorized()
 
@@ -100,8 +100,11 @@ def update_user_specific(user_id):
     if section not in settings:
         return errors.invalid_settings_section()
     elif section == "profile":
-        user.username = data["username"]
-        user.email = data["email"]
+        if "username" in data:
+            user.username = data["username"]
+
+        if "email" in data:
+            user.email = data["email"]
 
         settings[section] = {
             "first_name": data["first_name"],
