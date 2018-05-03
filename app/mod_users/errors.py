@@ -52,3 +52,9 @@ def not_authorized():
 
 def invalid_settings_section():
     return error(400, 116, "Invalid settings section")
+
+def missing_password_update_parameters():
+    return error(400, 117, "Missing necessary password update parameters")
+
+def incorrect_password():
+    return error(400, 118, "Incorrect password while trying to change password")

@@ -138,6 +138,41 @@ def login():
     else:
         return errors.invalid_credentials()
 
+@mod_users.route("/<user_id>/password", methods=["PUT"])
+def update_password(user_id):
+    if "user_id" not in session:
+        return errors.missing_authentication()
+
+    if str(session["user_id"]) != user_id:
+        return errors.not_authorized()
+
+    if request.json == None or "current_password" not in request.json or "new_password" not in request.json:
+        return errors.missing_password_update_parameters()
+
+    current_password = request.json["current_password"]
+    new_password = request.json["new_password"]
+
+    user = User.query.filter_by(id=user_id).first()
+
+    if user == None:
+        return errors.invalid_credentials()
+
+    current_password_is_correct = bcrypt.checkpw(current_password.encode("utf-8"), user.password.encode("utf-8"))
+
+    if not current_password_is_correct:
+        return errors.incorrect_password()
+
+    password_strength = zxcvbn(new_password, user_inputs=[user.username, user.email])
+    if password_strength["score"] < 2:
+        return errors.weak_password(password_strength["feedback"])
+
+    hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
+
+    user.password = hashed_password
+    db.session.commit()
+
+    return get_user_specific(user.id)
+
 @mod_users.route("/current", methods=["GET"])
 def get_current_user():
     if "user_id" in session:
