@@ -4,6 +4,7 @@ import bcrypt, boto3, json, os, re, validators
 from zxcvbn import zxcvbn
 
 from app import db, log_error
+from app.email import Email, send
 import app.mod_users.errors as errors
 from app.mod_users.models import User
 
@@ -185,43 +186,9 @@ def reset_password():
 
     # Allow password reset with username or email
     user = User.query.filter((User.username == username) | (User.email == username)).first()
-    settings = json.loads(user.settings)
 
     # Implement the actual forgot password logic soon
-    ses = boto3.client(
-        "ses",
-        aws_access_key_id=os.environ["SES_AWS_ACCESS_KEY_ID"],
-        aws_secret_access_key=os.environ["SES_AWS_SECRET_ACCESS_KEY"],
-        region_name="us-east-1"
-    )
-
-    source = "%s <%s>" % ("Storytime", "no-reply@storytime.works")
-
-    destination = {
-        "ToAddresses": [
-            "%s %s <%s>" % (settings["profile"]["first_name"], settings["profile"]["last_name"], "jack@storytime.works")
-        ]
-    }
-
-    message = {
-        "Subject": {
-            "Data": "Testing"
-        },
-        "Body": {
-            "Html": {
-                "Data": "testing"
-            },
-            "Text": {
-                "Data": "testing"
-            }
-        }
-    }
-
-    ses.send_email(
-        Source=source,
-        Destination=destination,
-        Message=message
-    )
+    send(Email.FORGOT_PASSWORD, user)
 
     return ("", 204)
 

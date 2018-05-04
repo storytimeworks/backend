@@ -8,6 +8,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_sslify import SSLify
 from raven.contrib.flask import Sentry
 
+import email
+
 db = None
 sentry = None
 
