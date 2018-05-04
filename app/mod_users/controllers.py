@@ -6,7 +6,7 @@ from zxcvbn import zxcvbn
 from app import db, log_error
 from app.email import Email, send
 import app.mod_users.errors as errors
-from app.mod_users.models import User
+from app.mod_users.models import User, EmailVerification
 
 mod_users = Blueprint("users", __name__, url_prefix="/users")
 
@@ -67,6 +67,12 @@ def register():
     user = User(username, email, hashed_password)
     db.session.add(user)
     db.session.commit()
+
+    verification = EmailVerification(user)
+    db.session.add(verification)
+    db.session.commit()
+
+    send(Email.VERIFY_EMAIL, user)
 
     session["user_id"] = user.id
     return get_user_specific(user.id)
@@ -189,6 +195,32 @@ def reset_password():
 
     # Implement the actual forgot password logic soon
     send(Email.FORGOT_PASSWORD, user)
+
+    return ("", 204)
+
+@mod_users.route("/verify", methods=["GET"])
+def verify_email():
+    code = request.args.get("code")
+
+    if code == None:
+        return ("", 400)
+
+    verification = EmailVerification.query.filter_by(code=code).first()
+
+    if not verification:
+        return ("", 400)
+
+    user = User.query.filter_by(id=verification.user_id).first()
+
+    if not user:
+        return ("", 400)
+
+    if user.email != verification.email:
+        return ("", 400)
+
+    user.verified = True
+    db.session.delete(verification)
+    db.session.commit()
 
     return ("", 204)
 

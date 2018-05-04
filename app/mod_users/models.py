@@ -1,5 +1,5 @@
 from app import db
-import json
+import json, uuid
 
 default_settings = {
     "profile": {
@@ -17,7 +17,6 @@ class Base(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
-    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
 class User(Base):
 
@@ -28,6 +27,8 @@ class User(Base):
     password = db.Column(db.Text, nullable=False)
     groups = db.Column(db.Text, nullable=False)
     settings = db.Column(db.Text, nullable=False)
+    verified = db.Column(db.Boolean, nullable=False)
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
     def __init__(self, username, email, password):
         global default_settings
@@ -37,6 +38,7 @@ class User(Base):
         self.password = password
         self.groups = "[]"
         self.settings = json.dumps(default_settings)
+        self.verified = False
 
     def get_settings(self):
         global default_settings
@@ -71,5 +73,19 @@ class User(Base):
         if full:
             data["email"] = self.email
             data["settings"] = self.get_settings()
+            data["verified"] = self.verified
 
         return data
+
+class EmailVerification(Base):
+
+    __tablename__ = "email_verifications"
+
+    code = db.Column(db.String(32), nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    email = db.Column(db.Text, nullable=False)
+
+    def __init__(self, user):
+        self.code = str(uuid.uuid4()).replace("-", "")
+        self.user_id = user.id
+        self.email = user.email
