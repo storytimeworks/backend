@@ -1,28 +1,47 @@
-from flask import Blueprint, jsonify, request, session
-
 import bcrypt, boto3, json, os, re, validators
+from flask import Blueprint, jsonify, request, session
 from zxcvbn import zxcvbn
 
+# Storytime imports
 from app import db, log_error
 from app.email import Email, send
 import app.mod_users.errors as errors
-from app.mod_users.models import User, EmailVerification
+from app.mod_users.models import User, EmailVerification, PasswordReset
 
+# Create users Flask blueprint
 mod_users = Blueprint("users", __name__, url_prefix="/users")
 
 @mod_users.route("/<user_id>", methods=["GET"])
 def get_user_specific(user_id):
+    """Retrieves data for a user. Some data is omitted or included depending on
+    the permissions of the person requesting the data.
+
+    Args:
+        user_id: The id of the user whose data is being requested.
+
+    Returns:
+        The JSON data for this user.
+    """
+
+    # Find user in the SQL database
     user = User.query.filter_by(id=user_id).first()
 
+    # Return 404 if there is no user with this id
     if not user:
         return errors.user_not_found()
 
+    # full = Should the user's full data be returned. False if sensitive data
+    # should be omitted.
     full = False
 
+    # Check if anyone is currently authenticated
     if "user_id" in session:
+        # Find the authenticated user
         session_user_id = session["user_id"]
         session_user = User.query.filter_by(id=session_user_id).first()
 
+        # Sensitive data should be returned if the user is requesting his/her
+        # own data or if the requester is an admin
         if session_user_id == user_id or 1 in json.loads(session_user.groups):
             full = True
 
@@ -72,7 +91,7 @@ def register():
     db.session.add(verification)
     db.session.commit()
 
-    send(Email.VERIFY_EMAIL, user)
+    send(Email.VERIFY_EMAIL, user, verification)
 
     session["user_id"] = user.id
     return get_user_specific(user.id)
@@ -193,12 +212,16 @@ def reset_password():
     # Allow password reset with username or email
     user = User.query.filter((User.username == username) | (User.email == username)).first()
 
+    reset = PasswordReset(user)
+    db.session.add(reset)
+    db.session.commit()
+
     # Implement the actual forgot password logic soon
-    send(Email.FORGOT_PASSWORD, user)
+    send(Email.FORGOT_PASSWORD, user, reset)
 
     return ("", 204)
 
-@mod_users.route("/verify", methods=["GET"])
+@mod_users.route("/email/verify", methods=["GET"])
 def verify_email():
     code = request.args.get("code")
 

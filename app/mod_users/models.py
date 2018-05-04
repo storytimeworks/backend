@@ -89,3 +89,14 @@ class EmailVerification(Base):
         self.code = str(uuid.uuid4()).replace("-", "")
         self.user_id = user.id
         self.email = user.email
+
+class PasswordReset(Base):
+
+    __tablename__ = "password_resets"
+
+    code = db.Column(db.String(32), nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, user):
+        self.code = str(uuid.uuid4()).replace("-", "")
+        self.user_id = user.id
