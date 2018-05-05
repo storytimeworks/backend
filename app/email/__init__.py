@@ -12,6 +12,10 @@ def send(email, user, data):
     if type(email) is not Email:
         raise Exception("email must be a valid Email type")
 
+    # Don't send emails when not in production
+    if os.environ["ENVIRONMENT"] == "dev":
+        return
+
     # Read template data
     with open("./app/email/emails.json", "r") as f:
         emails = json.loads(f.read())
