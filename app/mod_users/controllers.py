@@ -220,7 +220,7 @@ def login():
     user = User.query.filter((User.username == username) | (User.email == username)).first()
 
     # Return 401 if there is no user with this username or email
-    if user == None:
+    if not user:
         return errors.invalid_credentials()
 
     # Check if the password is correct

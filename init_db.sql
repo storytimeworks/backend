@@ -11,8 +11,6 @@ CREATE TABLE chinese_entries (
   PRIMARY KEY (id)
 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
-INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations, categories) VALUES ("我", "I, me", "wǒ", 1, "[]", "[]");
-
 CREATE TABLE users (
   id INT NOT NULL AUTO_INCREMENT,
   username TEXT NOT NULL,
@@ -25,6 +23,9 @@ CREATE TABLE users (
   verified BOOLEAN NOT NULL,
   PRIMARY KEY (id)
 );
+
+INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("jack", "jack@storytime.works", "passwordstorytime", "[1]", "{}", 1);
+INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("hello", "test@test.com", "this is my password", "", "{}", 1);
 
 CREATE TABLE chinese_speech (
   id INT NOT NULL AUTO_INCREMENT,
