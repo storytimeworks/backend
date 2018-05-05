@@ -47,8 +47,7 @@ def send(email, user, data):
     # Set the recipient name and email address
     destination = {
         "ToAddresses": [
-            # Replace the email address with user.email once we're approved for new SES limits
-            "%s <%s>" % (recipient, "jack@storytime.works")
+            "%s <%s>" % (recipient, user.email)
         ]
     }
 
