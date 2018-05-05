@@ -283,20 +283,28 @@ def update_password(user_id):
     current_password = request.json["current_password"]
     new_password = request.json["new_password"]
 
-    # Ensure the person making this request is authenticated
+    # Ensure that the person making this request is authenticated
     if "user_id" not in session:
         return errors.missing_authentication()
 
-    # Return 403 if the user is trying to change someone else's password
-    if session["user_id"] != int(user_id):
-        return errors.not_authorized()
-
-    # Retrieve the user whose password is being changed
+    # Retrieve the user who is being updated
     user = User.query.filter_by(id=user_id).first()
 
-    # Return 404 if the user doesn't exist. Technically should never happen.
+    # Retrieve the user who is making this request
+    session_user_id = session["user_id"]
+    session_user = User.query.filter_by(id=session_user_id).first()
+
     if not user:
+        # Return 404 if this user doesn't exist
         return errors.user_not_found()
+    elif not session_user:
+        # Return 401 if the session is invalid and log error since this should
+        # never happen in theory
+        log_error("Session user does not exist, something is wrong")
+        return errors.missing_authentication()
+    elif user.id != session_user_id:
+        # Only the authenticated user can update their password
+        return errors.not_authorized()
 
     # Use bcrypt to check if the current password is correct
     current_password_is_correct = bcrypt.checkpw(current_password.encode("utf-8"), user.password.encode("utf-8"))
