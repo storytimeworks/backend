@@ -13,7 +13,7 @@ from app.mod_users.helpers import validate_username, validate_email, validate_pa
 mod_users = Blueprint("users", __name__, url_prefix="/users")
 
 @mod_users.route("/<user_id>", methods=["GET"])
-def get_user_specific(user_id):
+def get_user(user_id):
     """Retrieves data for a user. Some data is omitted or included depending on
     the permissions of the person requesting the data.
 
@@ -106,10 +106,10 @@ def register():
     session["user_id"] = user.id
 
     # Return JSON data about the new account
-    return get_user_specific(user.id)
+    return get_user(user.id)
 
 @mod_users.route("/<user_id>", methods=["PUT"])
-def update_user_specific(user_id):
+def update_user(user_id):
     """Updates a user's settings.
 
     Args:
@@ -195,7 +195,7 @@ def update_user_specific(user_id):
     db.session.commit()
 
     # Return this user's JSON data
-    return get_user_specific(user.id)
+    return get_user(user.id)
 
 @mod_users.route("/login", methods=["POST"])
 def login():
@@ -229,7 +229,7 @@ def login():
     if password_is_correct:
         # Set the session correctly and return this user's JSON data
         session["user_id"] = user.id
-        return get_user_specific(user.id)
+        return get_user(user.id)
     else:
         # Return 401 if the password is incorrect
         return errors.invalid_credentials()
@@ -244,7 +244,7 @@ def get_current_user():
 
     if "user_id" in session:
         # Return user data if someone is logged in
-        return get_user_specific(session["user_id"])
+        return get_user(session["user_id"])
     else:
         # Return 401 if nobody is logged in
         return errors.missing_authentication()
@@ -318,7 +318,7 @@ def update_password(user_id):
     db.session.commit()
 
     # Return this user's JSON data
-    return get_user_specific(user.id)
+    return get_user(user.id)
 
 @mod_users.route("/password/reset", methods=["POST"])
 def reset_password():
