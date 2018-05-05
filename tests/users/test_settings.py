@@ -50,3 +50,132 @@ def test_missing_parameters(app):
 
     # Ensure the error is correct
     assert data["code"] == 114
+
+def test_not_authenticated(app):
+    # Create generic profile data to test with
+    data = {
+        "section": "profile",
+        "data": {
+            "first_name": "John",
+            "last_name": "Smith"
+        }
+    }
+
+    # Try to set the first and last names in settings
+    res = app.put("/users/2", data=json.dumps(data), content_type="application/json")
+    assert res.status_code == 401
+    data = json.loads(res.data)
+
+    # Ensure the error is correct
+    assert data["code"] == 102
+
+def test_nonexistant_user(app):
+    # Be an admin, who can change a different user's settings
+    with app.session_transaction() as session:
+        session["user_id"] = 1
+
+    # Create generic profile data to test with
+    data = {
+        "section": "profile",
+        "data": {
+            "first_name": "John",
+            "last_name": "Smith"
+        }
+    }
+
+    # Try to set the first and last names in settings
+    res = app.put("/users/12094", data=json.dumps(data), content_type="application/json")
+    assert res.status_code == 404
+    data = json.loads(res.data)
+
+    # Ensure the error is correct
+    assert data["code"] == 103
+
+def test_not_authorized(app):
+    # Be a normal user for this test
+    with app.session_transaction() as session:
+        session["user_id"] = 2
+
+    # Create generic profile data to test with
+    data = {
+        "section": "profile",
+        "data": {
+            "first_name": "John",
+            "last_name": "Smith"
+        }
+    }
+
+    # Try to set the first and last names for a different user in settings
+    res = app.put("/users/1", data=json.dumps(data), content_type="application/json")
+    assert res.status_code == 403
+    data = json.loads(res.data)
+
+    # Ensure the error is correct
+    assert data["code"] == 115
+
+def test_invalid_setting(app):
+    # Be a normal user for this test
+    with app.session_transaction() as session:
+        session["user_id"] = 2
+
+    # Create data for a nonexistant section
+    data = {
+        "section": "something",
+        "data": {
+            "key": "value"
+        }
+    }
+
+    # Try to set data for an invalid section
+    res = app.put("/users/2", data=json.dumps(data), content_type="application/json")
+    assert res.status_code == 400
+    data = json.loads(res.data)
+
+    # Ensure the error is correct
+    assert data["code"] == 116
+
+def test_invalid_username(app):
+    # Be a normal user for this test
+    with app.session_transaction() as session:
+        session["user_id"] = 2
+
+    # Create profile data with an invalid username
+    data = {
+        "section": "profile",
+        "data": {
+            "first_name": "John",
+            "last_name": "Smith",
+            "username": "-asdf"
+        }
+    }
+
+    # Try setting the invalid username in settings
+    res = app.put("/users/2", data=json.dumps(data), content_type="application/json")
+    assert res.status_code == 400
+    data = json.loads(res.data)
+
+    # Ensure the error is correct
+    assert data["code"] == 107
+
+def test_invalid_email(app):
+    # Be a normal user for this test
+    with app.session_transaction() as session:
+        session["user_id"] = 2
+
+    # Create profile data with an invalid email address
+    data = {
+        "section": "profile",
+        "data": {
+            "first_name": "John",
+            "last_name": "Smith",
+            "email": "asdf"
+        }
+    }
+
+    # Try setting the invalid email address in settings
+    res = app.put("/users/2", data=json.dumps(data), content_type="application/json")
+    assert res.status_code == 400
+    data = json.loads(res.data)
+
+    # Ensure the error is correct
+    assert data["code"] == 112
