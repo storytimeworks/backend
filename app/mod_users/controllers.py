@@ -1,6 +1,5 @@
-import bcrypt, boto3, json, os, re, validators
+import bcrypt, boto3, json, os
 from flask import Blueprint, jsonify, request, session
-from zxcvbn import zxcvbn
 
 # Storytime imports
 from app import db, log_error
@@ -8,6 +7,7 @@ from app.email import Email, send
 from app.mod_users import check_body
 import app.mod_users.errors as errors
 from app.mod_users.models import User, EmailVerification, PasswordReset
+from app.mod_users.helpers import validate_username, validate_email, validate_password
 
 # Create users Flask blueprint
 mod_users = Blueprint("users", __name__, url_prefix="/users")
@@ -70,38 +70,20 @@ def register():
     email = request.json["email"]
     password = request.json["password"]
 
-    # zxcvbn throws an error if password is empty string, so catch this early
-    if len(password) == 0:
-        return errors.missing_registration_parameters()
+    # Ensure that this username can be used
+    username_error = validate_username(username)
+    if username_error:
+        return username_error
 
-    if len(username) < 4:
-        # Ensure the username is at least 4 characters long
-        return errors.short_username()
-    elif len(username) > 16:
-        # Ensure the username is at most 16 characters long
-        return errors.long_username()
-    elif username[0] == "-" or username[0] == "_":
-        # Ensure the username doesn't start with a dash or an underscore
-        return errors.no_dash_start_username()
-    elif re.match("^[\w-]+$", username) is None:
-        # Ensure the username is alphanumeric + dashes and underscores
-        return errors.invalid_username()
+    # Ensure that this email address can be used
+    email_error = validate_email(email)
+    if email_error:
+        return email_error
 
-    # Use zxcvbn to determine password strength, don't allow scores < 2
-    password_strength = zxcvbn(password, user_inputs=[username, email])
-    if password_strength["score"] < 2:
-        return errors.weak_password(password_strength["feedback"])
-
-    if User.query.filter_by(username=username).count() > 0:
-        # Ensure the username isn't already taken
-        return errors.username_taken()
-    elif User.query.filter_by(email=email).count() > 0:
-        # Ensure the email address hasn't already been used
-        return errors.email_used()
-
-    if not validators.email(email):
-        # Ensure the email address is valid
-        return errors.invalid_email()
+    # Ensure that this password can be used
+    password_error = validate_password(password, [username, email])
+    if password_error:
+        return password_error
 
     # Hash the password with bcrypt, this is what we'll save to MySQL
     hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
@@ -180,10 +162,25 @@ def update_user_specific(user_id):
     elif section == "profile":
         # Handle username and email correctly if the profile section is being updated
         if "username" in data:
-            user.username = data["username"]
+            username = data["username"]
 
+            # Ensure that this username can be used
+            username_error = validate_username(username)
+            if username_error:
+                return username_error
+
+            # Set the user's new username
+            user.username = username
         if "email" in data:
-            user.email = data["email"]
+            email = data["email"]
+
+            # Ensure that this email address can be used
+            email_error = validate_email(email)
+            if email_error:
+                return email_error
+
+            # Set the user's new email address
+            user.email = email
 
         settings[section] = {
             "first_name": data["first_name"],
@@ -308,10 +305,10 @@ def update_password(user_id):
     if not current_password_is_correct:
         return errors.incorrect_password()
 
-    # Don't allow a password update if the new password is too weak
-    password_strength = zxcvbn(new_password, user_inputs=[user.username, user.email])
-    if password_strength["score"] < 2:
-        return errors.weak_password(password_strength["feedback"])
+    # Ensure that this password can be used
+    password_error = validate_password(new_password, [user.username, user.email])
+    if password_error:
+        return password_error
 
     # Hash the new password, this is what will be stored in MySQL
     hashed_password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())

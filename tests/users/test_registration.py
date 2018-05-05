@@ -123,8 +123,8 @@ def test_invalid_character_username(app):
 
 def test_weak_password(app):
     data = {
-        "username": "abcd",
-        "email": "testing@email.com",
+        "username": "abcdef",
+        "email": "testingabc@email.com",
         "password": "password123"
     }
 

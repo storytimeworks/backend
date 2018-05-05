@@ -41,3 +41,12 @@ def test_set_settings(app):
     # Ensure that the names were set correctly
     assert data["settings"]["profile"]["first_name"] == first_name
     assert data["settings"]["profile"]["last_name"] == last_name
+
+def test_missing_parameters(app):
+    # Try to set settings without passing data
+    res = app.put("/users/2")
+    assert res.status_code == 400
+    data = json.loads(res.data)
+
+    # Ensure the error is correct
+    assert data["code"] == 114
