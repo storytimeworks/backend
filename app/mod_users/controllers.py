@@ -361,26 +361,42 @@ def reset_password():
     # particular email address has been used to register an account
     return ("", 204)
 
-@mod_users.route("/email/verify", methods=["GET"])
+@mod_users.route("/email/verify", methods=["PATCH"])
 def verify_email():
-    code = request.args.get("code")
+    """Verifies an email address.
 
-    if code == None:
-        return ("", 400)
+    Body:
+        code: The code sent to the inbox of the email being verified.
 
+    Returns:
+        204 no content.
+    """
+
+    # Check that all necessary data is in the request body
+    if not check_body(request, ["code"]):
+        return errors.missing_verify_email_parameters()
+
+    code = request.json["code"]
+
+    # Look up the verification object with this code
     verification = EmailVerification.query.filter_by(code=code).first()
 
     if not verification:
-        return ("", 400)
+        # Return 400 if the verification code is invalid
+        return errors.invalid_verification_code()
 
     user = User.query.filter_by(id=verification.user_id).first()
 
     if not user:
-        return ("", 400)
+        # This should never happen, in theory
+        log_error("User from verification code doesn't exist")
+        return errors.invalid_verification_code()
 
+    # Make sure the user hasn't changed their email address since this verification was initiated
     if user.email != verification.email:
-        return ("", 400)
+        return errors.incorrect_verification_email()
 
+    # Set the user to verified and delete the verification object
     user.verified = True
     db.session.delete(verification)
     db.session.commit()

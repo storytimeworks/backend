@@ -61,3 +61,12 @@ def incorrect_password():
 
 def missing_password_reset_parameters():
     return error(400, 119, "Missing necessary password reset parameters")
+
+def missing_verify_email_parameters():
+    return error(400, 120, "Missing necessary verification parameters")
+
+def invalid_verification_code():
+    return error(400, 121, "The verification code is invalid")
+
+def incorrect_verification_email():
+    return error(400, 122, "You need to send a new verification email to the email address you have set now")
