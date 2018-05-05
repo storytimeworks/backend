@@ -1,5 +1,7 @@
-from app import db
+from enum import Enum
 import json, uuid
+
+from app import db
 
 default_settings = {
     "profile": {
@@ -40,6 +42,10 @@ class User(Base):
         self.settings = json.dumps(default_settings)
         self.verified = False
 
+    @property
+    def is_admin(self):
+        return UserGroup.ADMIN.value in json.loads(self.groups)
+
     def get_settings(self):
         global default_settings
 
@@ -76,6 +82,9 @@ class User(Base):
             data["verified"] = self.verified
 
         return data
+
+class UserGroup(Enum):
+    ADMIN = 1
 
 class EmailVerification(Base):
 
