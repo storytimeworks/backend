@@ -29,7 +29,9 @@ def test_set_settings(app):
         "section": "profile",
         "data": {
             "first_name": first_name,
-            "last_name": last_name
+            "last_name": last_name,
+            "username": "hello",
+            "email": "test@test.com"
         }
     }
 
