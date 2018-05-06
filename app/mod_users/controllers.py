@@ -104,6 +104,7 @@ def register():
 
     # Log the user into the account they just created
     session["user_id"] = user.id
+    session.permanent = True
 
     # Return JSON data about the new account
     return get_user(user.id)
@@ -229,6 +230,8 @@ def login():
     if password_is_correct:
         # Set the session correctly and return this user's JSON data
         session["user_id"] = user.id
+        session.permanent = True
+
         return get_user(user.id)
     else:
         # Return 401 if the password is incorrect
