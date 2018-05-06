@@ -1,5 +1,6 @@
 import bcrypt, boto3, json, os
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request
+from flask_login import current_user, login_user, logout_user
 
 # Storytime imports
 from app import db, log_error
@@ -36,14 +37,10 @@ def get_user(user_id):
     full = False
 
     # Check if anyone is currently authenticated
-    if "user_id" in session:
-        # Find the authenticated user
-        session_user_id = session["user_id"]
-        session_user = User.query.filter_by(id=session_user_id).first()
-
+    if current_user.is_active:
         # Sensitive data should be returned if the user is requesting his/her
         # own data or if the requester is an admin
-        if session_user_id == user_id or session_user.is_admin:
+        if current_user.id == user_id or current_user.is_admin:
             full = True
 
     # Return the user's JSON data
@@ -103,8 +100,7 @@ def register():
     send(Email.VERIFY_EMAIL, user, verification)
 
     # Log the user into the account they just created
-    session["user_id"] = user.id
-    session.permanent = True
+    login_user(user, remember=True)
 
     # Return JSON data about the new account
     return get_user(user.id)
@@ -132,25 +128,16 @@ def update_user(user_id):
     data = request.json["data"]
 
     # Ensure that the person making this request is authenticated
-    if "user_id" not in session:
+    if not current_user.is_active:
         return errors.missing_authentication()
 
     # Retrieve the user who is being updated
     user = User.query.filter_by(id=user_id).first()
 
-    # Retrieve the user who is making this request
-    session_user_id = session["user_id"]
-    session_user = User.query.filter_by(id=session_user_id).first()
-
     if not user:
         # Return 404 if this user doesn't exist
         return errors.user_not_found()
-    elif not session_user:
-        # Return 401 if the session is invalid and log error since this should
-        # never happen in theory
-        log_error("Session user does not exist, something is wrong")
-        return errors.missing_authentication()
-    elif user.id != session_user_id and not session_user.is_admin:
+    elif user.id != current_user.id and not current_user.is_admin:
         # Only the authenticated user and admins can update a user's settings
         return errors.not_authorized()
 
@@ -229,9 +216,7 @@ def login():
 
     if password_is_correct:
         # Set the session correctly and return this user's JSON data
-        session["user_id"] = user.id
-        session.permanent = True
-
+        login_user(user, remember=True)
         return get_user(user.id)
     else:
         # Return 401 if the password is incorrect
@@ -245,9 +230,9 @@ def get_current_user():
         JSON data about the authenticated user, or 401 if nobody is logged in.
     """
 
-    if "user_id" in session:
+    if current_user.is_active:
         # Return user data if someone is logged in
-        return get_user(session["user_id"])
+        return get_user(current_user.id)
     else:
         # Return 401 if nobody is logged in
         return errors.missing_authentication()
@@ -260,8 +245,7 @@ def logout():
         204 no content.
     """
 
-    # Clear any session data
-    session.clear()
+    logout_user()
     return ("", 204)
 
 @mod_users.route("/<user_id>/password", methods=["PUT"])
@@ -287,25 +271,16 @@ def update_password(user_id):
     new_password = request.json["new_password"]
 
     # Ensure that the person making this request is authenticated
-    if "user_id" not in session:
+    if not current_user.is_active:
         return errors.missing_authentication()
 
     # Retrieve the user who is being updated
     user = User.query.filter_by(id=user_id).first()
 
-    # Retrieve the user who is making this request
-    session_user_id = session["user_id"]
-    session_user = User.query.filter_by(id=session_user_id).first()
-
     if not user:
         # Return 404 if this user doesn't exist
         return errors.user_not_found()
-    elif not session_user:
-        # Return 401 if the session is invalid and log error since this should
-        # never happen in theory
-        log_error("Session user does not exist, something is wrong")
-        return errors.missing_authentication()
-    elif user.id != session_user_id:
+    elif user.id != current_user.id:
         # Only the authenticated user can update their password
         return errors.not_authorized()
 

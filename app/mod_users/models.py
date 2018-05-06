@@ -1,4 +1,5 @@
 from enum import Enum
+from flask_login import UserMixin
 import json, uuid
 
 from app import db
@@ -20,7 +21,7 @@ class Base(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-class User(Base):
+class User(Base, UserMixin):
 
     __tablename__ = "users"
 
@@ -45,6 +46,13 @@ class User(Base):
     @property
     def is_admin(self):
         return UserGroup.ADMIN.value in json.loads(self.groups)
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return str(self.id)
 
     def get_settings(self):
         global default_settings

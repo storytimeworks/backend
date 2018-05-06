@@ -4,6 +4,7 @@ from flask.json import JSONEncoder
 import os
 
 from flask_cors import CORS
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_sslify import SSLify
 from raven.contrib.flask import Sentry
@@ -31,6 +32,16 @@ def configure_app(app):
         # Only use Sentry and SSL in production
         sentry = Sentry(app)
         sslify = SSLify(app, permanent=True)
+
+    # Set up login manager here
+    from app.mod_users.models import User
+
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.filter_by(id=user_id).first()
 
     from app.mod_passages.controllers import mod_passages as passages_module
     from app.mod_speech.controllers import mod_speech as speech_module
