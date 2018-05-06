@@ -148,8 +148,8 @@ def update_user(user_id):
         # Ensure that the settings section is valid
         return errors.invalid_settings_section()
     elif section == "profile":
-        # Handle username and email correctly if the profile section is being updated
-        if "username" in data:
+        # Handle username correctly if the profile section is being updated
+        if "username" in data and data["username"] != user.username:
             username = data["username"]
 
             # Ensure that this username can be used
@@ -159,7 +159,9 @@ def update_user(user_id):
 
             # Set the user's new username
             user.username = username
-        if "email" in data:
+
+        # Handle email correctly if the profile section is being updated
+        if "email" in data and data["email"] != user.email:
             email = data["email"]
 
             # Ensure that this email address can be used
