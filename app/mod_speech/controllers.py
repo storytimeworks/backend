@@ -1,4 +1,5 @@
-from flask import Blueprint, request, send_file, session
+from flask import Blueprint, request, send_file
+from flask_login import current_user
 
 import boto3, json, os, random, requests, uuid
 from io import BytesIO
@@ -16,8 +17,20 @@ mod_speech = Blueprint("speech", __name__, url_prefix="/speech")
 
 @mod_speech.route("/chinese", methods=["GET"])
 def synthesize_chinese():
+    """Returns synthesized Chinese speech, in some audio format.
+
+    Parameters:
+        text: The text that needs to be synthesized.
+
+    Returns:
+        The audio file/stream that was generated with the given text.
+    """
+
     # Save Baidu access token outside of this method
     global baidu_access_token
+
+    if "text" not in request.args:
+        return errors.text_not_provided()
 
     text = request.args.get("text")
 
@@ -32,27 +45,13 @@ def synthesize_chinese():
         url = "https://s3.amazonaws.com/storytime-speech/" + recording.filename
     else:
         # Don't save new recordings in development environment
-        if os.environ["ENVIRONMENT"] == "production":
-            pass
-        else:
-            return errors.speech_not_found()
+        if os.environ["ENVIRONMENT"] != "production":
+            return errors.not_generating_speech()
 
         # If the recording hasn't been saved, check if the user is authenticated
         # If they are authenticated, save a new transcription from Baidu
-        if "user_id" in session:
-            user_id = session["user_id"]
-            user = User.query.filter_by(id=user_id).first()
-
-            if user:
-                if 1 not in json.loads(user.groups):
-                    # Don't allow requester to save new transcription if they're not admin
-                    return errors.speech_not_found()
-                else:
-                    # User is authenticated and authorized to save a new transcription
-                    pass
-            else:
-                # Authenticated user doesn't exist in database?
-                return errors.speech_not_found()
+        if current_user.is_active and current_user.is_admin:
+            pass
         else:
             # No session exists, requester is not authenticated
             return errors.speech_not_found()
@@ -113,7 +112,7 @@ def synthesize_chinese():
             aws_secret_access_key=os.environ["S3_AWS_SECRET_ACCESS_KEY"]
         )
 
-        filename = str(uuid.uuid4()) + ".mp3"
+        filename = "%s.mp3" % str(uuid.uuid4())
         s3.put_object(Body=BytesIO(r.content), Bucket="storytime-speech", Key=filename)
 
         # Add new audio file to speech database
@@ -147,27 +146,13 @@ def synthesize_english():
         audio_data = requests.get(url).content
     else:
         # Don't save new recordings in development environment
-        if os.environ["ENVIRONMENT"] == "production":
-            pass
-        else:
-            return errors.speech_not_found()
+        if os.environ["ENVIRONMENT"] != "production":
+            return errors.not_generating_speech()
 
         # If the recording hasn't been saved, check if the user is authenticated
         # If they are authenticated, save a new transcription from AWS Polly
-        if "user_id" in session:
-            user_id = session["user_id"]
-            user = User.query.filter_by(id=user_id).first()
-
-            if user:
-                if 1 not in json.loads(user.groups):
-                    # Don't allow requester to save new transcription if they're not admin
-                    return errors.speech_not_found()
-                else:
-                    # User is authenticated and authorized to save a new transcription
-                    pass
-            else:
-                # Authenticated user doesn't exist in database?
-                return errors.speech_not_found()
+        if current_user.is_active and current_user.is_admin:
+            pass
         else:
             # No session exists, requester is not authenticated
             return errors.speech_not_found()
@@ -200,7 +185,7 @@ def synthesize_english():
             aws_secret_access_key=os.environ["S3_AWS_SECRET_ACCESS_KEY"]
         )
 
-        filename = str(uuid.uuid4()) + ".mp3"
+        filename = "%s.mp3" % str(uuid.uuid4())
         s3.put_object(Body=BytesIO(audio_data), Bucket="storytime-speech", Key=filename)
 
         # Add new audio file to speech database
