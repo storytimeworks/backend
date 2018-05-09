@@ -73,3 +73,12 @@ CREATE TABLE password_resets (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 );
+
+CREATE TABLE flashcard_attempts (
+  id INT NOT NULL AUTO_INCREMENT,
+  entry_id INT NOT NULL,
+  user_id INT NOT NULL,
+  correct BOOLEAN NOT NULL,
+  attempted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
