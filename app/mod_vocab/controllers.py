@@ -11,24 +11,55 @@ mod_vocab = Blueprint("vocab", __name__, url_prefix="/vocabulary")
 
 @mod_vocab.route("/entries", methods=["GET"])
 def get_entries():
-    query = "%" + request.args.get("q") + "%"
+    """Searches for entries matching a query. If no query is included, the first
+    entries we can find are the ones that are returned.
 
-    entries = Entry.query.filter( \
-        ((Entry.chinese.like(query) | Entry.pinyin.like(query)) & (Entry.source_is_chinese == True) | \
-        (Entry.english.like(query) & (Entry.source_is_chinese == False))) \
-    ).all()
+    Parameters:
+        q: The query that should be used for the search.
 
+    Returns:
+        The data for all entries that match the query.
+    """
+
+    entries = []
+
+    if "q" in request.args:
+        # Use the query to search for an entry if one is included
+        query = "%" + request.args.get("q") + "%"
+
+        # Ensure the correct entries are being returned
+        entries = Entry.query.filter( \
+            ((Entry.chinese.like(query) | Entry.pinyin.like(query)) & (Entry.source_is_chinese == True) | \
+            (Entry.english.like(query) & (Entry.source_is_chinese == False))) \
+        ).all()
+    else:
+        # Retrieve all entries if no query is provided
+        entries = Entry.query.all()
+
+    # Return entries JSON data
     entries_data = [entry.serialize() for entry in entries]
     return jsonify(entries_data)
 
 @mod_vocab.route("/entries/<entry_id>", methods=["GET"])
-def get_entry_specific(entry_id):
+def get_entry(entry_id):
+    """Retrieves data for an entry.
+
+    Args:
+        entry_id: The id of the entry that is being requested.
+
+    Returns:
+        The JSON data for this entry.
+    """
+
+    # Find entry in the SQL database
     entry = Entry.query.filter_by(id=entry_id).first()
 
-    if entry is not None:
+    if entry:
+        # Return the entry's JSON data
         return jsonify(entry.serialize())
     else:
-        return jsonify(error=404, message="Entry not found."), 404
+        # Return 404 if there is no entry with this id
+        return errors.entry_not_found()
 
 @mod_vocab.route("/entries", methods=["POST"])
 def create_entry():
@@ -56,7 +87,7 @@ def create_entry():
     db.session.add(entry)
     db.session.commit()
 
-    return get_entry_specific(entry.id)
+    return get_entry(entry.id)
 
 @mod_vocab.route("/entries/<entry_id>", methods=["PUT"])
 def update_entry(entry_id):
@@ -95,7 +126,7 @@ def update_entry(entry_id):
 
     db.session.commit()
 
-    return get_entry_specific(entry_id)
+    return get_entry(entry_id)
 
 @mod_vocab.route("/health", methods=["GET"])
 def get_entries_info():

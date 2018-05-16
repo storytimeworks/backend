@@ -13,3 +13,6 @@ def not_authorized():
 
 def invalid_session():
     return error(400, 203, "Invalid session")
+
+def entry_not_found():
+    return error(404, 204, "Entry not found")
