@@ -16,3 +16,9 @@ def invalid_session():
 
 def entry_not_found():
     return error(404, 204, "Entry not found")
+
+def missing_create_entry_parameters():
+    return error(400, 205, "Missing parameters needed to create an entry")
+
+def missing_update_entry_parameters():
+    return error(400, 206, "Missing parameters needed to update an entry")
