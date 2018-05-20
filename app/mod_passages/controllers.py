@@ -43,7 +43,15 @@ def create_passage():
     english_name = request.json["english_name"]
     description = request.json["description"]
     story_id = request.json["story_id"]
-    data = json.dumps(request.json["data"])
+
+    default_data = {
+        "components": [{
+            "text": "你好",
+            "type": "text"
+        }]
+    }
+
+    data = json.dumps(default_data)
 
     passage = Passage(chinese_name, english_name, description, story_id, data)
     db.session.add(passage)
