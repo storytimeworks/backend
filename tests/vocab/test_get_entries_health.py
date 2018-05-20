@@ -41,4 +41,4 @@ def test_not_authorized(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 202
+    assert data["code"] == 1001

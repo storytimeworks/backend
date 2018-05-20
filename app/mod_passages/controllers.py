@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request, session
-from flask_login import current_user, login_required
+from flask_login import current_user
 import json
 
-from app import db
+from app import db, admin_required
 from app.mod_passages import check_body
 import app.mod_passages.errors as errors
 from app.mod_passages.models import Passage
@@ -11,17 +11,13 @@ from app.mod_users.models import User
 mod_passages = Blueprint("passages", __name__, url_prefix="/passages")
 
 @mod_passages.route("", methods=["GET"])
-@login_required
+@admin_required
 def get_passages():
     """Retrieves all passages on Storytime.
 
     Returns:
         JSON data for all of the passages.
     """
-
-    # Ensure that the person making this request is an admin
-    if not current_user.is_admin:
-        return errors.unauthorized()
 
     # Return all passages JSON data
     passages = Passage.query.all()
@@ -50,7 +46,7 @@ def get_passage(passage_id):
         return errors.passage_not_found()
 
 @mod_passages.route("", methods=["POST"])
-@login_required
+@admin_required
 def create_passage():
     """Creates a passage with the provided data.
 
@@ -73,10 +69,6 @@ def create_passage():
     description = request.json["description"]
     story_id = request.json["story_id"]
 
-    # Ensure the person making this request is an admin
-    if not current_user.is_admin:
-        return errors.unauthorized()
-
     # Add one component to the passage by default
     default_data = {
         "components": [{
@@ -96,7 +88,7 @@ def create_passage():
     return get_passage(passage.id)
 
 @mod_passages.route("/<passage_id>", methods=["PUT"])
-@login_required
+@admin_required
 def update_passage(passage_id):
     """Updates the specified passage. Right now, only one property can be
     updated at a time.
@@ -123,10 +115,6 @@ def update_passage(passage_id):
         value = request.json[key]
     else:
         return errors.missing_update_passage_parameters()
-
-    # Ensure that the person making this request is an admin
-    if not current_user.is_admin:
-        return errors.unauthorized()
 
     # Find the passage being updated
     passage = Passage.query.filter_by(id=passage_id).first()

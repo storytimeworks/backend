@@ -1,10 +1,11 @@
 from datetime import datetime
-from flask import jsonify, redirect, request
+from flask import current_app, jsonify, redirect, request
 from flask.json import JSONEncoder
+from functools import wraps
 import os
 
 from flask_cors import CORS
-from flask_login import LoginManager
+from flask_login import current_user, LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_sslify import SSLify
 from raven.contrib.flask import Sentry
@@ -13,6 +14,22 @@ import email
 
 db = None
 sentry = None
+
+def admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return current_app.login_manager.unauthorized()
+        elif not current_user.is_admin:
+            data = {
+                "code": 1001,
+                "message": "You don't have permission to perform this action"
+            }
+
+            return jsonify(data), 403
+        return func(*args, **kwargs)
+
+    return decorated_view
 
 def log_error(message):
     global sentry

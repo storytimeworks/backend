@@ -67,7 +67,7 @@ def test_normal_user(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 202
+    assert data["code"] == 1001
 
 def test_no_parameters(app):
     # Be an admin for this test

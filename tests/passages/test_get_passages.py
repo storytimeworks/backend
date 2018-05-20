@@ -31,7 +31,7 @@ def test_normal_user(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 502
+    assert data["code"] == 1001
 
 def test_not_authenticated(app):
     # Try to retrieve passages data

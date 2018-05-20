@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request, session
-from flask_login import current_user, login_required
+from flask_login import current_user
 
 import json
 
-from app import db
+from app import db, admin_required
 from app.mod_vocab import check_body
 import app.mod_vocab.errors as errors
 from app.mod_vocab.models import Entry, Sentence
@@ -64,7 +64,7 @@ def get_entry(entry_id):
         return errors.entry_not_found()
 
 @mod_vocab.route("/entries", methods=["POST"])
-@login_required
+@admin_required
 def create_entry():
     """Creates a new vocabulary entry.
 
@@ -87,10 +87,6 @@ def create_entry():
     pinyin = request.json["pinyin"]
     source_is_chinese = request.json["source_is_chinese"]
 
-    # Ensure that the person making this request is authenticated and is an admin
-    if not current_user.is_admin:
-        return errors.not_authorized()
-
     # Add the new entry to the database
     entry = Entry(chinese, english, pinyin, source_is_chinese)
     db.session.add(entry)
@@ -100,7 +96,7 @@ def create_entry():
     return get_entry(entry.id)
 
 @mod_vocab.route("/entries/<entry_id>", methods=["PUT"])
-@login_required
+@admin_required
 def update_entry(entry_id):
     """Updates an existing vocabulary entry. Currently only one key can be
     updated at a time.
@@ -126,10 +122,6 @@ def update_entry(entry_id):
         value = request.json[key]
     else:
         return errors.missing_update_entry_parameters()
-
-    # Ensure that the person making this request is authenticated and is an admin
-    if not current_user.is_admin:
-        return errors.not_authorized()
 
     # Find the entry being updated
     entry = Entry.query.filter_by(id=entry_id).first()
@@ -159,17 +151,13 @@ def update_entry(entry_id):
     return get_entry(entry_id)
 
 @mod_vocab.route("/health", methods=["GET"])
-@login_required
+@admin_required
 def get_entries_health():
     """Returns health data about vocabulary entries.
 
     Returns:
         JSON data with vocabulary health data.
     """
-
-    # Ensure the current user is logged in and an admin
-    if not current_user.is_admin:
-        return errors.not_authorized()
 
     # Retrieve all vocabulary entries that need translations
     entries = Entry.query.filter_by(source_is_chinese=True, translations="[]").all()
@@ -178,13 +166,15 @@ def get_entries_health():
     # Find how many entries are in the database (to calculate percentages)
     entries_num = Entry.query.count()
 
-    # Return JSON health data
-    return jsonify(
-        no_translations=entries_data,
-        data={
+    data = {
+        "no_translations": entries_data,
+        "data": {
             "total": entries_num
         }
-    )
+    }
+
+    # Return JSON health data
+    return jsonify(data)
 
 @mod_vocab.route("/sentences", methods=["GET"])
 def get_sentences():
