@@ -39,11 +39,13 @@ def create_passage():
         else:
             return errors.invalid_session()
 
-    name = request.json["name"]
+    chinese_name = request.json["chinese_name"]
+    english_name = request.json["english_name"]
+    description = request.json["description"]
     story_id = request.json["story_id"]
     data = json.dumps(request.json["data"])
 
-    passage = Passage(name, story_id, data)
+    passage = Passage(chinese_name, english_name, description, story_id, data)
     db.session.add(passage)
     db.session.commit()
 
@@ -71,8 +73,12 @@ def update_passage(passage_id):
 
     passage = Passage.query.filter_by(id=passage_id).first()
 
-    if key == "name":
-        passage.name = value
+    if key == "chinese_name":
+        passage.chinese_name = value
+    elif key == "english_name":
+        passage.english_name = value
+    elif key == "description":
+        passage.description = value
     elif key == "data":
         passage.data = json.dumps(value)
 
