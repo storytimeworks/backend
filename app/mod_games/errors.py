@@ -7,6 +7,3 @@ def error(status_code, code, message, data=None):
 
 def missing_attempt_parameters():
     return error(400, 1401, "Missing attempt parameters")
-
-def not_authenticated():
-    return error(401, 1402, "Not authenticated")
