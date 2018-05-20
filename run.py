@@ -7,7 +7,7 @@ from app import configure_app
 if len(sys.argv) > 1 and sys.argv[1] == "dev":
     os.environ["ENVIRONMENT"] = "dev"
     os.environ["FLASK_ENV"] = "development"
-    os.environ["RDS_DB_NAME"] = "storytime_test"
+    os.environ["RDS_DB_NAME"] = "storytime"
     os.environ["RDS_HOSTNAME"] = "localhost"
     os.environ["RDS_PASSWORD"] = ""
     os.environ["RDS_USERNAME"] = "root"
