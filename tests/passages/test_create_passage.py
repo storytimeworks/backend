@@ -80,4 +80,4 @@ def test_missing_parameters(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 504
+    assert data["code"] == 1504

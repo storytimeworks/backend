@@ -35,7 +35,7 @@ def test_missing_parameters(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 104
+    assert data["code"] == 1104
 
 def test_short_username(app):
     data = {
@@ -50,7 +50,7 @@ def test_short_username(app):
     data = json.loads(res.data)
 
     # Ensure the correct error is shown
-    assert data["code"] == 105
+    assert data["code"] == 1105
 
 def test_long_username(app):
     data = {
@@ -65,7 +65,7 @@ def test_long_username(app):
     data = json.loads(res.data)
 
     # Ensure the correct error is shown
-    assert data["code"] == 106
+    assert data["code"] == 1106
 
 def test_dash_start_username(app):
     data = {
@@ -80,7 +80,7 @@ def test_dash_start_username(app):
     data = json.loads(res.data)
 
     # Ensure that the correct error is shown
-    assert data["code"] == 107
+    assert data["code"] == 1107
 
 def test_underscore_start_username(app):
     data = {
@@ -95,7 +95,7 @@ def test_underscore_start_username(app):
     data = json.loads(res.data)
 
     # Ensure that the correct error is shown
-    assert data["code"] == 107
+    assert data["code"] == 1107
 
 def test_invalid_character_username(app):
     data = {
@@ -110,7 +110,7 @@ def test_invalid_character_username(app):
     data = json.loads(res.data)
 
     # Ensure that the correct error is shown
-    assert data["code"] == 108
+    assert data["code"] == 1108
 
 def test_weak_password(app):
     data = {
@@ -125,7 +125,7 @@ def test_weak_password(app):
     data = json.loads(res.data)
 
     # Ensure that the correct error is shown
-    assert data["code"] == 109
+    assert data["code"] == 1109
 
 def test_taken_username(app):
     data = {
@@ -140,7 +140,7 @@ def test_taken_username(app):
     data = json.loads(res.data)
 
     # Ensure that the correct error is shown
-    assert data["code"] == 110
+    assert data["code"] == 1110
 
 def test_used_email(app):
     data = {
@@ -155,7 +155,7 @@ def test_used_email(app):
     data = json.loads(res.data)
 
     # Ensure that the correct error is shown
-    assert data["code"] == 111
+    assert data["code"] == 1111
 
 def test_invalid_email(app):
     data = {
@@ -170,4 +170,4 @@ def test_invalid_email(app):
     data = json.loads(res.data)
 
     # Ensure that the correct error is shown
-    assert data["code"] == 112
+    assert data["code"] == 1112

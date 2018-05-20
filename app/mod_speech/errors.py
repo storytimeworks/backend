@@ -6,13 +6,13 @@ def error(status_code, code, message, data=None):
         return (jsonify(code=code, message=message, data=data), status_code)
 
 def speech_not_found():
-    return error(404, 301, "Recording not found")
+    return error(404, 1301, "Recording not found")
 
 def issue_generating_speech():
-    return error(500, 302, "Error searching for recording")
+    return error(500, 1302, "Error searching for recording")
 
 def text_not_provided():
-    return error(400, 303, "No text was given")
+    return error(400, 1303, "No text was given")
 
 def not_generating_speech():
-    return error(500, 304, "No speech is being generated right now")
+    return error(500, 1304, "No speech is being generated right now")

@@ -44,7 +44,7 @@ def test_missing_parameters(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 113
+    assert data["code"] == 1113
 
 def test_incorrect_password(app):
     # Credentials for the test account, with the wrong password
@@ -59,7 +59,7 @@ def test_incorrect_password(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 101
+    assert data["code"] == 1101
 
 def test_nonexistant_user(app):
     # Credentials for an account that doesn't exist
@@ -74,4 +74,4 @@ def test_nonexistant_user(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 101
+    assert data["code"] == 1101

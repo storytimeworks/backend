@@ -23,4 +23,4 @@ def test_get_nonexistant_entry(app):
     data = json.loads(res.data)
 
     # Ensure the correct error is being shown
-    assert data["code"] == 204
+    assert data["code"] == 1204

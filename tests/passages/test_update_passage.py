@@ -40,7 +40,7 @@ def test_no_parameters(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 505
+    assert data["code"] == 1505
 
 def test_not_authenticated(app):
     # Generate a random string to test with
@@ -99,4 +99,4 @@ def test_nonexistant_passage(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 503
+    assert data["code"] == 1503

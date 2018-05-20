@@ -80,4 +80,4 @@ def test_no_parameters(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 205
+    assert data["code"] == 1205

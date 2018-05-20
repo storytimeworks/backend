@@ -23,4 +23,4 @@ def test_get_nonexistant_passage(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 503
+    assert data["code"] == 1503

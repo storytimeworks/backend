@@ -46,7 +46,7 @@ def test_missing_parameters(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 114
+    assert data["code"] == 1114
 
 def test_not_authenticated(app):
     # Create generic profile data to test with
@@ -86,7 +86,7 @@ def test_nonexistant_user(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 103
+    assert data["code"] == 1103
 
 def test_not_authorized(app):
     # Be a normal user for this test
@@ -108,7 +108,7 @@ def test_not_authorized(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 115
+    assert data["code"] == 1115
 
 def test_invalid_setting(app):
     # Be a normal user for this test
@@ -129,7 +129,7 @@ def test_invalid_setting(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 116
+    assert data["code"] == 1116
 
 def test_invalid_username(app):
     # Be a normal user for this test
@@ -152,7 +152,7 @@ def test_invalid_username(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 107
+    assert data["code"] == 1107
 
 def test_invalid_email(app):
     # Be a normal user for this test
@@ -175,4 +175,4 @@ def test_invalid_email(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 112
+    assert data["code"] == 1112

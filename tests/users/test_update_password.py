@@ -51,7 +51,7 @@ def test_missing_parameters(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 117
+    assert data["code"] == 1117
 
 def test_not_logged_in(app):
     data = {
@@ -82,7 +82,7 @@ def test_nonexistant_user(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 103
+    assert data["code"] == 1103
 
 def test_not_authorized(app):
     # Set user id to a normal user
@@ -100,7 +100,7 @@ def test_not_authorized(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 115
+    assert data["code"] == 1115
 
 def test_incorrect_password(app):
     # Set user id to the test account
@@ -119,7 +119,7 @@ def test_incorrect_password(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 118
+    assert data["code"] == 1118
 
 def test_weak_password(app):
     # Set user id to the test account
@@ -138,4 +138,4 @@ def test_weak_password(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 109
+    assert data["code"] == 1109

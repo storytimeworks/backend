@@ -27,7 +27,7 @@ def test_get_nonexistant_user(app):
     data = json.loads(res.data)
 
     # Ensure the correct error is being shown
-    assert data["code"] == 103
+    assert data["code"] == 1103
 
 def test_get_authenticated_user(app):
     # Set the user id for this session

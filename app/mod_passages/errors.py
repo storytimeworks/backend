@@ -6,13 +6,13 @@ def error(status_code, code, message, data=None):
         return (jsonify(code=code, message=message, data=data), status_code)
 
 def unauthorized():
-    return error(403, 502, "You're not authorized to do this")
+    return error(403, 1502, "You're not authorized to do this")
 
 def passage_not_found():
-    return error(404, 503, "The passage could not be found")
+    return error(404, 1503, "The passage could not be found")
 
 def missing_create_passage_parameters():
-    return error(400, 504, "Missing parameters needed to create a passage")
+    return error(400, 1504, "Missing parameters needed to create a passage")
 
 def missing_update_passage_parameters():
-    return error(400, 505, "Missing parameters needed to update a passage")
+    return error(400, 1505, "Missing parameters needed to update a passage")
