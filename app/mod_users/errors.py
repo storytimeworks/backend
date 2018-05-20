@@ -8,9 +8,6 @@ def error(status_code, code, message, data=None):
 def invalid_credentials():
     return error(401, 101, "Invalid login credentials")
 
-def missing_authentication():
-    return error(401, 102, "Missing authentication")
-
 def user_not_found():
     return error(404, 103, "User not found")
 

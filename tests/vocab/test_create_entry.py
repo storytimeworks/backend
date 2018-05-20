@@ -55,7 +55,7 @@ def test_not_authenticated(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 201
+    assert data["code"] == 1000
 
 def test_normal_user(app):
     # Be a normal user for this test
@@ -72,13 +72,17 @@ def test_normal_user(app):
 
     # Create this entry on backend
     res = app.post("/vocabulary/entries", data=json.dumps(data), content_type="application/json")
-    assert res.status_code == 401
+    assert res.status_code == 403
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 201
+    assert data["code"] == 202
 
 def test_no_parameters(app):
+    # Be an admin for this test
+    with app.session_transaction() as session:
+        session["user_id"] = 1
+
     # Try to create an entry without passing parameters
     res = app.post("/vocabulary/entries")
     assert res.status_code == 400

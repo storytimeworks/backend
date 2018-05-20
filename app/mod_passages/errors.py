@@ -5,9 +5,6 @@ def error(status_code, code, message, data=None):
     else:
         return (jsonify(code=code, message=message, data=data), status_code)
 
-def missing_authentication():
-    return error(401, 501, "Invalid login credentials")
-
 def unauthorized():
     return error(403, 502, "You're not authorized to do this")
 

@@ -1,6 +1,6 @@
 import bcrypt, boto3, json, os
 from flask import Blueprint, jsonify, request
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_required, login_user, logout_user
 
 # Storytime imports
 from app import db, log_error
@@ -106,6 +106,7 @@ def register():
     return get_user(user.id)
 
 @mod_users.route("/<user_id>", methods=["PUT"])
+@login_required
 def update_user(user_id):
     """Updates a user's settings.
 
@@ -126,10 +127,6 @@ def update_user(user_id):
 
     section = request.json["section"]
     data = request.json["data"]
-
-    # Ensure that the person making this request is authenticated
-    if not current_user.is_active:
-        return errors.missing_authentication()
 
     # Retrieve the user who is being updated
     user = User.query.filter_by(id=user_id).first()
@@ -225,6 +222,7 @@ def login():
         return errors.invalid_credentials()
 
 @mod_users.route("/current", methods=["GET"])
+@login_required
 def get_current_user():
     """Retrieve data about the user who is currently logged in.
 
@@ -232,12 +230,8 @@ def get_current_user():
         JSON data about the authenticated user, or 401 if nobody is logged in.
     """
 
-    if current_user.is_active:
-        # Return user data if someone is logged in
-        return get_user(current_user.id)
-    else:
-        # Return 401 if nobody is logged in
-        return errors.missing_authentication()
+    # Return user data if someone is logged in
+    return get_user(current_user.id)
 
 @mod_users.route("/current", methods=["DELETE"])
 def logout():
@@ -251,6 +245,7 @@ def logout():
     return ("", 204)
 
 @mod_users.route("/<user_id>/password", methods=["PUT"])
+@login_required
 def update_password(user_id):
     """Updates a user's password.
 
@@ -271,10 +266,6 @@ def update_password(user_id):
 
     current_password = request.json["current_password"]
     new_password = request.json["new_password"]
-
-    # Ensure that the person making this request is authenticated
-    if not current_user.is_active:
-        return errors.missing_authentication()
 
     # Retrieve the user who is being updated
     user = User.query.filter_by(id=user_id).first()

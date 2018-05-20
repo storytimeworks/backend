@@ -37,7 +37,7 @@ def test_no_authentication(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 201
+    assert data["code"] == 1000
 
 def test_not_authorized(app):
     # Be a normal user for this test
@@ -46,8 +46,8 @@ def test_not_authorized(app):
 
     # Try to retrieve vocab health data as a normal user
     res = app.get("/vocabulary/health")
-    assert res.status_code == 401
+    assert res.status_code == 403
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 201
+    assert data["code"] == 202

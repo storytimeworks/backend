@@ -76,9 +76,13 @@ def test_missing_authentication(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 501
+    assert data["code"] == 1000
 
 def test_missing_parameters(app):
+    # Be an admin for this test
+    with app.session_transaction() as session:
+        session["user_id"] = 1
+
     # Try to create a passage
     res = app.post("/passages")
     assert res.status_code == 400

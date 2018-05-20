@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, session
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 import json
 
@@ -64,6 +64,7 @@ def get_entry(entry_id):
         return errors.entry_not_found()
 
 @mod_vocab.route("/entries", methods=["POST"])
+@login_required
 def create_entry():
     """Creates a new vocabulary entry.
 
@@ -87,8 +88,8 @@ def create_entry():
     source_is_chinese = request.json["source_is_chinese"]
 
     # Ensure that the person making this request is authenticated and is an admin
-    if not current_user.is_active or not current_user.is_admin:
-        return errors.missing_authentication()
+    if not current_user.is_admin:
+        return errors.not_authorized()
 
     # Add the new entry to the database
     entry = Entry(chinese, english, pinyin, source_is_chinese)
@@ -99,6 +100,7 @@ def create_entry():
     return get_entry(entry.id)
 
 @mod_vocab.route("/entries/<entry_id>", methods=["PUT"])
+@login_required
 def update_entry(entry_id):
     """Updates an existing vocabulary entry. Currently only one key can be
     updated at a time.
@@ -126,8 +128,8 @@ def update_entry(entry_id):
         return errors.missing_update_entry_parameters()
 
     # Ensure that the person making this request is authenticated and is an admin
-    if not current_user.is_active or not current_user.is_admin:
-        return errors.missing_authentication()
+    if not current_user.is_admin:
+        return errors.not_authorized()
 
     # Find the entry being updated
     entry = Entry.query.filter_by(id=entry_id).first()
@@ -157,6 +159,7 @@ def update_entry(entry_id):
     return get_entry(entry_id)
 
 @mod_vocab.route("/health", methods=["GET"])
+@login_required
 def get_entries_health():
     """Returns health data about vocabulary entries.
 
@@ -165,8 +168,8 @@ def get_entries_health():
     """
 
     # Ensure the current user is logged in and an admin
-    if not current_user.is_active or not current_user.is_admin:
-        return errors.missing_authentication()
+    if not current_user.is_admin:
+        return errors.not_authorized()
 
     # Retrieve all vocabulary entries that need translations
     entries = Entry.query.filter_by(source_is_chinese=True, translations="[]").all()

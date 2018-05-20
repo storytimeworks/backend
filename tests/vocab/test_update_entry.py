@@ -66,7 +66,7 @@ def test_not_authenticated(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 201
+    assert data["code"] == 1000
 
 def test_normal_user(app):
     # Be a normal user for this test
@@ -83,11 +83,11 @@ def test_normal_user(app):
 
     # Update this entry on backend
     res = app.put("/vocabulary/entries/2", data=json.dumps(data), content_type="application/json")
-    assert res.status_code == 401
+    assert res.status_code == 403
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 201
+    assert data["code"] == 202
 
 def test_nonexistant_entry(app):
     # Be an admin for this test

@@ -66,7 +66,7 @@ def test_not_authenticated(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 501
+    assert data["code"] == 1000
 
 def test_normal_user(app):
     # Be a normal user for this test

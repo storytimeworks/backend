@@ -5,11 +5,8 @@ def error(status_code, code, message, data=None):
     else:
         return (jsonify(code=code, message=message, data=data), status_code)
 
-def missing_authentication():
-    return error(401, 201, "Missing authentication")
-
 def not_authorized():
-    return error(401, 202, "Not authorized to perform this action")
+    return error(403, 202, "Not authorized to perform this action")
 
 def invalid_session():
     return error(400, 203, "Invalid session")

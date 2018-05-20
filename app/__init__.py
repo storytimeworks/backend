@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import redirect, request
+from flask import jsonify, redirect, request
 from flask.json import JSONEncoder
 import os
 
@@ -38,6 +38,15 @@ def configure_app(app):
 
     login_manager = LoginManager()
     login_manager.init_app(app)
+
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        data = {
+            "code": 1000,
+            "message": "You are unauthorized to perform this action"
+        }
+
+        return jsonify(data), 401
 
     @login_manager.user_loader
     def load_user(user_id):

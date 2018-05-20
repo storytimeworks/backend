@@ -50,6 +50,10 @@ def test_update_password(app):
     assert data["id"] == 2
 
 def test_missing_parameters(app):
+    # Be a normal user for this test
+    with app.session_transaction() as session:
+        session["user_id"] = 2
+
     # Try to switch passwords without sending any data
     res = app.put("/users/2/password")
     assert res.status_code == 400
@@ -70,7 +74,7 @@ def test_not_logged_in(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 102
+    assert data["code"] == 1000
 
 def test_nonexistant_user(app):
     with app.session_transaction() as session:

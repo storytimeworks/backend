@@ -40,4 +40,4 @@ def test_not_authenticated(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 102
+    assert data["code"] == 1000

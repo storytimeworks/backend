@@ -45,6 +45,10 @@ def test_set_settings(app):
     assert data["settings"]["profile"]["last_name"] == last_name
 
 def test_missing_parameters(app):
+    # Be a normal user for this test
+    with app.session_transaction() as session:
+        session["user_id"] = 2
+
     # Try to set settings without passing data
     res = app.put("/users/2")
     assert res.status_code == 400
@@ -69,7 +73,7 @@ def test_not_authenticated(app):
     data = json.loads(res.data)
 
     # Ensure the error is correct
-    assert data["code"] == 102
+    assert data["code"] == 1000
 
 def test_nonexistant_user(app):
     # Be an admin, who can change a different user's settings

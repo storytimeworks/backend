@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, session
-from flask_login import current_user
+from flask_login import current_user, login_required
 import json
 
 from app import db
@@ -11,6 +11,7 @@ from app.mod_users.models import User
 mod_passages = Blueprint("passages", __name__, url_prefix="/passages")
 
 @mod_passages.route("", methods=["GET"])
+@login_required
 def get_passages():
     """Retrieves all passages on Storytime.
 
@@ -18,10 +19,8 @@ def get_passages():
         JSON data for all of the passages.
     """
 
-    # Ensure that the person making this request is authenticated and an admin
-    if not current_user.is_active:
-        return errors.missing_authentication()
-    elif not current_user.is_admin:
+    # Ensure that the person making this request is an admin
+    if not current_user.is_admin:
         return errors.unauthorized()
 
     # Return all passages JSON data
@@ -51,6 +50,7 @@ def get_passage(passage_id):
         return errors.passage_not_found()
 
 @mod_passages.route("", methods=["POST"])
+@login_required
 def create_passage():
     """Creates a passage with the provided data.
 
@@ -73,10 +73,8 @@ def create_passage():
     description = request.json["description"]
     story_id = request.json["story_id"]
 
-    # Ensure the person making this request is authenticated and an admin
-    if not current_user.is_active:
-        return errors.missing_authentication()
-    elif not current_user.is_admin:
+    # Ensure the person making this request is an admin
+    if not current_user.is_admin:
         return errors.unauthorized()
 
     # Add one component to the passage by default
@@ -98,6 +96,7 @@ def create_passage():
     return get_passage(passage.id)
 
 @mod_passages.route("/<passage_id>", methods=["PUT"])
+@login_required
 def update_passage(passage_id):
     """Updates the specified passage. Right now, only one property can be
     updated at a time.
@@ -125,10 +124,8 @@ def update_passage(passage_id):
     else:
         return errors.missing_update_passage_parameters()
 
-    # Ensure that the person making this request is authenticated and is an admin
-    if not current_user.is_active:
-        return errors.missing_authentication()
-    elif not current_user.is_admin:
+    # Ensure that the person making this request is an admin
+    if not current_user.is_admin:
         return errors.unauthorized()
 
     # Find the passage being updated
