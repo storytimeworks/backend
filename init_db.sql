@@ -1,3 +1,8 @@
+DROP DATABASE IF EXISTS storytime_test;
+
+CREATE DATABASE storytime_test;
+USE storytime_test;
+
 CREATE TABLE chinese_entries (
   id INT NOT NULL AUTO_INCREMENT,
   chinese TEXT NOT NULL,
@@ -23,9 +28,6 @@ CREATE TABLE users (
   verified BOOLEAN NOT NULL,
   PRIMARY KEY (id)
 );
-
-INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("jack", "jack@storytime.works", "passwordstorytime", "[1]", "{}", 1);
-INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("hello", "test@test.com", "this is my password", "", "{}", 1);
 
 CREATE TABLE chinese_speech (
   id INT NOT NULL AUTO_INCREMENT,
@@ -84,3 +86,10 @@ CREATE TABLE flashcard_attempts (
   attempted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 );
+
+-- $2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q is a bcrypt hash of "this is my password"
+INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("admin", "admin@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[1]", "{}", 1);
+INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", 1);
+
+INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations, categories) VALUES ("我", "I, me", "wǒ", 1, "[]", "[]");
+INSERT INTO passages (chinese_name, english_name, description, story_id, data) VALUES ("你好", "Hello", "Sarah introduces herself to the reader.", 1, '{"components": []}');

@@ -1,25 +1,16 @@
-from app import configure_app
+from app import configure_test_client
 from flask import Flask
 import json, pytest, os
 
 @pytest.fixture
 def app():
-    os.environ["ENVIRONMENT"] = "dev"
-    os.environ["RDS_DB_NAME"] = "storytime"
-    os.environ["RDS_HOSTNAME"] = "localhost"
-    os.environ["RDS_PASSWORD"] = ""
-    os.environ["RDS_USERNAME"] = "root"
-    os.environ["SECRET_KEY"] = "secret"
-
     application = Flask(__name__)
-    configure_app(application)
-    application.debug = True
-    return application.test_client()
+    return configure_test_client(application)
 
 def test_login(app):
     # Credentials for the test account
     data = {
-        "username": "hello",
+        "username": "user",
         "password": "this is my password"
     }
 
@@ -34,7 +25,7 @@ def test_login(app):
 def test_login_with_email(app):
     # Credentials for the test account
     data = {
-        "username": "test@test.com",
+        "username": "user@storytime.works",
         "password": "this is my password"
     }
 

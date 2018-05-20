@@ -1,20 +1,11 @@
-from app import configure_app
+from app import configure_test_client
 from flask import Flask, session
 import json, pytest, os
 
 @pytest.fixture
 def app():
-    os.environ["ENVIRONMENT"] = "dev"
-    os.environ["RDS_DB_NAME"] = "storytime"
-    os.environ["RDS_HOSTNAME"] = "localhost"
-    os.environ["RDS_PASSWORD"] = ""
-    os.environ["RDS_USERNAME"] = "root"
-    os.environ["SECRET_KEY"] = "secret"
-
     application = Flask(__name__)
-    configure_app(application)
-    application.debug = True
-    return application.test_client()
+    return configure_test_client(application)
 
 def test_create_passage(app):
     # Be an admin for this test

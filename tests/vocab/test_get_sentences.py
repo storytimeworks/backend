@@ -1,20 +1,11 @@
-from app import configure_app
+from app import configure_test_client
 from flask import Flask, session
 import json, pytest, os, uuid
 
 @pytest.fixture
 def app():
-    os.environ["ENVIRONMENT"] = "dev"
-    os.environ["RDS_DB_NAME"] = "storytime"
-    os.environ["RDS_HOSTNAME"] = "localhost"
-    os.environ["RDS_PASSWORD"] = ""
-    os.environ["RDS_USERNAME"] = "root"
-    os.environ["SECRET_KEY"] = "secret"
-
     application = Flask(__name__)
-    configure_app(application)
-    application.debug = True
-    return application.test_client()
+    return configure_test_client(application)
 
 def test_get_sentences(app):
     # Retrieve sentences with a given query
@@ -23,7 +14,7 @@ def test_get_sentences(app):
     data = json.loads(res.data)
 
     # Ensure the response is correct
-    assert len(data) == 10
+    assert len(data) == 0
 
 def test_no_query(app):
     # Retrieve sentences without any query
@@ -32,4 +23,4 @@ def test_no_query(app):
     data = json.loads(res.data)
 
     # Ensure the response is correct
-    assert len(data) == 10
+    assert len(data) == 0

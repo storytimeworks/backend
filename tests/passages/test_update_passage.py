@@ -1,20 +1,11 @@
-from app import configure_app
+from app import configure_test_client
 from flask import Flask, session
 import json, pytest, os, uuid
 
 @pytest.fixture
 def app():
-    os.environ["ENVIRONMENT"] = "dev"
-    os.environ["RDS_DB_NAME"] = "storytime"
-    os.environ["RDS_HOSTNAME"] = "localhost"
-    os.environ["RDS_PASSWORD"] = ""
-    os.environ["RDS_USERNAME"] = "root"
-    os.environ["SECRET_KEY"] = "secret"
-
     application = Flask(__name__)
-    configure_app(application)
-    application.debug = True
-    return application.test_client()
+    return configure_test_client(application)
 
 def test_update_passage(app):
     # Be an admin for this test
@@ -30,12 +21,12 @@ def test_update_passage(app):
     }
 
     # Update this passage on backend
-    res = app.put("/passages/3", data=json.dumps(data), content_type="application/json")
+    res = app.put("/passages/1", data=json.dumps(data), content_type="application/json")
     assert res.status_code == 200
     data = json.loads(res.data)
 
     # Ensure the response is correct
-    assert data["id"] == 3
+    assert data["id"] == 1
     assert data["english_name"] == english_name
 
 def test_no_parameters(app):
@@ -44,7 +35,7 @@ def test_no_parameters(app):
         session["user_id"] = 1
 
     # Try to update this passage without any parameters
-    res = app.put("/passages/3")
+    res = app.put("/passages/1")
     assert res.status_code == 400
     data = json.loads(res.data)
 
@@ -61,7 +52,7 @@ def test_not_authenticated(app):
     }
 
     # Try to update this passage on backend
-    res = app.put("/passages/3", data=json.dumps(data), content_type="application/json")
+    res = app.put("/passages/1", data=json.dumps(data), content_type="application/json")
     assert res.status_code == 401
     data = json.loads(res.data)
 
@@ -82,7 +73,7 @@ def test_normal_user(app):
     }
 
     # Update this passage on backend
-    res = app.put("/passages/3", data=json.dumps(data), content_type="application/json")
+    res = app.put("/passages/1", data=json.dumps(data), content_type="application/json")
     assert res.status_code == 403
     data = json.loads(res.data)
 

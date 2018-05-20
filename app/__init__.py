@@ -68,6 +68,18 @@ def configure_app(app):
 
     db.create_all()
 
+def configure_test_client(application):
+    os.environ["ENVIRONMENT"] = "dev"
+    os.environ["RDS_DB_NAME"] = "storytime_test"
+    os.environ["RDS_HOSTNAME"] = "localhost"
+    os.environ["RDS_PASSWORD"] = ""
+    os.environ["RDS_USERNAME"] = "root"
+    os.environ["SECRET_KEY"] = "secret"
+
+    configure_app(application)
+    application.debug = True
+    return application.test_client()
+
 class StorytimeJSONEncoder(JSONEncoder):
     def default(self, obj):
             if isinstance(obj, datetime):
