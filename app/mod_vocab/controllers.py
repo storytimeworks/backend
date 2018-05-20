@@ -119,7 +119,7 @@ def update_entry(entry_id):
     value = None
 
     # Try to get the key and value being updated for this entry
-    if request.json:
+    if request.json and len(request.json.keys()) > 0:
         key = list(request.json.keys())[0]
         value = request.json[key]
     else:
