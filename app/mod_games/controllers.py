@@ -1,11 +1,11 @@
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
-from sqlalchemy.sql.expression import func
+import random
 
 from app import db
 from app.mod_games import check_body
 import app.mod_games.errors as errors
-from app.mod_games.models import Attempt
+from app.mod_games.models import Attempt, CopyEditSentence
 from app.mod_vocab.models import Entry
 
 mod_games = Blueprint("games", __name__, url_prefix="/games")
@@ -49,7 +49,7 @@ def get_next_entry():
 
     # Select a random row from the entries table
     # This is temporary, it will be done with machine learning in the future
-    entry = Entry.query.order_by(func.rand()).first()
+    entry = Entry.query.order_by(db.func.rand()).first()
     entry_data = entry.serialize()
 
     # Figure out if this is the first time the user is seeing this entry
@@ -67,36 +67,21 @@ def get_next_copy_edit():
         JSON data of the next sentence.
     """
 
-    #她生日的是七月十日。
+    sentence = CopyEditSentence.query.order_by(db.func.rand()).first()
 
     data = {
-        "words": [
-            {
-                "characters": "她",
-                "correct": True
-            },
-            {
-                "characters": "生日"
-            },
-            {
-                "characters": "的"
-            },
-            {
-                "characters": "是"
-            },
-            {
-                "characters": "七月"
-            },
-            {
-                "characters": "十日",
-                "correct": True
-            },
-            {
-                "characters": "。"
-            }
-        ],
-        "correct": "You're right!",
-        "incorrect": "You're wrong!"
+        "words": [],
+        "correct": ""
     }
+
+    for word in sentence.sentence.split("|"):
+        datum = {
+            "characters": word.replace("c", "")
+        }
+
+        if "c" in word:
+            datum["correct"] = True
+
+        data["words"].append(datum)
 
     return jsonify(data)

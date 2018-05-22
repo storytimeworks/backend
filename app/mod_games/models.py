@@ -13,7 +13,7 @@ class Attempt(Base):
     entry_id = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, nullable=False)
     correct = db.Column(db.Boolean, nullable=False)
-    attempted_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+    attempted_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     def __init__(self, entry_id, user_id, correct):
         self.entry_id = entry_id
@@ -28,3 +28,12 @@ class Attempt(Base):
             "correct": self.correct,
             "attempted_at": self.attempted_at
         }
+
+class CopyEditSentence(Base):
+
+    __tablename__ = "copy_edit_sentences"
+
+    sentence = db.Column(db.Text, nullable=False)
+    explanation = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
