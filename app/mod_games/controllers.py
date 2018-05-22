@@ -57,3 +57,46 @@ def get_next_entry():
     entry_data["new"] = attempt is not None
 
     return jsonify(entry_data)
+
+@mod_games.route("/copy-edit/next", methods=["GET"])
+@login_required
+def get_next_copy_edit():
+    """Finds the next sentence to be shown in the copy edit game.
+
+    Returns:
+        JSON data of the next sentence.
+    """
+
+    #她生日的是七月十日。
+
+    data = {
+        "words": [
+            {
+                "characters": "她",
+                "correct": True
+            },
+            {
+                "characters": "生日"
+            },
+            {
+                "characters": "的"
+            },
+            {
+                "characters": "是"
+            },
+            {
+                "characters": "七月"
+            },
+            {
+                "characters": "十日",
+                "correct": True
+            },
+            {
+                "characters": "。"
+            }
+        ],
+        "correct": "You're right!",
+        "incorrect": "You're wrong!"
+    }
+
+    return jsonify(data)
