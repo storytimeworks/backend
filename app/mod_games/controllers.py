@@ -71,7 +71,8 @@ def get_next_copy_edit():
 
     data = {
         "words": [],
-        "correct": ""
+        "explanation": sentence.explanation,
+        "correctSentence": sentence.correct_sentence
     }
 
     for word in sentence.sentence.split("|"):
