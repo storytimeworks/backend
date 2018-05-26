@@ -113,4 +113,6 @@ INSERT INTO users (username, email, password, groups, settings, verified) VALUES
 INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", 1);
 
 INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations, categories) VALUES ("我", "I, me", "wǒ", 1, "[]", "[]");
+
+INSERT INTO stories (chinese_name, english_name, description, passage_ids) VALUES ("你好", "Hello", "Sarah introduces herself to the reader.", "[1]");
 INSERT INTO passages (chinese_name, english_name, description, story_id, data) VALUES ("你好", "Hello", "Sarah introduces herself to the reader.", 1, '{"components": []}');
