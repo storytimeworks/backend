@@ -5,9 +5,6 @@ def error(status_code, code, message, data=None):
     else:
         return (jsonify(code=code, message=message, data=data), status_code)
 
-def unauthorized():
-    return error(403, 1502, "You're not authorized to do this")
-
 def passage_not_found():
     return error(404, 1503, "The passage could not be found")
 

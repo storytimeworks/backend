@@ -72,12 +72,14 @@ def configure_app(app):
     from app.mod_games.controllers import mod_games as games_module
     from app.mod_passages.controllers import mod_passages as passages_module
     from app.mod_speech.controllers import mod_speech as speech_module
+    from app.mod_stories.controllers import mod_stories as stories_module
     from app.mod_vocab.controllers import mod_vocab as vocab_module
     from app.mod_users.controllers import mod_users as users_module
 
     app.register_blueprint(games_module)
     app.register_blueprint(passages_module)
     app.register_blueprint(speech_module)
+    app.register_blueprint(stories_module)
     app.register_blueprint(vocab_module)
     app.register_blueprint(users_module)
 
