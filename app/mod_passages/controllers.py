@@ -6,6 +6,7 @@ from app import db, admin_required
 from app.mod_passages import check_body
 import app.mod_passages.errors as errors
 from app.mod_passages.models import Passage
+from app.mod_stories.models import Story
 from app.mod_users.models import User
 
 mod_passages = Blueprint("passages", __name__, url_prefix="/passages")
@@ -82,6 +83,12 @@ def create_passage():
     # Create the passage and add it to MySQL
     passage = Passage(chinese_name, english_name, description, story_id, data)
     db.session.add(passage)
+
+    # Update the story to add this passage id
+    story = Story.query.filter_by(id=story_id).first()
+    passage_ids = json.loads(story.passage_ids)
+    passage_ids.append(passage.id)
+    story.passage_ids = json.dumps(passage_ids)
     db.session.commit()
 
     # Return the passage JSON data
