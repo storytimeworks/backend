@@ -67,3 +67,6 @@ def invalid_verification_code():
 
 def incorrect_verification_email():
     return error(400, 1122, "You need to send a new verification email to the email address you have set now")
+
+def registration_is_disabled():
+    return error(400, 1123, "Registration is currently disabled")

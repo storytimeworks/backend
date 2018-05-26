@@ -59,6 +59,8 @@ def register():
         The JSON data for the new user.
     """
 
+    return errors.registration_is_disabled()
+
     # Check that all necessary data is in the request body
     if not check_body(request, ["username", "email", "password"]):
         return errors.missing_registration_parameters()

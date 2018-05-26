@@ -36,8 +36,7 @@ def test_normal_user(app):
     # Data for the first story
     data = {
         "name": "Basics",
-        "description": "Sarah introduces herself to the reader.",
-        "story_id": 1
+        "description": "Sarah introduces herself to the reader."
     }
 
     # Try to create a story
@@ -52,8 +51,7 @@ def test_missing_authentication(app):
     # Data for the first story
     data = {
         "name": "Basics",
-        "description": "Sarah introduces herself to the reader.",
-        "story_id": 1
+        "description": "Sarah introduces herself to the reader."
     }
 
     # Try to create a story
