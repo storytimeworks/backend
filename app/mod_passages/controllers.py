@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 from flask_login import current_user
-import jieba, json, numpy as np, time
+import jieba, json, numpy as np
 
 from app import db, admin_required
 from app.mod_passages import check_body
