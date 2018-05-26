@@ -31,8 +31,7 @@ def get_entries():
 
         # Ensure the correct entries are being returned
         entries = Entry.query.filter( \
-            ((Entry.chinese.like(query) | Entry.pinyin.like(query)) & (Entry.source_is_chinese == True) | \
-            (Entry.english.like(query) & (Entry.source_is_chinese == False))) \
+            Entry.chinese.like(query) | Entry.pinyin.like(query)
         ).all()
     else:
         # Retrieve all entries if no query is provided
@@ -72,23 +71,21 @@ def create_entry():
         chinese: The chinese characters for this entry.
         english: The english translation of this entry.
         pinyin: The pinyin representation of the chinese characters.
-        source_is_chinese: Not used for now, should be set to True.
 
     Returns:
         The JSON data for the new entry.
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["chinese", "english", "pinyin", "source_is_chinese"]):
+    if not check_body(request, ["chinese", "english", "pinyin"]):
         return errors.missing_create_entry_parameters()
 
     chinese = request.json["chinese"]
     english = request.json["english"]
     pinyin = request.json["pinyin"]
-    source_is_chinese = request.json["source_is_chinese"]
 
     # Add the new entry to the database
-    entry = Entry(chinese, english, pinyin, source_is_chinese)
+    entry = Entry(chinese, english, pinyin)
     db.session.add(entry)
     db.session.commit()
 
@@ -105,7 +102,6 @@ def update_entry(entry_id):
         chinese: The chinese characters for this entry.
         english: The english translation of this entry.
         pinyin: The pinyin representation of the chinese characters.
-        source_is_chinese: Not used for now, should be set to True.
         translations: JSON string representing the translations of this entry.
         categories: JSON string representing the categories this entry falls under.
 
@@ -137,8 +133,6 @@ def update_entry(entry_id):
         entry.english = value
     elif key == "pinyin":
         entry.pinyin = value
-    elif key == "source_is_chinese":
-        entry.source_is_chinese = value
     elif key == "translations":
         entry.translations = json.dumps(value)
     elif key == "categories":
@@ -160,7 +154,7 @@ def get_entries_health():
     """
 
     # Retrieve all vocabulary entries that need translations
-    entries = Entry.query.filter_by(source_is_chinese=True, translations="[]").all()
+    entries = Entry.query.filter_by(translations="[]").all()
     entries_data = [entry.serialize() for entry in entries]
 
     # Find how many entries are in the database (to calculate percentages)

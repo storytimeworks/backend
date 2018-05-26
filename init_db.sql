@@ -3,12 +3,11 @@ DROP DATABASE IF EXISTS storytime_test;
 CREATE DATABASE storytime_test;
 USE storytime_test;
 
-CREATE TABLE chinese_entries (
+CREATE TABLE entries (
   id INT NOT NULL AUTO_INCREMENT,
   chinese TEXT NOT NULL,
   english TEXT NOT NULL,
   pinyin TEXT NOT NULL,
-  source_is_chinese BOOLEAN NOT NULL,
   translations TEXT NOT NULL,
   categories TEXT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -112,7 +111,7 @@ CREATE TABLE copy_edit_sentences (
 INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("admin", "admin@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[1]", "{}", 1);
 INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", 1);
 
-INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations, categories) VALUES ("我", "I, me", "wǒ", 1, "[]", "[]");
+INSERT INTO entries (chinese, english, pinyin, translations, categories) VALUES ("我", "I, me", "wǒ", "[]", "[]");
 
 INSERT INTO stories (name, description, passage_ids) VALUES ("Basics", "Sarah introduces herself to the reader.", "[1]");
-INSERT INTO passages (chinese_name, english_name, description, story_id, data) VALUES ("你好", "Hello", "Sarah introduces herself to the reader.", 1, '{"components": []}');
+INSERT INTO passages (chinese_name, english_name, description, story_id, data, new_words) VALUES ("你好", "Hello", "Sarah introduces herself to the reader.", 1, '{"components": []}', "[]");

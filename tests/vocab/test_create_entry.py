@@ -16,8 +16,7 @@ def test_create_entry(app):
     data = {
         "chinese": "你好",
         "english": "hello",
-        "pinyin": "nǐ hǎo",
-        "source_is_chinese": True
+        "pinyin": "nǐ hǎo"
     }
 
     # Create this entry on backend
@@ -36,8 +35,7 @@ def test_not_authenticated(app):
     data = {
         "chinese": "你好",
         "english": "hello",
-        "pinyin": "nǐ hǎo",
-        "source_is_chinese": True
+        "pinyin": "nǐ hǎo"
     }
 
     # Try to create this entry without authentication
@@ -57,8 +55,7 @@ def test_normal_user(app):
     data = {
         "chinese": "你好",
         "english": "hello",
-        "pinyin": "nǐ hǎo",
-        "source_is_chinese": True
+        "pinyin": "nǐ hǎo"
     }
 
     # Create this entry on backend

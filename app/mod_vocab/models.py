@@ -11,20 +11,18 @@ class Base(db.Model):
 
 class Entry(Base):
 
-    __tablename__ = "chinese_entries"
+    __tablename__ = "entries"
 
     chinese = db.Column(db.Text, nullable=False)
     english = db.Column(db.Text, nullable=False)
     pinyin = db.Column(db.Text, nullable=False)
-    source_is_chinese = db.Column(db.Boolean, nullable=False)
     translations = db.Column(db.Text, nullable=False)
     categories = db.Column(db.Text, nullable=False)
 
-    def __init__(self, chinese, english, pinyin, source_is_chinese):
+    def __init__(self, chinese, english, pinyin):
         self.chinese = chinese
         self.english = english
         self.pinyin = pinyin
-        self.source_is_chinese = source_is_chinese
         self.translations = "[]"
         self.categories = "[]"
 
@@ -34,7 +32,6 @@ class Entry(Base):
             "chinese": self.chinese,
             "english": self.english,
             "pinyin": self.pinyin,
-            "source_is_chinese": self.source_is_chinese,
             "translations": json.loads(self.translations),
             "categories": json.loads(self.categories),
             "created_at": self.created_at,

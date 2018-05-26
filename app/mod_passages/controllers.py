@@ -164,6 +164,8 @@ def update_passage(passage_id):
         passage.description = value
     elif key == "data":
         passage.data = json.dumps(value)
+
+        # Update all word lists to reflect any edits made
         update_word_lists()
 
     # Save changes in MySQL
