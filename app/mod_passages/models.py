@@ -18,6 +18,7 @@ class Passage(Base):
     description = db.Column(db.Text, nullable=False)
     story_id = db.Column(db.Integer, nullable=False)
     data = db.Column(db.Text, nullable=False)
+    new_words = db.Column(db.Text, nullable=False)
 
     def __init__(self, chinese_name, english_name, description, story_id, data):
         self.chinese_name = chinese_name
@@ -25,6 +26,7 @@ class Passage(Base):
         self.description = description
         self.story_id = story_id
         self.data = data
+        self.new_words = "[]"
 
     def serialize(self):
         return {
@@ -34,6 +36,7 @@ class Passage(Base):
             "description": self.description,
             "story_id": self.story_id,
             "data": json.loads(self.data),
+            "new_words": json.loads(self.new_words),
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }

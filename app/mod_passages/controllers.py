@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 from flask_login import current_user
-import json
+import jieba, json, numpy as np, time
 
 from app import db, admin_required
 from app.mod_passages import check_body
@@ -87,6 +87,38 @@ def create_passage():
     # Return the passage JSON data
     return get_passage(passage.id)
 
+def update_word_lists():
+    """Updates the list of new words for all passages. Currently assumes that
+    the passages go in order of their id, which will be changed later.
+    """
+
+    # Retrieve all passages in order of their id. Will be changed later to
+    # reflect actual passage order
+    passages = Passage.query.order_by(Passage.id.asc()).all()
+
+    # Keep track of all words in all passages
+    words = []
+
+    for passage in passages:
+        # Get the components of each passage
+        components = json.loads(passage.data)["components"]
+        passage_words = []
+
+        # Use jieba to find the words in each text component
+        for component in components:
+            if component["type"] == "text":
+                passage_words.extend([word for word in jieba.cut(component["text"], cut_all=False)])
+
+        # Use numpy to figure out which words have appeared for the first time
+        new_words = np.setdiff1d(passage_words, words).tolist()
+        passage.new_words = json.dumps(new_words)
+
+        # Add the new words to the general words array
+        words.extend(new_words)
+
+    # Save all changes in MySQL
+    db.session.commit()
+
 @mod_passages.route("/<passage_id>", methods=["PUT"])
 @admin_required
 def update_passage(passage_id):
@@ -132,6 +164,7 @@ def update_passage(passage_id):
         passage.description = value
     elif key == "data":
         passage.data = json.dumps(value)
+        update_word_lists()
 
     # Save changes in MySQL
     db.session.commit()
