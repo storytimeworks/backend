@@ -51,8 +51,7 @@ CREATE TABLE english_speech (
 
 CREATE TABLE stories (
   id INT NOT NULL AUTO_INCREMENT,
-  chinese_name TEXT NOT NULL,
-  english_name TEXT NOT NULL,
+  name TEXT NOT NULL,
   description TEXT NOT NULL,
   passage_ids TEXT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -114,5 +113,5 @@ INSERT INTO users (username, email, password, groups, settings, verified) VALUES
 
 INSERT INTO chinese_entries (chinese, english, pinyin, source_is_chinese, translations, categories) VALUES ("我", "I, me", "wǒ", 1, "[]", "[]");
 
-INSERT INTO stories (chinese_name, english_name, description, passage_ids) VALUES ("你好", "Hello", "Sarah introduces herself to the reader.", "[1]");
+INSERT INTO stories (name, description, passage_ids) VALUES ("Basics", "Sarah introduces herself to the reader.", "[1]");
 INSERT INTO passages (chinese_name, english_name, description, story_id, data) VALUES ("你好", "Hello", "Sarah introduces herself to the reader.", 1, '{"components": []}');

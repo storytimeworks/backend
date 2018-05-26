@@ -16,7 +16,7 @@ def get_stories():
     """Retrieves all stories on Storytime.
 
     Returns:
-        JSON data for all of the passages.
+        JSON data for all of the stories.
     """
 
     # Retrieve all stories JSON data
@@ -60,8 +60,7 @@ def create_story():
     """Creates a story with the provided data.
 
     Body:
-        chinese_name: The chinese name for this story.
-        english_name: The english name for this story.
+        name: The name of this story.
         description: This story's description, in english.
 
     Returns:
@@ -69,15 +68,14 @@ def create_story():
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["chinese_name", "english_name", "description"]):
+    if not check_body(request, ["name", "description"]):
         return errors.missing_create_story_parameters()
 
-    chinese_name = request.json["chinese_name"]
-    english_name = request.json["english_name"]
+    name = request.json["name"]
     description = request.json["description"]
 
     # Create the story and add it to MySQL
-    story = Story(chinese_name, english_name, description)
+    story = Story(name, description)
     db.session.add(story)
     db.session.commit()
 
@@ -94,8 +92,7 @@ def update_stories(story_id):
         story_id: The id of the story being updated.
 
     Body:
-        chinese_name: The chinese name of this passage.
-        english_name: The english name of this passage.
+        name: The name of this story.
         description: A description of the story, in english.
         passage_ids: A comma-separated list of the ids of the passages in the story.
 
@@ -121,10 +118,8 @@ def update_stories(story_id):
         return errors.story_not_found()
 
     # Update the story accordingly, depending on the key and value
-    if key == "chinese_name":
-        story.chinese_name = value
-    elif key == "english_name":
-        story.english_name = value
+    if key == "name":
+        story.name = value
     elif key == "description":
         story.description = value
     elif key == "passage_ids":

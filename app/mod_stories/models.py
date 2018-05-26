@@ -13,22 +13,19 @@ class Story(Base):
 
     __tablename__ = "stories"
 
-    chinese_name = db.Column(db.Text, nullable=False)
-    english_name = db.Column(db.Text, nullable=False)
+    name = db.Column(db.Text, nullable=False)
     description = db.Column(db.Text, nullable=False)
     passage_ids = db.Column(db.Text, nullable=False)
 
-    def __init__(self, chinese_name, english_name, description):
-        self.chinese_name = chinese_name
-        self.english_name = english_name
+    def __init__(self, name, description):
+        self.name = name
         self.description = description
         self.passage_ids = "[]"
 
     def serialize(self):
         return {
             "id": self.id,
-            "chinese_name": self.chinese_name,
-            "english_name": self.english_name,
+            "name": self.name,
             "description": self.description,
             "passage_ids": json.loads(self.passage_ids),
             "created_at": self.created_at,

@@ -14,8 +14,7 @@ def test_create_story(app):
 
     # Data for the first story
     data = {
-        "chinese_name": "你好",
-        "english_name": "Hello",
+        "name": "Basics",
         "description": "Sarah introduces herself to the reader."
     }
 
@@ -25,8 +24,7 @@ def test_create_story(app):
     data = json.loads(res.data)
 
     # Ensure the response is correct
-    assert data["chinese_name"] == "你好"
-    assert data["english_name"] == "Hello"
+    assert data["name"] == "Basics"
     assert data["description"] == "Sarah introduces herself to the reader."
     assert data["passage_ids"] == []
 
@@ -37,8 +35,7 @@ def test_normal_user(app):
 
     # Data for the first story
     data = {
-        "chinese_name": "你好",
-        "english_name": "Hello",
+        "name": "Basics",
         "description": "Sarah introduces herself to the reader.",
         "story_id": 1
     }
@@ -54,8 +51,7 @@ def test_normal_user(app):
 def test_missing_authentication(app):
     # Data for the first story
     data = {
-        "chinese_name": "你好",
-        "english_name": "Hello",
+        "name": "Basics",
         "description": "Sarah introduces herself to the reader.",
         "story_id": 1
     }

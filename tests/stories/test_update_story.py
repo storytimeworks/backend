@@ -13,11 +13,11 @@ def test_update_story(app):
         session["user_id"] = 1
 
     # Generate a random string to test with
-    english_name = str(uuid.uuid4())[0:8]
+    name = str(uuid.uuid4())[0:8]
 
     # Data to update this story with
     data = {
-        "english_name": english_name
+        "name": name
     }
 
     # Update this story on backend
@@ -27,7 +27,7 @@ def test_update_story(app):
 
     # Ensure the response is correct
     assert data["id"] == 1
-    assert data["english_name"] == english_name
+    assert data["name"] == name
 
 def test_no_parameters(app):
     # Be an admin for this test
@@ -44,11 +44,11 @@ def test_no_parameters(app):
 
 def test_not_authenticated(app):
     # Generate a random string to test with
-    english_name = str(uuid.uuid4())[0:8]
+    name = str(uuid.uuid4())[0:8]
 
     # Data to update this story with
     data = {
-        "english_name": english_name
+        "name": name
     }
 
     # Try to update this story on backend
@@ -65,11 +65,11 @@ def test_normal_user(app):
         session["user_id"] = 2
 
     # Generate a random string to test with
-    english_name = str(uuid.uuid4())[0:8]
+    name = str(uuid.uuid4())[0:8]
 
     # Data to update this story with
     data = {
-        "english_name": english_name
+        "name": name
     }
 
     # Update this story on backend
@@ -86,11 +86,11 @@ def test_nonexistant_story(app):
         session["user_id"] = 1
 
     # Generate a random string to test with
-    english_name = str(uuid.uuid4())[0:8]
+    name = str(uuid.uuid4())[0:8]
 
     # Data to update this story with
     data = {
-        "english_name": english_name
+        "name": name
     }
 
     # Update this story on backend
