@@ -42,9 +42,11 @@ def get_story(story_id):
 
     if story:
         # Retrieve all passages associated with this story
-        passages = Passage.query.filter(Passage.id.in_(story.passage_ids.split(","))).all()
+        passages = Passage.query.filter(Passage.id.in_(json.loads(story.passage_ids))).all()
+        passages_data = [passage.serialize() for passage in passages]
+
         story_data = story.serialize()
-        story_data["passages"] = passages
+        story_data["passages"] = passages_data
 
         # Return JSON data for this story, with its passages
         return jsonify(story_data)
@@ -126,7 +128,7 @@ def update_stories(story_id):
     elif key == "description":
         story.description = value
     elif key == "passage_ids":
-        story.passage_ids = value
+        story.passage_ids = json.dumps(value)
 
     # Save changes in MySQL
     db.session.commit()

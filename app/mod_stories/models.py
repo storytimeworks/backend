@@ -22,7 +22,7 @@ class Story(Base):
         self.chinese_name = chinese_name
         self.english_name = english_name
         self.description = description
-        self.passage_ids = ""
+        self.passage_ids = "[]"
 
     def serialize(self):
         return {
@@ -30,7 +30,7 @@ class Story(Base):
             "chinese_name": self.chinese_name,
             "english_name": self.english_name,
             "description": self.description,
-            "passage_ids": self.passage_ids.split(","),
+            "passage_ids": json.loads(self.passage_ids),
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
