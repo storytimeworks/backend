@@ -62,17 +62,19 @@ def create_story():
     Body:
         name: The name of this story.
         description: This story's description, in english.
+        position: The position that this story is in, relative to other stories.
 
     Returns:
         The JSON data for this story.
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["name", "description"]):
+    if not check_body(request, ["name", "description", "position"]):
         return errors.missing_create_story_parameters()
 
     name = request.json["name"]
     description = request.json["description"]
+    position = request.json["position"]
 
     # Create the story and add it to MySQL
     story = Story(name, description)
@@ -95,6 +97,7 @@ def update_stories(story_id):
         name: The name of this story.
         description: A description of the story, in english.
         passage_ids: A comma-separated list of the ids of the passages in the story.
+        position: The position that this story is in, relative to other stories.
 
     Returns:
         The new story JSON data.
@@ -124,6 +127,8 @@ def update_stories(story_id):
         story.description = value
     elif key == "passage_ids":
         story.passage_ids = json.dumps(value)
+    elif key == "position":
+        story.position = value
 
     # Save changes in MySQL
     db.session.commit()
