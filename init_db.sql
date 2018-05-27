@@ -108,6 +108,17 @@ CREATE TABLE copy_edit_sentences (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE logs (
+  id INT NOT NULL AUTO_INCREMENT,
+  ip VARCHAR(15) NOT NULL,
+  method VARCHAR(7) NOT NULL,
+  path TEXT NOT NULL,
+  status_code SMALLINT NOT NULL,
+  user_id INT,
+  timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
+
 -- $2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q is a bcrypt hash of "this is my password"
 INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("admin", "admin@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[1]", "{}", 1);
 INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", 1);

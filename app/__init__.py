@@ -87,6 +87,25 @@ def configure_app(app):
 
     app.json_encoder = StorytimeJSONEncoder
 
+    from app.log import Log
+
+    @app.after_request
+    def after_request(response):
+        ip = request.remote_addr
+        method = request.method
+        path = request.path
+        status_code = response.status_code
+        user_id = None
+
+        if current_user.is_authenticated:
+            user_id = current_user.id
+
+        log = Log(ip, method, path, status_code, user_id)
+        db.session.add(log)
+        db.session.commit()
+
+        return response
+
     db.create_all()
 
 def configure_test_client(application):
