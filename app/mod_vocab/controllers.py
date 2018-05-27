@@ -30,7 +30,7 @@ def get_entries():
         query = "%" + request.args.get("q") + "%"
 
         # Ensure the correct entries are being returned
-        entries = Entry.query.filter( \
+        entries = Entry.query.filter(
             Entry.chinese.like(query) | Entry.pinyin.like(query)
         ).all()
     else:
@@ -52,8 +52,10 @@ def get_entry(entry_id):
         The JSON data for this entry.
     """
 
-    # Find entry in the SQL database
-    entry = Entry.query.filter_by(id=entry_id).first()
+    # Find entry in the SQL database by id or chinese characters
+    entry = Entry.query.filter(
+        (Entry.id == entry_id) | (Entry.chinese == entry_id)
+    ).first()
 
     if entry:
         # Return the entry's JSON data
