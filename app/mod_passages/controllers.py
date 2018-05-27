@@ -104,13 +104,24 @@ def create_passage():
     return get_passage(passage.id)
 
 def update_word_lists():
-    """Updates the list of new words for all passages. Currently assumes that
-    the passages go in order of their id, which will be changed later.
+    """Updates the list of new words for all passages, in order of appearance.
     """
 
-    # Retrieve all passages in order of their id. Will be changed later to
-    # reflect actual passage order
-    passages = Passage.query.order_by(Passage.id.asc()).all()
+    # Retrieve all stories first in order to order the passages correctly
+    stories = Story.query.order_by(Story.position.asc()).all()
+    passage_ids = []
+
+    # Create a correctly ordered list of passage ids
+    for story in stories:
+        story_passage_ids = json.loads(story.passage_ids)
+        passage_ids.extend(story_passage_ids)
+
+    # Get all of the passages by the ids that are in the list
+    passages = Passage.query.filter(Passage.id.in_(passage_ids)).all()
+
+    # Sort the retrieved passages according to the order of passage_ids, since
+    # the database query doesn't preserve ordering
+    sorted_passages = sorted(passages, key=lambda x: passage_ids.index(x.id))
 
     # Keep track of all words in all passages
     words = []

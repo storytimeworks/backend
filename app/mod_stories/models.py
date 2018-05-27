@@ -16,11 +16,13 @@ class Story(Base):
     name = db.Column(db.Text, nullable=False)
     description = db.Column(db.Text, nullable=False)
     passage_ids = db.Column(db.Text, nullable=False)
+    position = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, name, description):
+    def __init__(self, name, description, position):
         self.name = name
         self.description = description
         self.passage_ids = "[]"
+        self.position = position
 
     def serialize(self):
         return {
@@ -28,6 +30,7 @@ class Story(Base):
             "name": self.name,
             "description": self.description,
             "passage_ids": json.loads(self.passage_ids),
+            "position": self.position,
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
