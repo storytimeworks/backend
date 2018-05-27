@@ -41,7 +41,16 @@ def get_passage(passage_id):
 
     if passage:
         # Return JSON data if the passage could be found
-        return jsonify(passage.serialize())
+        passage_data = passage.serialize()
+
+        # Extract the words in each text component and add to JSON response
+        for idx, component in enumerate(passage_data["data"]["components"]):
+            if component["type"] == "text":
+                word_generator = jieba.cut(component["text"], cut_all=False)
+                words = [word for word in word_generator]
+                passage_data["data"]["components"][idx]["words"] = words
+
+        return jsonify(passage_data)
     else:
         # Return 404 if this passage doesn't exist
         return errors.passage_not_found()
