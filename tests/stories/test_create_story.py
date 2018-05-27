@@ -15,7 +15,8 @@ def test_create_story(app):
     # Data for the first story
     data = {
         "name": "Basics",
-        "description": "Sarah introduces herself to the reader."
+        "description": "Sarah introduces herself to the reader.",
+        "position": 1
     }
 
     # Create a story
@@ -27,6 +28,7 @@ def test_create_story(app):
     assert data["name"] == "Basics"
     assert data["description"] == "Sarah introduces herself to the reader."
     assert data["passage_ids"] == []
+    assert data["position"] == 1
 
 def test_normal_user(app):
     # Be a normal user for this test
@@ -36,7 +38,8 @@ def test_normal_user(app):
     # Data for the first story
     data = {
         "name": "Basics",
-        "description": "Sarah introduces herself to the reader."
+        "description": "Sarah introduces herself to the reader.",
+        "position": 1
     }
 
     # Try to create a story
@@ -51,7 +54,8 @@ def test_missing_authentication(app):
     # Data for the first story
     data = {
         "name": "Basics",
-        "description": "Sarah introduces herself to the reader."
+        "description": "Sarah introduces herself to the reader.",
+        "position": 1
     }
 
     # Try to create a story

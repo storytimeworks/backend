@@ -77,7 +77,7 @@ def create_story():
     position = request.json["position"]
 
     # Create the story and add it to MySQL
-    story = Story(name, description)
+    story = Story(name, description, position)
     db.session.add(story)
     db.session.commit()
 

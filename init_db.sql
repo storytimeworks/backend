@@ -53,6 +53,7 @@ CREATE TABLE stories (
   name TEXT NOT NULL,
   description TEXT NOT NULL,
   passage_ids TEXT NOT NULL,
+  position INT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
@@ -113,5 +114,5 @@ INSERT INTO users (username, email, password, groups, settings, verified) VALUES
 
 INSERT INTO entries (chinese, english, pinyin, translations, categories) VALUES ("我", "I, me", "wǒ", "[]", "[]");
 
-INSERT INTO stories (name, description, passage_ids) VALUES ("Basics", "Sarah introduces herself to the reader.", "[1]");
+INSERT INTO stories (name, description, passage_ids, position) VALUES ("Basics", "Sarah introduces herself to the reader.", "[1]", 1);
 INSERT INTO passages (chinese_name, english_name, description, story_id, data, new_words) VALUES ("你好", "Hello", "Sarah introduces herself to the reader.", 1, '{"components": []}', "[]");
