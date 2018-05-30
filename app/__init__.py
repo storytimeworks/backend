@@ -91,7 +91,7 @@ def configure_app(app):
 
     @app.after_request
     def after_request(response):
-        ip = request.remote_addr
+        ip = request.headers.get("X-Forwarded-For")
         method = request.method
         path = request.path
         status_code = response.status_code
