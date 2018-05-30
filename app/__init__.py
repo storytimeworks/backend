@@ -91,7 +91,13 @@ def configure_app(app):
 
     @app.after_request
     def after_request(response):
-        ip = request.headers.get("X-Forwarded-For")
+        ip = None
+
+        if os.environ["ENVIRONMENT"] == "production":
+            ip = request.headers.get("X-Forwarded-For")
+        else:
+            ip = request.remote_addr
+
         method = request.method
         path = request.path
         status_code = response.status_code
