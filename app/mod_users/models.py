@@ -31,6 +31,7 @@ class User(Base, UserMixin):
     groups = db.Column(db.Text, nullable=False)
     settings = db.Column(db.Text, nullable=False)
     verified = db.Column(db.Boolean, nullable=False)
+    saved_entry_ids = db.Column(db.Text, nullable=False)
     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
     def __init__(self, username, email, password):
@@ -42,6 +43,7 @@ class User(Base, UserMixin):
         self.groups = "[]"
         self.settings = json.dumps(default_settings)
         self.verified = False
+        self.saved_entry_ids = "[]"
 
     @property
     def is_admin(self):
@@ -88,6 +90,7 @@ class User(Base, UserMixin):
             data["email"] = self.email
             data["settings"] = self.get_settings()
             data["verified"] = self.verified
+            data["saved_entry_ids"] = json.loads(self.saved_entry_ids)
 
         return data
 

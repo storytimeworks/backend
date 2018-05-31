@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, session
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 import json
 
@@ -145,6 +145,57 @@ def update_entry(entry_id):
 
     # Return updated entry JSON data
     return get_entry(entry_id)
+
+@mod_vocab.route("/entries/<entry_id>/save", methods=["POST"])
+@login_required
+def save_entry(entry_id):
+    """Saves an entry to review later.
+
+    Returns:
+        204 no content.
+    """
+
+    # Get the current user
+    user = User.query.filter_by(id=current_user.id).first()
+
+    # Update the user's entry ids by adding the new one
+    saved_entry_ids = json.loads(user.saved_entry_ids)
+    saved_entry_ids.append(int(entry_id))
+    user.saved_entry_ids = json.dumps(saved_entry_ids)
+
+    # Save changes in MySQL
+    db.session.commit()
+
+    # Return no content
+    return ("", 204)
+
+@mod_vocab.route("/entries/<entry_id>/save", methods=["DELETE"])
+@login_required
+def unsave_entry(entry_id):
+    """Removes an entry that has been saved to review later.
+
+    Returns:
+        204 no content.
+    """
+
+    # Get the current user
+    user = User.query.filter_by(id=current_user.id).first()
+
+    # Update the user's entry ids by removing this one
+    saved_entry_ids = json.loads(user.saved_entry_ids)
+
+    try:
+        saved_entry_ids.remove(int(entry_id))
+    except:
+        pass
+
+    user.saved_entry_ids = json.dumps(saved_entry_ids)
+
+    # Save changes in MySQL
+    db.session.commit()
+
+    # Return no content
+    return ("", 204)
 
 @mod_vocab.route("/health", methods=["GET"])
 @admin_required
