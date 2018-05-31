@@ -58,8 +58,17 @@ def get_entry(entry_id):
     ).first()
 
     if entry:
+        entry_data = entry.serialize()
+
+        # If someone is logged in, return whether they've saved this entry
+        if current_user.is_active:
+            user = User.query.filter_by(id=current_user.id).first()
+            saved_entry_ids = json.loads(user.saved_entry_ids)
+
+            entry_data["saved"] = int(entry.id) in saved_entry_ids
+
         # Return the entry's JSON data
-        return jsonify(entry.serialize())
+        return jsonify(entry_data)
     else:
         # Return 404 if there is no entry with this id
         return errors.entry_not_found()
@@ -160,10 +169,12 @@ def save_entry(entry_id):
 
     # Update the user's entry ids by adding the new one
     saved_entry_ids = json.loads(user.saved_entry_ids)
-    saved_entry_ids.append(int(entry_id))
-    user.saved_entry_ids = json.dumps(saved_entry_ids)
+
+    if int(entry_id) not in saved_entry_ids:
+        saved_entry_ids.append(int(entry_id))
 
     # Save changes in MySQL
+    user.saved_entry_ids = json.dumps(saved_entry_ids)
     db.session.commit()
 
     # Return no content
@@ -185,7 +196,7 @@ def unsave_entry(entry_id):
     saved_entry_ids = json.loads(user.saved_entry_ids)
 
     try:
-        saved_entry_ids.remove(int(entry_id))
+        saved_entry_ids = [id for id in saved_entry_ids if id != int(entry_id)]
     except:
         pass
 
