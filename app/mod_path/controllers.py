@@ -19,20 +19,29 @@ def get_path():
         "stories": []
     }
 
+    # Create array of all stories from JSON data
     stories = Story.query.all()
     stories_data = [story.serialize() for story in stories]
 
     passages = Passage.query.all()
 
+    # Connect stories with their passages
     for story in stories_data:
         story["passages"] = []
 
         for passage_id in story["passage_ids"]:
+            # Find the passage that matches the next one in the story
             passage = next(x for x in passages if x.id == passage_id)
             passage_data = passage.serialize()
+
+            # Remove actual passage data because the response would be too long
             del passage_data["data"]
 
+            # Add the passage data to this story
             story["passages"].append(passage_data)
 
+    # Update path data with stories array
     path["stories"] = stories_data
+
+    # Return path JSON data
     return jsonify(path)
