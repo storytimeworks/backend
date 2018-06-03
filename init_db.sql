@@ -25,6 +25,7 @@ CREATE TABLE users (
   groups TEXT NOT NULL,
   settings TEXT NOT NULL,
   verified BOOLEAN NOT NULL,
+  saved_entry_ids TEXT NOT NULL,
   PRIMARY KEY (id)
 );
 
@@ -128,8 +129,8 @@ CREATE TABLE path_actions (
 );
 
 -- $2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q is a bcrypt hash of "this is my password"
-INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("admin", "admin@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[1]", "{}", 1);
-INSERT INTO users (username, email, password, groups, settings, verified) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", 1);
+INSERT INTO users (username, email, password, groups, settings, verified, saved_entry_ids) VALUES ("admin", "admin@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[1]", "{}", 1, "[]");
+INSERT INTO users (username, email, password, groups, settings, verified, saved_entry_ids) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", 1, "[]");
 
 INSERT INTO entries (chinese, english, pinyin, translations, categories) VALUES ("我", "I, me", "wǒ", "[]", "[]");
 

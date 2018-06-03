@@ -32,15 +32,15 @@ def test_get_nonexistant_user(app):
 def test_get_authenticated_user(app):
     # Set the user id for this session
     with app.session_transaction() as session:
-        session["user_id"] = 1
+        session["user_id"] = 2
 
     # Retrieve data for the currently authenticated user
-    res = app.get("/users/1")
+    res = app.get("/users/2")
     assert res.status_code == 200
     data = json.loads(res.data)
 
     # Ensure the response is correct
-    assert data["id"] == 1
+    assert data["id"] == 2
 
     # Ensure sensitive data is shown when logged in
     assert "email" in data

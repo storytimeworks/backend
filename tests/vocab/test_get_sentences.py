@@ -1,6 +1,6 @@
 from app import configure_test_client
 from flask import Flask, session
-import json, pytest, os, uuid
+import json, pytest
 
 @pytest.fixture
 def app():

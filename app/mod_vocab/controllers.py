@@ -53,11 +53,17 @@ def get_entry(entry_id):
     """
 
     # Find entry in the SQL database by id or chinese characters
-    entry = Entry.query.filter(
-        (Entry.id == entry_id) | (Entry.chinese == entry_id)
-    ).first()
+    entry = None
+
+    if type(entry_id) == int or entry_id.isdigit():
+        # If entry_id is an integer, search by id
+        entry = Entry.query.filter(Entry.id == entry_id).first()
+    else:
+        # Otherwise, match Chinese characters
+        entry = Entry.query.filter(Entry.chinese == entry_id).first()
 
     if entry:
+        # Process this entry if it exists
         entry_data = entry.serialize()
 
         # If someone is logged in, return whether they've saved this entry
@@ -130,6 +136,10 @@ def update_entry(entry_id):
     else:
         return errors.missing_update_entry_parameters()
 
+    # Only integer entry ids are allowed
+    if not entry_id.isdigit():
+        return errors.entry_not_found()
+
     # Find the entry being updated
     entry = Entry.query.filter_by(id=entry_id).first()
 
@@ -164,14 +174,20 @@ def save_entry(entry_id):
         204 no content.
     """
 
+    # Only integer entry ids are allowed
+    if not entry_id.isdigit():
+        return errors.entry_not_found()
+
+    entry_id = int(entry_id)
+
     # Get the current user
     user = User.query.filter_by(id=current_user.id).first()
 
     # Update the user's entry ids by adding the new one
     saved_entry_ids = json.loads(user.saved_entry_ids)
 
-    if int(entry_id) not in saved_entry_ids:
-        saved_entry_ids.append(int(entry_id))
+    if entry_id not in saved_entry_ids:
+        saved_entry_ids.append(entry_id)
 
     # Save changes in MySQL
     user.saved_entry_ids = json.dumps(saved_entry_ids)
@@ -189,6 +205,12 @@ def unsave_entry(entry_id):
         204 no content.
     """
 
+    # Only integer entry ids are allowed
+    if not entry_id.isdigit():
+        return errors.entry_not_found()
+
+    entry_id = int(entry_id)
+
     # Get the current user
     user = User.query.filter_by(id=current_user.id).first()
 
@@ -196,7 +218,7 @@ def unsave_entry(entry_id):
     saved_entry_ids = json.loads(user.saved_entry_ids)
 
     try:
-        saved_entry_ids = [id for id in saved_entry_ids if id != int(entry_id)]
+        saved_entry_ids = [id for id in saved_entry_ids if id != entry_id]
     except:
         pass
 

@@ -40,7 +40,7 @@ def get_user(user_id):
     if current_user.is_active:
         # Sensitive data should be returned if the user is requesting his/her
         # own data or if the requester is an admin
-        if current_user.id == user_id or current_user.is_admin:
+        if current_user.id == int(user_id) or current_user.is_admin:
             full = True
 
     # Return the user's JSON data
