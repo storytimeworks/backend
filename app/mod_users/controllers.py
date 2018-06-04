@@ -165,11 +165,21 @@ def update_user(user_id):
 
             # Ensure that this email address can be used
             email_error = validate_email(email)
+
             if email_error:
                 return email_error
 
             # Set the user's new email address
             user.email = email
+            user.verified = False
+
+            # Add an email verification object to the database, to be deleted
+            # when the user clicks the link in their inbox
+            verification = EmailVerification(user)
+            db.session.add(verification)
+
+            # Send the verification email
+            send(Email.VERIFY_EMAIL, user, verification)
 
         settings[section] = {
             "first_name": data["first_name"],

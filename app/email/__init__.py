@@ -14,6 +14,7 @@ def send(email, user, data):
 
     # Don't send emails when not in production
     if os.environ["ENVIRONMENT"] == "dev":
+        print("Development environment, assume an email was sent to " + user.email)
         return
 
     # Read template data
