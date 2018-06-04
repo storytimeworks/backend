@@ -8,15 +8,36 @@ body {
   font-family: Helvetica, Arial, sans-serif;
 }
 
-#container {
-  width: calc(100% - 64px);
-  max-width: 600px;
-  min-height: 64px;
+table {
+  display: block;
+  margin: 0 auto;
+  width: 600px;
+}
+
+tbody, tr, td {
+  width: 600px;
+}
+
+#logo {
+  height: 128px;
+}
+
+#logo img {
+  display: block;
+  height: 48px;
+  margin: 0 auto;
+}
+
+#content {
   background: #fff;
   border-radius: 16px;
-  margin: 32px auto;
-  padding: 32px 36px;
   box-sizing: border-box;
+  display: block;
+  padding: 32px 36px;
+}
+
+#blank {
+  height: 64px;
 }
 
 p {
@@ -26,7 +47,7 @@ p {
 }
 
 a {
-  background: #10ac84;
+  background: #6c5ce7;
   color: #fff;
   display: table;
   padding: 16px 20px;
