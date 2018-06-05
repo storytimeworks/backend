@@ -12,9 +12,14 @@ def send(email, user, data):
     if type(email) is not Email:
         raise Exception("email must be a valid Email type")
 
+    email_address = user.email
+
+    if email == Email.VERIFY_EMAIL and user.pending_email:
+        email_address = user.pending_email
+
     # Don't send emails when not in production
     if os.environ["ENVIRONMENT"] == "dev":
-        print("Development environment, assume an email was sent to " + user.email)
+        print("Development environment, assume an email was sent to " + email_address)
         return
 
     # Read template data
@@ -48,7 +53,7 @@ def send(email, user, data):
     # Set the recipient name and email address
     destination = {
         "ToAddresses": [
-            "%s <%s>" % (recipient, user.email)
+            "%s <%s>" % (recipient, email_address)
         ]
     }
 

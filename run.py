@@ -1,10 +1,9 @@
 from flask import Flask
-from flask_login import LoginManager
-import os, sys
+import os
 
 from app import configure_app
 
-if len(sys.argv) > 1 and sys.argv[1] == "dev":
+if not "ENVIRONMENT" in os.environ:
     os.environ["ENVIRONMENT"] = "dev"
     os.environ["FLASK_ENV"] = "development"
     os.environ["RDS_DB_NAME"] = "storytime"

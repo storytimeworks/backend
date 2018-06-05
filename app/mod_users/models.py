@@ -26,11 +26,11 @@ class User(Base, UserMixin):
     __tablename__ = "users"
 
     username = db.Column(db.Text, nullable=False)
-    email = db.Column(db.Text, nullable=False)
+    email = db.Column(db.String(60), nullable=False)
     password = db.Column(db.Text, nullable=False)
     groups = db.Column(db.Text, nullable=False)
     settings = db.Column(db.Text, nullable=False)
-    verified = db.Column(db.Boolean, nullable=False)
+    pending_email = db.Column(db.Text)
     saved_entry_ids = db.Column(db.Text, nullable=False)
     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
@@ -42,7 +42,6 @@ class User(Base, UserMixin):
         self.password = password
         self.groups = "[]"
         self.settings = json.dumps(default_settings)
-        self.verified = False
         self.saved_entry_ids = "[]"
 
     @property
@@ -89,7 +88,7 @@ class User(Base, UserMixin):
         if full:
             data["email"] = self.email
             data["settings"] = self.get_settings()
-            data["verified"] = self.verified
+            data["pending_email"] = self.pending_email
             data["saved_entry_ids"] = json.loads(self.saved_entry_ids)
 
         return data
@@ -105,10 +104,10 @@ class EmailVerification(Base):
     user_id = db.Column(db.Integer, nullable=False)
     email = db.Column(db.Text, nullable=False)
 
-    def __init__(self, user):
+    def __init__(self, user_id, email):
         self.code = str(uuid.uuid4()).replace("-", "")
-        self.user_id = user.id
-        self.email = user.email
+        self.user_id = user_id
+        self.email = email
 
 class PasswordReset(Base):
 

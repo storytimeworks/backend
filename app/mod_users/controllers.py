@@ -94,7 +94,7 @@ def register():
 
     # Add an email verification object to the database, to be deleted when the
     # user clicks the link in their inbox
-    verification = EmailVerification(user)
+    verification = EmailVerification(user.id, user.email)
     db.session.add(verification)
     db.session.commit()
 
@@ -170,12 +170,11 @@ def update_user(user_id):
                 return email_error
 
             # Set the user's new email address
-            user.email = email
-            user.verified = False
+            user.pending_email = email
 
             # Add an email verification object to the database, to be deleted
             # when the user clicks the link in their inbox
-            verification = EmailVerification(user)
+            verification = EmailVerification(user.id, email)
             db.session.add(verification)
 
             # Send the verification email
@@ -380,8 +379,42 @@ def verify_email():
         return errors.incorrect_verification_email()
 
     # Set the user to verified and delete the verification object
-    user.verified = True
+    user.pending_email = None
     db.session.delete(verification)
     db.session.commit()
+
+    return ("", 204)
+
+@mod_users.route("/<user_id>/confirm", methods=["POST"])
+@login_required
+def resend_confirmation_email(user_id):
+    """Resends a confirmation email used to verify a user's email address.
+
+    Args:
+        user_id: The user whose id needs the new confirmation email.
+
+    Returns:
+        204 no content.
+    """
+
+    # Find the user who is confirming their email address
+    user = User.query.filter_by(id=user_id).first()
+
+    if not user:
+        # Return 404 if this user doesn't exist
+        return errors.user_not_found()
+
+    if not user.pending_email:
+        # Return 400 if there is no email address the user needs to confirm
+        return errors.no_pending_email()
+
+    # Add an email verification object to the database, to be deleted when the
+    # user clicks the link in their email
+    verification = EmailVerification(user.id, user.pending_email)
+    db.session.add(verification)
+    db.session.commit()
+
+    # Send the verification email
+    send(Email.VERIFY_EMAIL, user, verification)
 
     return ("", 204)
