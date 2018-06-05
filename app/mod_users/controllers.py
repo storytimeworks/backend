@@ -176,6 +176,7 @@ def update_user(user_id):
             # when the user clicks the link in their inbox
             verification = EmailVerification(user.id, email)
             db.session.add(verification)
+            db.session.commit()
 
             # Send the verification email
             send(Email.VERIFY_EMAIL, user, verification)
@@ -375,10 +376,11 @@ def verify_email():
         return errors.invalid_verification_code()
 
     # Make sure the user hasn't changed their email address since this verification was initiated
-    if user.email != verification.email:
+    if user.pending_email != verification.email:
         return errors.incorrect_verification_email()
 
     # Set the user to verified and delete the verification object
+    user.email = user.pending_email
     user.pending_email = None
     db.session.delete(verification)
     db.session.commit()
@@ -416,5 +418,37 @@ def resend_confirmation_email(user_id):
 
     # Send the verification email
     send(Email.VERIFY_EMAIL, user, verification)
+
+    return ("", 204)
+
+@mod_users.route("/<user_id>/confirm", methods=["DELETE"])
+@login_required
+def cancel_email_change(user_id):
+    """Cancels any attempts to update the user's email address.
+
+    Args:
+        user_id: The id of the user who wants to cancel their email update.
+
+    Returns:
+        204 no content.
+    """
+
+    # Find the user who is confirming their email address
+    user = User.query.filter_by(id=user_id).first()
+
+    if not user:
+        # Return 404 if this user doesn't exist
+        return errors.user_not_found()
+
+    if user.pending_email and user.email == user.pending_email:
+        # Return 400 if the user is trying to cancel their first email verification
+        return errors.must_confirm_email()
+
+    # Remove all verification attempts for this user
+    EmailVerification.query.filter_by(user_id=user.id).delete()
+
+    # Remove the user's pending email address
+    user.pending_email = None
+    db.session.commit()
 
     return ("", 204)

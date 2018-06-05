@@ -73,3 +73,6 @@ def registration_is_disabled():
 
 def no_pending_email():
     return error(400, 1124, "You currently have no email addresses pending verification")
+
+def must_confirm_email():
+    return error(400, 1125, "You must verify your email address")
