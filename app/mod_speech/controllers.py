@@ -34,7 +34,13 @@ def synthesize_chinese():
 
     text = request.args.get("text")
 
-    recording = ChineseSpeechSynthesis.query.filter_by(source=text).first()
+    recording = None
+
+    if "voice" in request.args:
+        voice = int(request.args.get("voice"))
+        recording = ChineseSpeechSynthesis.query.filter_by(source=text, voice=voice).first()
+    else:
+        recording = ChineseSpeechSynthesis.query.filter_by(source=text).first()
 
     # voice is defined out here so it can be sent to the database later
     voice = 0
@@ -57,7 +63,12 @@ def synthesize_chinese():
             return errors.speech_not_found()
 
         # 0 = female, 1 = male
-        voice = random.randint(0, 1)
+        voice = 0
+
+        if "voice" in request.args:
+            voice = int(request.args.get("voice"))
+        else:
+            voice = random.randint(0, 1)
 
         url = "http://tsn.baidu.com/text2audio" + \
             "?lan=zh" + \
