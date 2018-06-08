@@ -132,6 +132,7 @@ CREATE TABLE characters (
   id INT NOT NULL AUTO_INCREMENT,
   english_name VARCHAR(20) NOT NULL,
   chinese_name VARCHAR(20) NOT NULL,
+  gender TINYINT NOT NULL,
   PRIMARY KEY (id)
 );
 
