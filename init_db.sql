@@ -128,6 +128,13 @@ CREATE TABLE path_actions (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE characters (
+  id INT NOT NULL AUTO_INCREMENT,
+  english_name VARCHAR(20) NOT NULL,
+  chinese_name VARCHAR(20) NOT NULL,
+  PRIMARY KEY (id)
+);
+
 -- $2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q is a bcrypt hash of "this is my password"
 INSERT INTO users (username, email, password, groups, settings, verified, saved_entry_ids) VALUES ("admin", "admin@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[1]", "{}", 1, "[]");
 INSERT INTO users (username, email, password, groups, settings, verified, saved_entry_ids) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", 1, "[]");

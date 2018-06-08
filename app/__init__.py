@@ -69,6 +69,7 @@ def configure_app(app):
     def load_user(user_id):
         return User.query.filter_by(id=user_id).first()
 
+    from app.mod_characters.controllers import mod_characters as characters_module
     from app.mod_games.controllers import mod_games as games_module
     from app.mod_passages.controllers import mod_passages as passages_module
     from app.mod_path.controllers import mod_path as path_module
@@ -77,6 +78,7 @@ def configure_app(app):
     from app.mod_vocab.controllers import mod_vocab as vocab_module
     from app.mod_users.controllers import mod_users as users_module
 
+    app.register_blueprint(characters_module)
     app.register_blueprint(games_module)
     app.register_blueprint(passages_module)
     app.register_blueprint(path_module)
