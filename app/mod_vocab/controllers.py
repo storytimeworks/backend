@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 from flask_login import current_user, login_required
-
-import json
+import json, re
 
 from app import db, admin_required
 from app.mod_vocab import check_body
@@ -57,10 +56,10 @@ def get_entry(entry_id):
 
     if type(entry_id) == int or entry_id.isdigit():
         # If entry_id is an integer, search by id
-        entry = Entry.query.filter(Entry.id == entry_id).first()
+        entry = Entry.query.filter_by(id=entry_id).first()
     else:
         # Otherwise, match Chinese characters
-        entry = Entry.query.filter(Entry.chinese == entry_id).first()
+        entry = Entry.query.filter_by(chinese=entry_id).first()
 
     if entry:
         # Process this entry if it exists

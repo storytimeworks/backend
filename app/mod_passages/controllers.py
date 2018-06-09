@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, session
 from flask_login import current_user
 import jieba, json, numpy as np
+from pypinyin import pinyin
 
 from app import db, admin_required
 from app.mod_passages import check_body
@@ -47,7 +48,15 @@ def get_passage(passage_id):
         for idx, component in enumerate(passage_data["data"]["components"]):
             if component["type"] == "text":
                 word_generator = jieba.cut(component["text"], cut_all=False)
-                words = [word for word in word_generator]
+                words = [{"chinese": word} for word in word_generator]
+
+                pinyin_words = [pinyin(word["chinese"]) for word in words]
+                flattened_pinyin_words = [[j for i in words for j in i] for words in pinyin_words]
+                joined_pinyin_words = ["".join(words) for words in flattened_pinyin_words]
+
+                for i, word in enumerate(words):
+                    words[i]["pinyin"] = joined_pinyin_words[i]
+
                 passage_data["data"]["components"][idx]["words"] = words
 
         return jsonify(passage_data)
