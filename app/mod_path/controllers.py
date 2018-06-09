@@ -60,6 +60,10 @@ def get_path():
                     passage_data["status"] = "next"
                     reached_furthest_passage = True
 
+            # Admins have every passage unlocked
+            if current_user.is_admin:
+                passage_data["status"] = "complete"
+
             # Add the passage data to this story
             story["passages"].append(passage_data)
 
