@@ -79,24 +79,8 @@ def create_passage():
     description = request.json["description"]
     story_id = request.json["story_id"]
 
-    # Add one component to the passage by default
-    default_data = {
-        "components": [{
-            "character": {
-                "chinese_name": "小雪",
-                "english_name": "Sarah",
-                "gender": 0,
-                "id": 1
-            },
-            "text": "你好",
-            "type": "text"
-        }]
-    }
-
-    data = json.dumps(default_data)
-
     # Create the passage and add it to MySQL
-    passage = Passage(chinese_name, english_name, description, story_id, data)
+    passage = Passage(chinese_name, english_name, description, story_id)
     db.session.add(passage)
 
     # Update the story to add this passage id
@@ -166,6 +150,7 @@ def update_passage(passage_id):
         english_name: The english name of this passage.
         description: A description of the passage, in english.
         data: The passage's components' data.
+        notes: The passage's grammar notes.
 
     Returns:
         The new passage JSON data.
@@ -200,6 +185,8 @@ def update_passage(passage_id):
 
         # Update all word lists to reflect any edits made
         update_word_lists()
+    elif key == "notes":
+        passage.notes = value
 
     # Save changes in MySQL
     db.session.commit()

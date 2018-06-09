@@ -68,6 +68,7 @@ CREATE TABLE passages (
   story_id INT NOT NULL,
   data TEXT NOT NULL,
   new_words TEXT NOT NULL,
+  notes TEXT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
@@ -137,10 +138,10 @@ CREATE TABLE characters (
 );
 
 -- $2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q is a bcrypt hash of "this is my password"
-INSERT INTO users (username, email, password, groups, settings, verified, saved_entry_ids) VALUES ("admin", "admin@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[1]", "{}", 1, "[]");
-INSERT INTO users (username, email, password, groups, settings, verified, saved_entry_ids) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", 1, "[]");
+INSERT INTO users (username, email, password, groups, settings, pending_email, saved_entry_ids) VALUES ("admin", "admin@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[1]", "{}", NULL, "[]");
+INSERT INTO users (username, email, password, groups, settings, pending_email, saved_entry_ids) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", NULL, "[]");
 
 INSERT INTO entries (chinese, english, pinyin, translations, categories) VALUES ("我", "I, me", "wǒ", "[]", "[]");
 
 INSERT INTO stories (name, description, passage_ids, position) VALUES ("Basics", "Sarah introduces herself to the reader.", "[1]", 1);
-INSERT INTO passages (chinese_name, english_name, description, story_id, data, new_words) VALUES ("你好", "Hello", "Sarah introduces herself to the reader.", 1, '{"components": []}', "[]");
+INSERT INTO passages (chinese_name, english_name, description, story_id, data, new_words, notes) VALUES ("你好", "Hello", "Sarah introduces herself to the reader.", 1, '{"components": []}', "[]", "# Grammar Notes");
