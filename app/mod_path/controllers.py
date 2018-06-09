@@ -21,7 +21,7 @@ def get_path():
     }
 
     # Create array of all stories from JSON data
-    stories = Story.query.all()
+    stories = Story.query.order_by(Story.position.asc()).all()
     stories_data = [story.serialize() for story in stories]
 
     passages = Passage.query.all()

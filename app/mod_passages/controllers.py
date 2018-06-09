@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, session
-from flask_login import current_user
+from flask_login import current_user, login_required
 import jieba, json, numpy as np
 from pypinyin import pinyin
 
@@ -7,6 +7,7 @@ from app import db, admin_required
 from app.mod_passages import check_body
 import app.mod_passages.errors as errors
 from app.mod_passages.models import Passage
+from app.mod_path.models import PathAction
 from app.mod_stories.models import Story
 from app.mod_users.models import User
 
@@ -26,7 +27,38 @@ def get_passages():
     passages_data = [passage.serialize() for passage in passages]
     return jsonify(passages_data)
 
+def passage_status_for_user(passage_id, user_id):
+    # Create array of all stories from JSON data
+    stories = Story.query.order_by(Story.position.asc()).all()
+    stories_data = [story.serialize() for story in stories]
+
+    # Create array of completed passage ids
+    path_actions = PathAction.query.filter_by(user_id=user_id).all()
+    completed_passage_ids = [action.passage_id for action in path_actions]
+
+    # Loop through the passages in order
+    for story in stories_data:
+        for story_passage_id in story["passage_ids"]:
+            # Check if this passage has been completed
+            if story_passage_id in completed_passage_ids:
+                if story_passage_id == passage_id:
+                    # Return complete if this is the passage we're looking for
+                    return "complete"
+                else:
+                    # Otherwise, keep going through the passages, in order
+                    continue
+            else:
+                # We get here the first time we find a passage that hasn't been
+                # completed, so if it's the passage we're looking for, this is
+                # the user's next passage. Otherwise, we haven't found the
+                # passage yet, so it is locked.
+                if story_passage_id == passage_id:
+                    return "next"
+                else:
+                    return "locked"
+
 @mod_passages.route("/<passage_id>", methods=["GET"])
+@login_required
 def get_passage(passage_id):
     """Retrieves a passage with the provided passage id.
 
@@ -44,12 +76,21 @@ def get_passage(passage_id):
         # Return JSON data if the passage could be found
         passage_data = passage.serialize()
 
+        # If someone is logged in, check what their status is for this passage
+        passage_data["status"] = passage_status_for_user(int(passage_id), current_user.id)
+
+        # If the user hasn't reached this passage yet, return 403
+        if passage_data["status"] == "locked" and not current_user.is_admin:
+            return errors.passage_not_reached()
+
         # Extract the words in each text component and add to JSON response
         for idx, component in enumerate(passage_data["data"]["components"]):
             if component["type"] == "text":
+                # Separate Chinese sentences into separate words
                 word_generator = jieba.cut(component["text"], cut_all=False)
                 words = [{"chinese": word} for word in word_generator]
 
+                # Add pinyin to the word objects
                 pinyin_words = [pinyin(word["chinese"]) for word in words]
                 flattened_pinyin_words = [[j for i in words for j in i] for words in pinyin_words]
                 joined_pinyin_words = ["".join(words) for words in flattened_pinyin_words]
@@ -57,6 +98,7 @@ def get_passage(passage_id):
                 for i, word in enumerate(words):
                     words[i]["pinyin"] = joined_pinyin_words[i]
 
+                # Add the words to the passage data
                 passage_data["data"]["components"][idx]["words"] = words
 
         return jsonify(passage_data)

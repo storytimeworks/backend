@@ -13,3 +13,6 @@ def missing_create_passage_parameters():
 
 def missing_update_passage_parameters():
     return error(400, 1505, "Missing parameters needed to update a passage")
+
+def passage_not_reached():
+    return error(403, 1506, "You haven't unlocked this passage yet")
