@@ -77,11 +77,14 @@ def get_passage(passage_id):
         passage_data = passage.serialize()
 
         # If someone is logged in, check what their status is for this passage
-        passage_data["status"] = passage_status_for_user(int(passage_id), current_user.id)
+        if current_user.is_admin:
+            passage_data["status"] = "completed"
+        else:
+            passage_data["status"] = passage_status_for_user(int(passage_id), current_user.id)
 
-        # If the user hasn't reached this passage yet, return 403
-        if passage_data["status"] == "locked" and not current_user.is_admin:
-            return errors.passage_not_reached()
+            # If the user hasn't reached this passage yet, return 403
+            if passage_data["status"] == "locked":
+                return errors.passage_not_reached()
 
         # Extract the words in each text component and add to JSON response
         for idx, component in enumerate(passage_data["data"]["components"]):
