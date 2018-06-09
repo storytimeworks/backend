@@ -67,6 +67,17 @@ def get_path():
             # Add the passage data to this story
             story["passages"].append(passage_data)
 
+        # Get all of the different passage statuses in this story
+        passage_statuses = list(set([passage["status"] for passage in story["passages"]]))
+
+        if len(passage_statuses) == 1:
+            # If all of the statuses are the same, this should be the status for
+            # the story as well
+            story["status"] = passage_statuses[0]
+        else:
+            # Otherwise, it must contain a passage with the status of "next"
+            story["status"] = "next"
+
     # Update path data with stories array
     path["stories"] = stories_data
 
