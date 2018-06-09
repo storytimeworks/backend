@@ -82,6 +82,12 @@ def create_passage():
     # Add one component to the passage by default
     default_data = {
         "components": [{
+            "character": {
+                "chinese_name": "小雪",
+                "english_name": "Sarah",
+                "gender": 0,
+                "id": 1
+            },
             "text": "你好",
             "type": "text"
         }]
