@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, session
 from flask_login import current_user, login_required
 
 from app.mod_passages.models import Passage
+from app.mod_path.models import PathAction
 from app.mod_stories.models import Story
 
 mod_path = Blueprint("path", __name__, url_prefix="/path")
@@ -25,6 +26,13 @@ def get_path():
 
     passages = Passage.query.all()
 
+    # Figure out which passages have been completed
+    path_actions = PathAction.query.filter_by(user_id=current_user.id).all()
+    completed_passage_ids = [action.passage_id for action in path_actions]
+
+    # True if we've reached the user's furthest passage in the following loop
+    reached_furthest_passage = False
+
     # Connect stories with their passages
     for story in stories_data:
         story["passages"] = []
@@ -36,6 +44,21 @@ def get_path():
 
             # Remove actual passage data because the response would be too long
             del passage_data["data"]
+
+            if reached_furthest_passage:
+                # If we've already reached the furthest passage, this one should
+                # be locked
+                passage_data["status"] = "locked"
+            else:
+                # If we haven't reached the furthest passage yet, determine if
+                # the user has completed this one
+                if passage_id in completed_passage_ids:
+                    passage_data["status"] = "complete"
+                else:
+                    # If not, this is the next passage for the user to complete
+                    # and we've reached their furthest passage
+                    passage_data["status"] = "next"
+                    reached_furthest_passage = True
 
             # Add the passage data to this story
             story["passages"].append(passage_data)
