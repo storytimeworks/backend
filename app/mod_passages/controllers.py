@@ -258,21 +258,21 @@ def generate_chinese_name():
     given_name_p1 = ChineseNameCharacter.query.filter_by(position=1, attribute=attribute).filter((ChineseNameCharacter.gender == gender) | (ChineseNameCharacter.gender.is_(None))).order_by(db.func.rand()).first()
     given_name_p2 = ChineseNameCharacter.query.filter_by(position=2).filter((ChineseNameCharacter.gender == gender) | (ChineseNameCharacter.gender.is_(None))).order_by(db.func.rand()).first()
 
-    data = {
-        "name": surname.name_character + given_name_p1.name_character + given_name_p2.name_character,
-        "parts": [
-            {
-                "character": surname.name_character
-            },
-            {
-                "character": given_name_p1.name_character,
-                "meaning": given_name_p1.meaning
-            },
-            {
-                "character": given_name_p2.name_character,
-                "meaning": given_name_p2.meaning
-            }
-        ]
-    }
+    data = [
+        {
+            "character": surname.name_character,
+            "pinyin": pinyin(surname.name_character)[0][0]
+        },
+        {
+            "character": given_name_p1.name_character,
+            "meaning": given_name_p1.meaning,
+            "pinyin": pinyin(given_name_p1.name_character)[0][0]
+        },
+        {
+            "character": given_name_p2.name_character,
+            "meaning": given_name_p2.meaning,
+            "pinyin": pinyin(given_name_p2.name_character)[0][0]
+        }
+    ]
 
     return jsonify(data)
