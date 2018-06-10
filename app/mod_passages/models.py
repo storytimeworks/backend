@@ -6,8 +6,6 @@ class Base(db.Model):
     __abstract__ = True
 
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
-    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
 class Passage(Base):
 
@@ -20,6 +18,8 @@ class Passage(Base):
     data = db.Column(db.Text, nullable=False)
     new_words = db.Column(db.Text, nullable=False)
     notes = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
     def __init__(self, chinese_name, english_name, description, story_id):
         self.chinese_name = chinese_name
@@ -59,3 +59,13 @@ class Passage(Base):
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
+
+class ChineseNameCharacter(Base):
+
+    __tablename__ = "chinese_name_characters"
+
+    name_character = db.Column(db.String(1), nullable=False)
+    position = db.Column(db.Integer, nullable=False)
+    attribute = db.Column(db.Integer, nullable=False)
+    meaning = db.Column(db.String(50))
+    gender = db.Column(db.Boolean)

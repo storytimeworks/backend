@@ -6,7 +6,7 @@ from pypinyin import pinyin
 from app import db, admin_required
 from app.mod_passages import check_body
 import app.mod_passages.errors as errors
-from app.mod_passages.models import Passage
+from app.mod_passages.models import Passage, ChineseNameCharacter
 from app.mod_path.models import PathAction
 from app.mod_stories.models import Story
 from app.mod_users.models import User
@@ -247,3 +247,32 @@ def update_passage(passage_id):
 
     # Return updated passage JSON data
     return get_passage(passage_id)
+
+@mod_passages.route("/name", methods=["GET"])
+def generate_chinese_name():
+    # 0 = intelligence, 1 = grace/elegance, 2 = strength/power, 3 = fortune, 4 = beauty/appearance
+    attribute = int(request.args.get("attribute"))
+    gender = int(request.args.get("gender"))
+
+    surname = ChineseNameCharacter.query.filter_by(position=0).order_by(db.func.rand()).first()
+    given_name_p1 = ChineseNameCharacter.query.filter_by(position=1, attribute=attribute).filter((ChineseNameCharacter.gender == gender) | (ChineseNameCharacter.gender.is_(None))).order_by(db.func.rand()).first()
+    given_name_p2 = ChineseNameCharacter.query.filter_by(position=2).filter((ChineseNameCharacter.gender == gender) | (ChineseNameCharacter.gender.is_(None))).order_by(db.func.rand()).first()
+
+    data = {
+        "name": surname.name_character + given_name_p1.name_character + given_name_p2.name_character,
+        "parts": [
+            {
+                "character": surname.name_character
+            },
+            {
+                "character": given_name_p1.name_character,
+                "meaning": given_name_p1.meaning
+            },
+            {
+                "character": given_name_p2.name_character,
+                "meaning": given_name_p2.meaning
+            }
+        ]
+    }
+
+    return jsonify(data)

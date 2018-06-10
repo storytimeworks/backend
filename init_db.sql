@@ -137,6 +137,16 @@ CREATE TABLE characters (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE chinese_name_characters (
+  id INT NOT NULL AUTO_INCREMENT,
+  name_character CHAR(1) NOT NULL,
+  position TINYINT NOT NULL,
+  attribute TINYINT,
+  meaning VARCHAR(50),
+  gender BOOLEAN,
+  PRIMARY KEY (id)
+);
+
 -- $2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q is a bcrypt hash of "this is my password"
 INSERT INTO users (username, email, password, groups, settings, pending_email, saved_entry_ids) VALUES ("admin", "admin@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[1]", "{}", NULL, "[]");
 INSERT INTO users (username, email, password, groups, settings, pending_email, saved_entry_ids) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", NULL, "[]");
