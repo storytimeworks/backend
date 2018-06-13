@@ -96,7 +96,7 @@ def get_passage(passage_id):
                 # Add pinyin to the word objects
                 pinyin_words = [pinyin(word["chinese"]) for word in words]
                 flattened_pinyin_words = [[j for i in words for j in i] for words in pinyin_words]
-                joined_pinyin_words = ["".join(words) for words in flattened_pinyin_words]
+                joined_pinyin_words = [" ".join(words) for words in flattened_pinyin_words]
 
                 # True if the next word in the loop needs to be capitalized
                 capitalize_next_word = True
@@ -106,7 +106,7 @@ def get_passage(passage_id):
 
                     if capitalize_next_word:
                         # Capitalize this word, don't capitalize the next one
-                        word = word.title()
+                        word = word.capitalize()
                         capitalize_next_word = False
 
                     # Replace Chinese punctutation with regular punctuation
@@ -209,6 +209,11 @@ def update_word_lists():
 
         # Use numpy to figure out which words have appeared for the first time
         new_words = np.setdiff1d(passage_words, words).tolist()
+
+        # Remove punctuation from new words list
+        punctuation_words = ["。", "，", "！", "？"]
+        new_words = [word for word in new_words if word not in punctuation_words]
+
         passage.new_words = json.dumps(new_words)
 
         # Add the new words to the general words array
