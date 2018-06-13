@@ -142,8 +142,7 @@ def create_passage():
     """Creates a passage with the provided data.
 
     Body:
-        chinese_name: The chinese name for this passage.
-        english_name: The english name for this passage.
+        name: The name of this passage.
         description: This passage's description, in english.
         story_id: The id of the story that this passage corresponds to.
 
@@ -152,16 +151,15 @@ def create_passage():
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["chinese_name", "english_name", "description", "story_id"]):
+    if not check_body(request, ["name", "description", "story_id"]):
         return errors.missing_create_passage_parameters()
 
-    chinese_name = request.json["chinese_name"]
-    english_name = request.json["english_name"]
+    name = request.json["name"]
     description = request.json["description"]
     story_id = request.json["story_id"]
 
     # Create the passage and add it to MySQL
-    passage = Passage(chinese_name, english_name, description, story_id)
+    passage = Passage(name, description, story_id)
     db.session.add(passage)
 
     # Update the story to add this passage id
@@ -232,8 +230,7 @@ def update_passage(passage_id):
         passage_id: The id of the passage being updated.
 
     Body:
-        chinese_name: The chinese name of this passage.
-        english_name: The english name of this passage.
+        name: The name of this passage.
         description: A description of the passage, in english.
         data: The passage's components' data.
         notes: The passage's grammar notes.
@@ -260,10 +257,8 @@ def update_passage(passage_id):
         return errors.passage_not_found()
 
     # Update the passage accordingly, depending on the key and value
-    if key == "chinese_name":
-        passage.chinese_name = value
-    elif key == "english_name":
-        passage.english_name = value
+    if key == "name":
+        passage.name = value
     elif key == "description":
         passage.description = value
     elif key == "data":
