@@ -23,6 +23,7 @@ class NLPApp(Base):
 
     def serialize(self):
         return {
+            "id": self.id,
             "name": self.name,
             "passage_id": self.passage_id,
             "access_token": self.access_token,
