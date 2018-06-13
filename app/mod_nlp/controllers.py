@@ -82,6 +82,7 @@ def create_nlp_app():
     return get_nlp_app(nlp_app.id)
 
 @mod_nlp.route("/<nlp_app_id>", methods=["DELETE"])
+@admin_required
 def delete_nlp_app(nlp_app_id):
     """Deletes the NLP app with this id.
 
