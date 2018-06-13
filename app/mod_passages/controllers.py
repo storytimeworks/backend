@@ -91,7 +91,7 @@ def get_passage(passage_id):
             if component["type"] == "text":
                 # Separate Chinese sentences into separate words
                 word_generator = jieba.cut(component["text"], cut_all=False)
-                words = [{"chinese": word} for word in word_generator]
+                words = [{"chinese": word, "punctuation": False} for word in word_generator]
 
                 # Add pinyin to the word objects
                 pinyin_words = [pinyin(word["chinese"]) for word in words]
@@ -113,12 +113,18 @@ def get_passage(passage_id):
                     if word == "。":
                         capitalize_next_word = True
                         word = "."
+                        words[i]["punctuation"] = True
+                    elif word == "，":
+                        word = ","
+                        words[i]["punctuation"] = True
                     elif word == "！":
                         capitalize_next_word = True
                         word = "!"
+                        words[i]["punctuation"] = True
                     elif word == "？":
                         capitalize_next_word = True
                         word = "?"
+                        words[i]["punctuation"] = True
 
                     words[i]["pinyin"] = word
 
