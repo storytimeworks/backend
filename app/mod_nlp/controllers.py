@@ -117,3 +117,43 @@ def delete_nlp_app(nlp_app_id):
     db.session.commit()
 
     return ("", 204)
+
+@mod_nlp.route("/<nlp_app_id>/message", methods=["GET"])
+def message_nlp_app(nlp_app_id):
+    """Messages an app on Wit.
+
+    Arguments:
+        q: The message to be sent to Wit.
+
+    Response:
+        The JSON response given to us by Wit.
+    """
+
+    # Get all needed request arguments
+    if "q" not in request.args:
+        return errors.missing_message_arguments()
+
+    message = request.args.get("q")
+
+    # Find the app that's being used
+    nlp_app = NLPApp.query.filter_by(id=nlp_app_id).first()
+
+    # Return 404 if no app exists with this id
+    if not nlp_app:
+        return errors.app_not_found()
+
+    # Message this app on Wit.ai
+    response = requests.get(
+        url="https://api.wit.ai/message",
+        params={
+            "v": "20170307",
+            "q": message
+        },
+        headers={
+            "Authorization": "Bearer %s" % nlp_app.access_token,
+            "Content-Type": "application/json; charset=utf-8"
+        }
+    )
+
+    # Return the response given to us by Wit
+    return jsonify(response.json())

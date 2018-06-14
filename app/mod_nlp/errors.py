@@ -10,3 +10,6 @@ def app_not_found():
 
 def missing_create_app_parameters():
     return error(400, 1702, "Missing parameters needed to create an app")
+
+def missing_message_arguments():
+    return error(400, 1703, "Missing arguments needed to message an app")
