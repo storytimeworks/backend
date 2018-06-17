@@ -157,3 +157,38 @@ def message_nlp_app(nlp_app_id):
 
     # Return the response given to us by Wit
     return jsonify(response.json())
+
+@mod_nlp.route("/<nlp_app_id>/intents", methods=["GET"])
+def get_app_intents(nlp_app_id):
+    """Retrieves all of an app's intents.
+
+    Parameters:
+        nlp_app_id: The id of the app to retrieve intents for.
+
+    Response:
+        A JSON array of all intents.
+    """
+
+    # Find the app that's being used
+    nlp_app = NLPApp.query.filter_by(id=nlp_app_id).first()
+
+    # Return 404 if no app exists with this id
+    if not nlp_app:
+        return errors.app_not_found()
+
+    # Retrieve intents from Wit.ai
+    response = requests.get(
+        url="https://api.wit.ai/entities/intent",
+        params={
+            "v": "20170307"
+        },
+        headers={
+            "Authorization": "Bearer %s" % nlp_app.access_token,
+            "Content-Type": "application/json; charset=utf-8"
+        }
+    )
+
+    intents = list(map(lambda x: x["value"], response.json()["values"]))
+
+    # Return the intents given to us by Wit
+    return jsonify(intents)
