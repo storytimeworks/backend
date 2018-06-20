@@ -155,6 +155,16 @@ CREATE TABLE nlp_apps (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE expressions_questions (
+  id INT NOT NULL AUTO_INCREMENT,
+  prompt VARCHAR(255) NOT NULL,
+  correct_choice VARCHAR(255) NOT NULL,
+  choice_2 VARCHAR(255) NOT NULL,
+  choice_3 VARCHAR(255) NOT NULL,
+  choice_4 VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
+);
+
 -- $2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q is a bcrypt hash of "this is my password"
 INSERT INTO users (username, email, password, groups, settings, pending_email, saved_entry_ids) VALUES ("admin", "admin@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[1]", "{}", NULL, "[]");
 INSERT INTO users (username, email, password, groups, settings, pending_email, saved_entry_ids) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", NULL, "[]");
