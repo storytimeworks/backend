@@ -158,10 +158,14 @@ CREATE TABLE nlp_apps (
 CREATE TABLE expressions_questions (
   id INT NOT NULL AUTO_INCREMENT,
   prompt VARCHAR(255) NOT NULL,
-  correct_choice VARCHAR(255) NOT NULL,
+  choice_1 VARCHAR(255) NOT NULL,
   choice_2 VARCHAR(255) NOT NULL,
-  choice_3 VARCHAR(255) NOT NULL,
-  choice_4 VARCHAR(255) NOT NULL,
+  choice_3 VARCHAR(255),
+  choice_4 VARCHAR(255),
+  choice_1_correct BOOLEAN NOT NULL,
+  choice_2_correct BOOLEAN NOT NULL,
+  choice_3_correct BOOLEAN,
+  choice_4_correct BOOLEAN,
   PRIMARY KEY (id)
 );
 

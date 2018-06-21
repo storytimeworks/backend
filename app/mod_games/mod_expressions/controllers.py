@@ -28,7 +28,7 @@ def get_questions():
         # Ensure the correct questions are being returned
         questions = ExpressionsQuestion.query.filter(
             ExpressionsQuestion.prompt.like(query) |
-            ExpressionsQuestion.correct_choice.like(query) |
+            ExpressionsQuestion.choice_1.like(query) |
             ExpressionsQuestion.choice_2.like(query) |
             ExpressionsQuestion.choice_3.like(query) |
             ExpressionsQuestion.choice_4.like(query)
@@ -67,27 +67,35 @@ def create_question():
 
     Body:
         prompt: The prompt for this question.
-        correct_choice: The correct answer to this question.
-        choice_2: The first wrong answer to this question.
-        choice_3: The second wrong answer to this question.
-        choice_4: The third wrong answer to this question.
+        choice_1: The first choice to answer this question.
+        choice_2: The second choice to answer this question.
+        choice_3: The third choice to answer this question.
+        choice_4: The fourth choice to answer this question.
+        choice_1_correct: True if the first choice is correct.
+        choice_2_correct: True if the second choice is correct.
+        choice_3_correct: True if the third choice is correct.
+        choice_4_correct: True if the fourth choice is correct.
 
     Returns:
         JSON data of the question.
     """
 
     # Ensure necessary parameters are here
-    if not check_body(request, ["prompt", "correct_choice", "choice_2", "choice_3", "choice_4"]):
+    if not check_body(request, ["prompt", "choice_1", "choice_2", "choice_3", "choice_4", "choice_1_correct", "choice_2_correct", "choice_3_correct", "choice_4_correct"]):
         return errors.missing_create_question_parameters()
 
     prompt = request.json["prompt"]
-    correct_choice = request.json["correct_choice"]
+    choice_1 = request.json["choice_1"]
     choice_2 = request.json["choice_2"]
     choice_3 = request.json["choice_3"]
     choice_4 = request.json["choice_4"]
+    choice_1_correct = request.json["choice_1_correct"]
+    choice_2_correct = request.json["choice_2_correct"]
+    choice_3_correct = request.json["choice_3_correct"]
+    choice_4_correct = request.json["choice_4_correct"]
 
     # Create the question and store in MySQL
-    question = ExpressionsQuestion(prompt, correct_choice, choice_2, choice_3, choice_4)
+    question = ExpressionsQuestion(prompt, choice_1, choice_2, choice_3, choice_4, choice_1_correct, choice_2_correct, choice_3_correct, choice_4_correct)
     db.session.add(question)
     db.session.commit()
 
@@ -102,10 +110,14 @@ def update_question(question_id):
 
     Body:
         prompt: The prompt for this question.
-        correct_choice: The correct answer to this question.
-        choice_2: The first wrong answer to this question.
-        choice_3: The second wrong answer to this question.
-        choice_4: The third wrong answer to this question.
+        choice_1: The first choice to answer this question.
+        choice_2: The second choice to answer this question.
+        choice_3: The third choice to answer this question.
+        choice_4: The fourth choice to answer this question.
+        choice_1_correct: True if the first choice is correct.
+        choice_2_correct: True if the second choice is correct.
+        choice_3_correct: True if the third choice is correct.
+        choice_4_correct: True if the fourth choice is correct.
 
     Returns:
         JSON data of the question.
@@ -131,14 +143,22 @@ def update_question(question_id):
     # Update the question accordingly, depending on the key and value
     if key == "prompt":
         question.prompt = value
-    elif key == "correct_choice":
-        question.correct_choice = value
+    elif key == "choice_1":
+        question.choice_1 = value
     elif key == "choice_2":
         question.choice_2 = value
     elif key == "choice_3":
         question.choice_3 = value
     elif key == "choice_4":
         question.choice_4 = value
+    elif key == "choice_1_correct":
+        question.choice_1_correct = value
+    elif key == "choice_2_correct":
+        question.choice_2_correct = value
+    elif key == "choice_3_correct":
+        question.choice_3_correct = value
+    elif key == "choice_4_correct":
+        question.choice_4_correct = value
 
     # Save changes in MySQL
     db.session.commit()
