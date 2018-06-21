@@ -1,4 +1,5 @@
 from app import db
+from pypinyin import pinyin
 
 class Base(db.Model):
 
@@ -27,10 +28,8 @@ class ExpressionsQuestion(Base):
         return {
             "id": self.id,
             "prompt": self.prompt,
-            "choices": [
-                self.correct_choice,
-                self.choice_2,
-                self.choice_3,
-                self.choice_4
-            ]
+            "correct_choice": self.correct_choice,
+            "choice_2": self.choice_2,
+            "choice_3": self.choice_3,
+            "choice_4": self.choice_4
         }

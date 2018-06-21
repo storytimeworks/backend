@@ -7,6 +7,59 @@ from app.mod_games.mod_expressions.models import ExpressionsQuestion
 
 mod_expressions_game = Blueprint("expressions_game", __name__, url_prefix="/games/expressions")
 
+@mod_expressions_game.route("", methods=["GET"])
+@admin_required
+def get_questions():
+    """Retrieves all expressions game questions.
+
+    Parameters:
+        q: The query that should be used for the search.
+
+    Returns:
+        JSON data for all the questions.
+    """
+
+    questions = []
+
+    if "q" in request.args:
+        # Use the query to search for a question if one is included
+        query = "%" + request.args.get("q") + "%"
+
+        # Ensure the correct questions are being returned
+        questions = ExpressionsQuestion.query.filter(
+            ExpressionsQuestion.prompt.like(query) |
+            ExpressionsQuestion.correct_choice.like(query) |
+            ExpressionsQuestion.choice_2.like(query) |
+            ExpressionsQuestion.choice_3.like(query) |
+            ExpressionsQuestion.choice_4.like(query)
+        ).all()
+    else:
+        # Retrieve and return all questions
+        questions = ExpressionsQuestion.query.all()
+
+    # Return questions JSON data
+    questions_data = [question.serialize() for question in questions]
+    return jsonify(questions_data)
+
+@mod_expressions_game.route("/<question_id>", methods=["GET"])
+@admin_required
+def get_question(question_id):
+    """Retrieves a question with a specific id.
+
+    Arguments:
+        question_id: The id of this question.
+
+    Returns:
+        JSON data for this question.
+    """
+
+    question = ExpressionsQuestion.query.filter_by(id=question_id).first()
+
+    if not question:
+        return errors.question_not_found()
+    else:
+        return jsonify(question.serialize())
+
 @mod_expressions_game.route("", methods=["POST"])
 @admin_required
 def create_question():
