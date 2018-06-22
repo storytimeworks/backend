@@ -7,6 +7,34 @@ from app.mod_games.mod_expressions.models import ExpressionsQuestion
 
 mod_expressions_game = Blueprint("expressions_game", __name__, url_prefix="/games/expressions")
 
+@mod_expressions_game.route("/play", methods=["GET"])
+def play_game():
+    """Retrieves about 30 questions in order to play a game.
+
+    Returns:
+        JSON data for all of the questions.
+    """
+
+    # Get questions that don't have other questions that come before it
+    questions = ExpressionsQuestion.query \
+        .filter(ExpressionsQuestion.preceded_by == None) \
+        .order_by(db.func.rand()).limit(30).all()
+
+    # Loop through all of the questions
+    for idx in range(len(questions)):
+        question = questions[idx]
+
+        while question.followed_by != None:
+            # Add questions that follow the questions that were retrieved
+            question = ExpressionsQuestion.query.filter_by(id=question.followed_by).first()
+            questions.insert(idx + 1, question)
+            idx += 2
+
+    # Return JSON data
+    questions_data = [question.serialize() for question in questions]
+    return jsonify(questions_data)
+
+
 @mod_expressions_game.route("", methods=["GET"])
 @admin_required
 def get_questions():
@@ -118,6 +146,7 @@ def update_question(question_id):
         choice_2_correct: True if the second choice is correct.
         choice_3_correct: True if the third choice is correct.
         choice_4_correct: True if the fourth choice is correct.
+        followed_by: The id of the question that follows this one, if any.
 
     Returns:
         JSON data of the question.
@@ -159,6 +188,11 @@ def update_question(question_id):
         question.choice_3_correct = value
     elif key == "choice_4_correct":
         question.choice_4_correct = value
+    elif key == "followed_by":
+        question.followed_by = value
+
+        next_question = ExpressionsQuestion.query.filter_by(id=value).first()
+        next_question.preceded_by = question.id
 
     # Save changes in MySQL
     db.session.commit()

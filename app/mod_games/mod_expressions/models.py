@@ -20,6 +20,8 @@ class ExpressionsQuestion(Base):
     choice_2_correct = db.Column(db.Boolean, nullable=False)
     choice_3_correct = db.Column(db.Boolean)
     choice_4_correct = db.Column(db.Boolean)
+    followed_by = db.Column(db.Integer)
+    preceded_by = db.Column(db.Integer)
 
     def __init__(self, prompt, choice_1, choice_2, choice_3, choice_4, choice_1_correct, choice_2_correct, choice_3_correct, choice_4_correct):
         self.prompt = prompt
@@ -43,5 +45,7 @@ class ExpressionsQuestion(Base):
             "choice_1_correct": self.choice_1_correct,
             "choice_2_correct": self.choice_2_correct,
             "choice_3_correct": self.choice_3_correct,
-            "choice_4_correct": self.choice_4_correct
+            "choice_4_correct": self.choice_4_correct,
+            "followed_by": self.followed_by,
+            "preceded_by": self.preceded_by
         }

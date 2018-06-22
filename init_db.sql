@@ -166,6 +166,7 @@ CREATE TABLE expressions_questions (
   choice_2_correct BOOLEAN NOT NULL,
   choice_3_correct BOOLEAN,
   choice_4_correct BOOLEAN,
+  followed_by INT,
   PRIMARY KEY (id)
 );
 
