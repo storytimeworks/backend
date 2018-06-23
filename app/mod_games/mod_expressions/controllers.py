@@ -147,6 +147,7 @@ def update_question(question_id):
         choice_3_correct: True if the third choice is correct.
         choice_4_correct: True if the fourth choice is correct.
         followed_by: The id of the question that follows this one, if any.
+        preceded_by: The id of the question that comes before this one, if any.
 
     Returns:
         JSON data of the question.
@@ -193,6 +194,11 @@ def update_question(question_id):
 
         next_question = ExpressionsQuestion.query.filter_by(id=value).first()
         next_question.preceded_by = question.id
+    elif key == "preceded_by":
+        question.preceded_by = value
+
+        previous_question = ExpressionsQuestion.query.filter_by(id=value).first()
+        previous_question.followed_by = question.id
 
     # Save changes in MySQL
     db.session.commit()
