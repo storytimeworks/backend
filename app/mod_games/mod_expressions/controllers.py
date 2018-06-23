@@ -191,14 +191,8 @@ def update_question(question_id):
         question.choice_4_correct = value
     elif key == "followed_by":
         question.followed_by = value
-
-        next_question = ExpressionsQuestion.query.filter_by(id=value).first()
-        next_question.preceded_by = question.id
     elif key == "preceded_by":
         question.preceded_by = value
-
-        previous_question = ExpressionsQuestion.query.filter_by(id=value).first()
-        previous_question.followed_by = question.id
 
     # Save changes in MySQL
     db.session.commit()
