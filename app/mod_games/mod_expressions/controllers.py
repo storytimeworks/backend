@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask_login import login_required
 
 from app import db, admin_required
 from app.mod_games.mod_expressions import check_body
@@ -8,6 +9,7 @@ from app.mod_games.mod_expressions.models import ExpressionsQuestion
 mod_expressions_game = Blueprint("expressions_game", __name__, url_prefix="/games/expressions")
 
 @mod_expressions_game.route("/play", methods=["GET"])
+@login_required
 def play_game():
     """Retrieves about 30 questions in order to play a game.
 

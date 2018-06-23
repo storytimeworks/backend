@@ -1,5 +1,5 @@
 from app import db
-from pypinyin import pinyin
+from app.pinyin import pinyin
 
 class Base(db.Model):
 
@@ -46,6 +46,10 @@ class ExpressionsQuestion(Base):
             "choice_2_correct": self.choice_2_correct,
             "choice_3_correct": self.choice_3_correct,
             "choice_4_correct": self.choice_4_correct,
+            "choice_1_pinyin": pinyin(self.choice_1),
+            "choice_2_pinyin": pinyin(self.choice_2),
+            "choice_3_pinyin": pinyin(self.choice_3),
+            "choice_4_pinyin": pinyin(self.choice_4),
             "followed_by": self.followed_by,
             "preceded_by": self.preceded_by
         }
