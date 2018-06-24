@@ -201,3 +201,31 @@ def update_question(question_id):
 
     # Return updated question JSON data
     return jsonify(question.serialize())
+
+@mod_expressions_game.route("/choices", methods=["GET"])
+@admin_required
+def get_all_choices():
+    """Retrieves all choices present in the expressions game.
+
+    Returns:
+        All choices, as a JSON string array.
+    """
+
+    # Retrieve all questions to get choices from
+    questions = ExpressionsQuestion.query.all()
+
+    # Create empty choices array
+    choices = []
+
+    # Add all possible choices to the array
+    for question in questions:
+        choices.append(question.choice_1)
+        choices.append(question.choice_2)
+        choices.append(question.choice_3)
+        choices.append(question.choice_4)
+
+    # Make sure only one of each choice is here
+    choices = list(set(choices))
+
+    # Return data as JSON
+    return jsonify(choices)
