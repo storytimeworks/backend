@@ -38,3 +38,26 @@ class CopyEditSentence(Base):
     correct_sentence = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+
+class GameResult(Base):
+
+    __tablename__ = "game_results"
+
+    user_id = db.Column(db.Integer, nullable=False, index=True)
+    game = db.Column(db.Integer, nullable=False)
+    score = db.Column(db.Integer, nullable=False)
+    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    def __init__(self, user_id, game, score):
+        self.user_id = user_id
+        self.game = game
+        self.score = score
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "game": self.game,
+            "score": self.score,
+            "timestamp": self.timestamp
+        }

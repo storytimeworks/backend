@@ -1,9 +1,14 @@
 from flask import Blueprint, jsonify, request
-from flask_login import login_required
+from flask_login import current_user, login_required
 
-from app.pinyin import pinyin
 import random
 from shushu import convert
+
+from app import db
+from app.mod_games.models import GameResult
+from app.mod_games.mod_mad_minute import check_body
+from app.mod_games.mod_mad_minute.models import MadMinuteResult
+from app.pinyin import pinyin
 
 mod_mad_minute_game = Blueprint("mad_minute_game", __name__, url_prefix="/games/mad_minute")
 
@@ -51,3 +56,28 @@ def play_game():
         questions.append(question)
 
     return jsonify(questions)
+
+@mod_mad_minute_game.route("/finish", methods=["POST"])
+@login_required
+def finish_game():
+    """Completes a game, storing any necessary data.
+
+    Returns:
+        JSON data of the completed game.
+    """
+
+    if not check_body(request, ["correct", "wrong"]):
+        return errors.missing_finish_parameters()
+
+    correct = request.json["correct"]
+    wrong = request.json["wrong"]
+
+    result = GameResult(current_user.id, 1, 0)
+    db.session.add(result)
+    db.session.flush()
+
+    mad_minute_result = MadMinuteResult(current_user.id, result.id, correct, wrong)
+    db.session.add(mad_minute_result)
+    db.session.commit()
+
+    return jsonify(result.serialize())
