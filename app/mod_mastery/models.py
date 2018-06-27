@@ -14,10 +14,10 @@ class Mastery(Base):
     entry_id = db.Column(db.Integer, nullable=False)
     mastery = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, user_id, entry_id):
+    def __init__(self, user_id, entry_id, mastery):
         self.user_id = user_id
         self.entry_id = entry_id
-        self.mastery = 0
+        self.mastery = mastery
 
     def serialize(self):
         return {

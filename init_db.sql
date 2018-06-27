@@ -171,6 +171,15 @@ CREATE TABLE expressions_questions (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE masteries (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  entry_id INT NOT NULL,
+  mastery TINYINT NOT NULL,
+  PRIMARY KEY (id),
+  INDEX (user_id)
+);
+
 CREATE TABLE game_results (
   id INT NOT NULL AUTO_INCREMENT,
   user_id INT NOT NULL,
