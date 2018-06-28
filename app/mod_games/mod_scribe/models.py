@@ -1,4 +1,5 @@
 from app import db
+from app.pinyin import pinyin
 
 class ScribeQuestion(db.Model):
 
@@ -13,6 +14,7 @@ class ScribeQuestion(db.Model):
     def serialize(self):
         return {
             "id": self.id,
+            "pinyin": pinyin(self.prompt),
             "prompt": self.prompt
         }
 
