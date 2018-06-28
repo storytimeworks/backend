@@ -4,7 +4,7 @@ import os
 from app import configure_app
 
 if not "ENVIRONMENT" in os.environ:
-    os.environ["ENVIRONMENT"] = "dev"
+    os.environ["ENVIRONMENT"] = "development"
     os.environ["FLASK_ENV"] = "development"
     os.environ["RDS_DB_NAME"] = "storytime"
     os.environ["RDS_HOSTNAME"] = "localhost"

@@ -40,10 +40,13 @@ def log_error(message):
 def configure_app(app):
     global db, sentry
 
-    app.config.from_object("config")
-
     cors = CORS(app)
     db = SQLAlchemy(app)
+
+    app.config["SENTRY_CONFIG"] = {
+        "environment": os.environ["ENVIRONMENT"]
+    }
+
     sentry = Sentry(app)
 
     if os.environ["ENVIRONMENT"] == "production":
@@ -125,7 +128,7 @@ def configure_app(app):
     db.create_all()
 
 def configure_test_client(application):
-    os.environ["ENVIRONMENT"] = "dev"
+    os.environ["ENVIRONMENT"] = "development"
     os.environ["RDS_DB_NAME"] = "storytime_test"
     os.environ["RDS_HOSTNAME"] = "localhost"
     os.environ["RDS_PASSWORD"] = ""
