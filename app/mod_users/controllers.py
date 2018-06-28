@@ -29,7 +29,7 @@ def get_user(user_id):
     user = User.query.filter_by(id=user_id).first()
 
     # Return 404 if there is no user with this id
-    if not user:
+    if user is None:
         return errors.user_not_found()
 
     # full = Should the user's full data be returned. False if sensitive data
@@ -71,17 +71,17 @@ def register():
 
     # Ensure that this username can be used
     username_error = validate_username(username)
-    if username_error:
+    if username_error is not None:
         return username_error
 
     # Ensure that this email address can be used
     email_error = validate_email(email)
-    if email_error:
+    if email_error is not None:
         return email_error
 
     # Ensure that this password can be used
     password_error = validate_password(password, [username, email])
-    if password_error:
+    if password_error is not None:
         return password_error
 
     # Hash the password with bcrypt, this is what we'll save to MySQL
@@ -133,7 +133,7 @@ def update_user(user_id):
     # Retrieve the user who is being updated
     user = User.query.filter_by(id=user_id).first()
 
-    if not user:
+    if user is None:
         # Return 404 if this user doesn't exist
         return errors.user_not_found()
     elif user.id != current_user.id and not current_user.is_admin:
@@ -153,7 +153,7 @@ def update_user(user_id):
 
             # Ensure that this username can be used
             username_error = validate_username(username)
-            if username_error:
+            if username_error is not None:
                 return username_error
 
             # Set the user's new username
@@ -166,7 +166,7 @@ def update_user(user_id):
             # Ensure that this email address can be used
             email_error = validate_email(email)
 
-            if email_error:
+            if email_error is not None:
                 return email_error
 
             # Set the user's new email address
@@ -219,7 +219,7 @@ def login():
     user = User.query.filter((User.username == username) | (User.email == username)).first()
 
     # Return 401 if there is no user with this username or email
-    if not user:
+    if user is None:
         return errors.invalid_credentials()
 
     # Check if the password is correct
@@ -282,7 +282,7 @@ def update_password(user_id):
     # Retrieve the user who is being updated
     user = User.query.filter_by(id=user_id).first()
 
-    if not user:
+    if user is None:
         # Return 404 if this user doesn't exist
         return errors.user_not_found()
     elif user.id != current_user.id:
@@ -298,7 +298,7 @@ def update_password(user_id):
 
     # Ensure that this password can be used
     password_error = validate_password(new_password, [user.username, user.email])
-    if password_error:
+    if password_error is not None:
         return password_error
 
     # Hash the new password, this is what will be stored in MySQL
@@ -364,13 +364,13 @@ def verify_email():
     # Look up the verification object with this code
     verification = EmailVerification.query.filter_by(code=code).first()
 
-    if not verification:
+    if verification is None:
         # Return 400 if the verification code is invalid
         return errors.invalid_verification_code()
 
     user = User.query.filter_by(id=verification.user_id).first()
 
-    if not user:
+    if user is None:
         # This should never happen, in theory
         log_error("User from verification code doesn't exist")
         return errors.invalid_verification_code()
@@ -402,7 +402,7 @@ def resend_confirmation_email(user_id):
     # Find the user who is confirming their email address
     user = User.query.filter_by(id=user_id).first()
 
-    if not user:
+    if user is None:
         # Return 404 if this user doesn't exist
         return errors.user_not_found()
 
@@ -436,7 +436,7 @@ def cancel_email_change(user_id):
     # Find the user who is confirming their email address
     user = User.query.filter_by(id=user_id).first()
 
-    if not user:
+    if user is None:
         # Return 404 if this user doesn't exist
         return errors.user_not_found()
 

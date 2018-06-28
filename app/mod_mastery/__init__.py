@@ -1,4 +1,4 @@
-from app import db
+from app import db, sentry
 from app.mod_vocab.models import Entry
 from .models import Mastery
 
@@ -59,6 +59,16 @@ def update_masteries(user_id, correct_words, wrong_words):
 
         entry_ids.append(entry.id)
         updates[update_index]["entry_id"] = entry.id
+
+    # Log any masteries that couldn't find entries to Sentry
+    for update in updates:
+        if "entry_id" not in update:
+            sentry.captureMessage("Entry could not be found for mastery update", extra={
+                "update": update
+            })
+
+    # Clear all updates that don't have associated entries
+    updates = list(filter(lambda x: "entry_id" in x, updates))
 
     # Find this user's masteries by the entry ids list
     masteries = Mastery.query \

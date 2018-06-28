@@ -44,10 +44,10 @@ def configure_app(app):
 
     cors = CORS(app)
     db = SQLAlchemy(app)
+    sentry = Sentry(app)
 
     if os.environ["ENVIRONMENT"] == "production":
-        # Only use Sentry and SSL in production
-        sentry = Sentry(app)
+        # Only use SSL in production
         sslify = SSLify(app, permanent=True)
 
     # Set up login manager here
