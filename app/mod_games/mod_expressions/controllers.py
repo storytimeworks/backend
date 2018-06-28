@@ -36,7 +36,6 @@ def play_game():
     questions_data = [question.serialize() for question in questions]
     return jsonify(questions_data)
 
-
 @mod_expressions_game.route("", methods=["GET"])
 @admin_required
 def get_questions():
@@ -169,7 +168,7 @@ def update_question(question_id):
     question = ExpressionsQuestion.query.filter_by(id=question_id).first()
 
     # Return 404 if the question doesn't exist
-    if not question:
+    if question is None:
         return errors.question_not_found()
 
     # Update the question accordingly, depending on the key and value

@@ -18,7 +18,7 @@ def send(email, user, data):
         email_address = user.pending_email
 
     # Don't send emails when not in production
-    if os.environ["ENVIRONMENT"] == "development":
+    if os.environ["ENVIRONMENT"] != "production":
         print("Development environment, assume an email was sent to " + email_address)
         return
 

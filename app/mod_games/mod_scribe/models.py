@@ -1,8 +1,24 @@
 from app import db
 
-class MadMinuteResult(db.Model):
+class ScribeQuestion(db.Model):
 
-    __tablename__ = "mad_minute_results"
+    __tablename__ = "scribe_questions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    prompt = db.Column(db.String(255), nullable=False)
+
+    def __init__(self, prompt):
+        self.prompt = prompt
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "prompt": self.prompt
+        }
+
+class ScribeResult(db.Model):
+
+    __tablename__ = "scribe_results"
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)

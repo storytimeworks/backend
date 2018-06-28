@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
 
-import numpy as np
 import random
 from shushu import convert
 
