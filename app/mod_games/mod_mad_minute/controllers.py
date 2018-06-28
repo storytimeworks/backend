@@ -1,14 +1,14 @@
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
 
+import numpy as np
 import random
 from shushu import convert
 
 from app import db
 from app.mod_games.models import GameResult
 from app.mod_games.mod_mad_minute.models import MadMinuteResult
-from app.mod_mastery.models import Mastery
-from app.mod_vocab.models import Entry
+from app.mod_mastery import update_masteries
 from app.pinyin import pinyin
 from app.utils import check_body
 
@@ -25,6 +25,9 @@ def play_game():
 
     questions = []
 
+    # Generate 30 questions for Mad Minute. This needs to be
+    # updated later to support more difficult questions,
+    # according to the user's experience
     for _ in range(30):
         first_number = 5
         second_number = 10
@@ -32,23 +35,29 @@ def play_game():
         answer = ""
         prompt = ""
 
+        # True if this should be an addition question
         addition = random.randint(0, 1) == 0
 
         if addition:
+            # Make sure that the summands and sum ≤ 10
             while first_number + second_number > 10:
                 first_number = random.randint(1, 10)
                 second_number = random.randint(1, 10)
 
+            # Make the answer and prompt to return later
             answer = convert(first_number + second_number)
             prompt = pinyin(convert(first_number)) + " + " + pinyin(convert(second_number)) + " ="
         else:
+            # Make sure that the all values ≤ 10
             while first_number - second_number < 1:
                 first_number = random.randint(1, 10)
                 second_number = random.randint(1, 10)
 
+            # Make the answer and prompt to return later
             answer = convert(first_number - second_number)
             prompt = pinyin(convert(first_number)) + " - " + pinyin(convert(second_number)) + " ="
 
+        # Create the question data
         question = {
             "prompt": prompt.lower(),
             "answer": answer,
@@ -60,8 +69,10 @@ def play_game():
             ]))
         }
 
+        # Add this question to the questions array
         questions.append(question)
 
+    # Return questions array as JSON
     return jsonify(questions)
 
 @mod_mad_minute_game.route("/finish", methods=["POST"])
@@ -73,6 +84,7 @@ def finish_game():
         JSON data of the completed game.
     """
 
+    # Ensure all necessary parameters are here
     if not check_body(request, ["correct", "correct_words", "wrong", "wrong_words"]):
         return errors.missing_finish_parameters()
 
@@ -81,56 +93,18 @@ def finish_game():
     wrong = request.json["wrong"]
     wrong_words = request.json["wrong_words"]
 
+    # Save generic game result
     result = GameResult(current_user.id, 1, 0)
     db.session.add(result)
     db.session.flush()
 
+    # Save more detailed mad minute game result
     mad_minute_result = MadMinuteResult(current_user.id, result.id, correct, wrong)
     db.session.add(mad_minute_result)
     db.session.commit()
 
-    words = {}
+    # Update all masteries with words the user has practiced
+    update_masteries(current_user.id, correct_words, wrong_words)
 
-    for word in correct_words:
-        if word in words:
-            words[word] += 1
-        else:
-            words[word] = 1
-
-    for word in wrong_words:
-        if word in words:
-            words[word] -= 1
-        else:
-            words[word] = -1
-
-    chinese_words = [word for word in words]
-    entries = Entry.query.filter(Entry.chinese.in_(chinese_words)).all()
-    entry_ids = []
-
-    for entry in entries:
-        entry_ids.append(entry.id)
-
-        words[entry.id] = words[entry.chinese]
-        del words[entry.chinese]
-
-    masteries = Mastery.query.filter_by(user_id=current_user.id).filter(Mastery.entry_id.in_(entry_ids))
-
-    for mastery in masteries:
-        mastery.mastery += words[mastery.entry_id]
-        del words[mastery.entry_id]
-
-        if mastery.mastery < 0:
-            mastery.mastery = 0
-        elif mastery.mastery > 10:
-            mastery.mastery = 10
-
-    new_masteries = []
-
-    for word in words:
-        mastery = Mastery(current_user.id, word, max(0, words[word]))
-        new_masteries.append(mastery)
-
-    db.session.add_all(new_masteries)
-    db.session.commit()
-
+    # Return the general game result as JSON data
     return jsonify(result.serialize())
