@@ -63,9 +63,12 @@ def update_masteries(user_id, correct_words, wrong_words):
     # Log any masteries that couldn't find entries to Sentry
     for update in updates:
         if "entry_id" not in update:
-            sentry.captureMessage("Entry could not be found for mastery update", extra={
-                "update": update
-            })
+            if sentry is not None:
+                sentry.captureMessage("Entry could not be found for mastery update", extra={
+                    "update": update
+                })
+            else:
+                print("Entry could not be found for mastery update: %s" % update["chinese"])
 
     # Clear all updates that don't have associated entries
     updates = list(filter(lambda x: "entry_id" in x, updates))

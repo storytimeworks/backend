@@ -5,6 +5,7 @@ from app import admin_required, db
 from app.mod_games.models import GameResult
 import app.mod_games.mod_scribe.errors as errors
 from app.mod_games.mod_scribe.models import ScribeQuestion, ScribeResult
+from app.mod_mastery import update_masteries
 from app.utils import check_body
 
 mod_scribe_game = Blueprint("scribe_game", __name__, url_prefix="/games/scribe")

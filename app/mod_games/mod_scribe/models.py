@@ -1,3 +1,5 @@
+import jieba
+
 from app import db
 from app.pinyin import pinyin
 
@@ -15,7 +17,8 @@ class ScribeQuestion(db.Model):
         return {
             "id": self.id,
             "pinyin": pinyin(self.prompt),
-            "prompt": self.prompt
+            "prompt": self.prompt,
+            "words": [word for word in jieba.cut(self.prompt, cut_all=False)]
         }
 
 class ScribeResult(db.Model):
