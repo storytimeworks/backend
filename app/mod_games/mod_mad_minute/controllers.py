@@ -6,11 +6,11 @@ from shushu import convert
 
 from app import db
 from app.mod_games.models import GameResult
-from app.mod_games.mod_mad_minute import check_body
 from app.mod_games.mod_mad_minute.models import MadMinuteResult
 from app.mod_mastery.models import Mastery
 from app.mod_vocab.models import Entry
 from app.pinyin import pinyin
+from app.utils import check_body
 
 mod_mad_minute_game = Blueprint("mad_minute_game", __name__, url_prefix="/games/mad_minute")
 

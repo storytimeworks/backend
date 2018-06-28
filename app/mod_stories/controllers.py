@@ -3,10 +3,10 @@ from flask_login import current_user
 import json
 
 from app import db, admin_required
-from app.mod_stories import check_body
 import app.mod_stories.errors as errors
 from app.mod_passages.models import Passage
 from app.mod_stories.models import Story
+from app.utils import check_body
 
 mod_stories = Blueprint("stories", __name__, url_prefix="/stories")
 

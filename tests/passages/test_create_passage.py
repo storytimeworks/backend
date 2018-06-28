@@ -14,8 +14,7 @@ def test_create_passage(app):
 
     # Data for the first passage
     data = {
-        "chinese_name": "你好",
-        "english_name": "Hello",
+        "name": "Hello",
         "description": "Sarah introduces herself to the reader.",
         "story_id": 1
     }
@@ -26,8 +25,7 @@ def test_create_passage(app):
     data = json.loads(res.data)
 
     # Ensure the response is correct
-    assert data["chinese_name"] == "你好"
-    assert data["english_name"] == "Hello"
+    assert data["name"] == "Hello"
     assert data["description"] == "Sarah introduces herself to the reader."
     assert data["story_id"] == 1
 
@@ -38,8 +36,7 @@ def test_normal_user(app):
 
     # Data for the first passage
     data = {
-        "chinese_name": "你好",
-        "english_name": "Hello",
+        "name": "Hello",
         "description": "Sarah introduces herself to the reader.",
         "story_id": 1
     }
@@ -55,8 +52,7 @@ def test_normal_user(app):
 def test_missing_authentication(app):
     # Data for the first passage
     data = {
-        "chinese_name": "你好",
-        "english_name": "Hello",
+        "name": "Hello",
         "description": "Sarah introduces herself to the reader.",
         "story_id": 1
     }

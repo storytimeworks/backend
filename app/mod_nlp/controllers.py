@@ -2,9 +2,9 @@ from flask import Blueprint, jsonify, request
 import json, os, requests, uuid
 
 from app import admin_required, db
-from app.mod_nlp import check_body
 import app.mod_nlp.errors as errors
 from app.mod_nlp.models import NLPApp
+from app.utils import check_body
 
 mod_nlp = Blueprint("nlp", __name__, url_prefix="/nlp")
 

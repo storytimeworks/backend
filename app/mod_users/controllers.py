@@ -5,10 +5,10 @@ from flask_login import current_user, login_required, login_user, logout_user
 # Storytime imports
 from app import db, log_error
 from app.email import Email, send
-from app.mod_users import check_body
+from app.mod_users import validate_username, validate_email, validate_password
 import app.mod_users.errors as errors
 from app.mod_users.models import User, EmailVerification, PasswordReset
-from app.mod_users.helpers import validate_username, validate_email, validate_password
+from app.utils import check_body
 
 # Create users Flask blueprint
 mod_users = Blueprint("users", __name__, url_prefix="/users")

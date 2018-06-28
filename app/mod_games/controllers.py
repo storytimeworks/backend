@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 import random
 
 from app import db
-from app.mod_games import check_body
+from app.utils import check_body
 import app.mod_games.errors as errors
 from app.mod_games.models import Attempt, CopyEditSentence
 from app.mod_vocab.models import Entry

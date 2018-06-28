@@ -4,12 +4,12 @@ import jieba, json, numpy as np
 from pypinyin import pinyin
 
 from app import db, admin_required
-from app.mod_passages import check_body
 import app.mod_passages.errors as errors
 from app.mod_passages.models import Passage, ChineseNameCharacter
 from app.mod_path.models import PathAction
 from app.mod_stories.models import Story
 from app.mod_users.models import User
+from app.utils import check_body
 
 mod_passages = Blueprint("passages", __name__, url_prefix="/passages")
 

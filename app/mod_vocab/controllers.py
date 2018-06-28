@@ -3,10 +3,10 @@ from flask_login import current_user, login_required
 import json, re
 
 from app import db, admin_required
-from app.mod_vocab import check_body
 import app.mod_vocab.errors as errors
 from app.mod_vocab.models import Entry, Sentence
 from app.mod_users.models import User
+from app.utils import check_body
 
 mod_vocab = Blueprint("vocab", __name__, url_prefix="/vocabulary")
 
