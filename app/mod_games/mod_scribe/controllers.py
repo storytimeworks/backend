@@ -72,7 +72,7 @@ def get_questions():
     # Retrieve all questions and return as JSON data
     questions = ScribeQuestion.query.all()
     questions_data = [question.serialize() for question in questions]
-    return jsonify(question_data)
+    return jsonify(questions_data)
 
 @mod_scribe_game.route("/questions", methods=["POST"])
 @admin_required
