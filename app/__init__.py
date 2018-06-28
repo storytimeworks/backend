@@ -40,6 +40,8 @@ def log_error(message):
 def configure_app(app):
     global db, sentry
 
+    app.config.from_object("config")
+
     cors = CORS(app)
     db = SQLAlchemy(app)
 
