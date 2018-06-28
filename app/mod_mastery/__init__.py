@@ -15,7 +15,7 @@ def update_masteries(user_id, correct_words, wrong_words):
             if update["chinese"] == word:
                 existing_update_index = idx
 
-        if existing_update_index:
+        if existing_update_index is not None:
             # Update the existing update if there is one
             updates[existing_update_index]["change"] += 1
         else:
@@ -34,7 +34,7 @@ def update_masteries(user_id, correct_words, wrong_words):
             if update["chinese"] == word:
                 existing_update_index = idx
 
-        if existing_update_index:
+        if existing_update_index is not None:
             # Update the existing update if there is one
             updates[existing_update_index]["change"] -= 1
         else:
@@ -51,7 +51,7 @@ def update_masteries(user_id, correct_words, wrong_words):
 
     # Add entry ids to the updates with matching Chinese text
     for entry in entries:
-        update_index = 0
+        update_index = None
 
         for (idx, datum) in enumerate(updates):
             if datum["chinese"] == entry.chinese:
