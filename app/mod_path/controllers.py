@@ -59,6 +59,8 @@ def get_path():
             passage = next(x for x in passages if x.id == passage_id)
             passage_data = passage.serialize()
 
+            passage_data["parts_status"] = []
+
             # Remove actual passage data because the response would be too long
             del passage_data["data"]
 
@@ -77,11 +79,24 @@ def get_path():
                     if passage_id in path_actions_by_passage:
                         # If this passage has any actions, it is in progress
                         passage_data["status"] = "in_progress"
+
+                        for (idx, part) in enumerate(passage_data["parts"]):
+                            passage_data["parts_status"].append({
+                                "name": part,
+                                "status": "complete" if idx + 1 in path_actions_by_passage[passage_id] else "next"
+                            })
                     else:
                         # Otherwise, it is the user's next passage
                         passage_data["status"] = "next"
 
                     reached_furthest_passage = True
+
+            if len(passage_data["parts_status"]) == 0:
+                for part in passage_data["parts"]:
+                    passage_data["parts_status"].append({
+                        "name": part,
+                        "status": passage_data["status"]
+                    })
 
             # Admins have every passage unlocked
             if current_user.is_admin:

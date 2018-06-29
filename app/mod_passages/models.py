@@ -17,6 +17,7 @@ class Passage(Base):
     data = db.Column(db.Text, nullable=False)
     new_words = db.Column(db.Text, nullable=False)
     notes = db.Column(db.Text, nullable=False)
+    parts = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
@@ -43,6 +44,7 @@ class Passage(Base):
 
         self.new_words = "[]"
         self.notes = "# Grammar Notes"
+        self.parts = "[]"
 
     def serialize(self):
         return {
@@ -53,6 +55,7 @@ class Passage(Base):
             "data": json.loads(self.data),
             "new_words": json.loads(self.new_words),
             "notes": self.notes,
+            "parts": json.loads(self.parts),
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
