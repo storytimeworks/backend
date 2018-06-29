@@ -98,9 +98,16 @@ def get_path():
                         "status": passage_data["status"]
                     })
 
-            # Admins have every passage unlocked
+            # Admins have every passage and minigame unlocked
             if current_user.is_admin:
                 passage_data["status"] = "complete"
+                passage_data["parts_status"] = []
+
+                for part in passage_data["parts"]:
+                    passage_data["parts_status"].append({
+                        "name": part,
+                        "status": "complete"
+                    })
 
             # Add the passage data to this story
             story["passages"].append(passage_data)
