@@ -32,12 +32,31 @@ def passage_status_for_user(passage_id, user_id):
     stories = Story.query.order_by(Story.position.asc()).all()
     stories_data = [story.serialize() for story in stories]
 
-    # Create array of completed passage ids
+    # Retrieve all path actions
     path_actions = PathAction.query.filter_by(user_id=user_id).all()
-    completed_passage_ids = [action.passage_id for action in path_actions]
+    completed_passage_ids = []
+
+    # Create a dictionary that maps passage ids to their actions
+    path_actions_by_passage = {}
+
+    for action in path_actions:
+        # Add this part to the passage's actions list
+        if action.passage_id in path_actions_by_passage:
+            path_actions_by_passage[action.passage_id].append(action.part)
+        else:
+            path_actions_by_passage[action.passage_id] = [action.part]
+
+        # Create array for convenience
+        actions = path_actions_by_passage[action.passage_id]
+
+        # Check if all parts of this passage have been completed
+        if 0 in actions and 1 in actions and 2 in actions and 3 in actions and action.passage_id not in completed_passage_ids:
+            completed_passage_ids.append(action.passage_id)
 
     # Loop through the passages in order
     for story in stories_data:
+        last_passage_is_in_progress = False
+
         for story_passage_id in story["passage_ids"]:
             # Check if this passage has been completed
             if story_passage_id in completed_passage_ids:
@@ -50,10 +69,15 @@ def passage_status_for_user(passage_id, user_id):
             else:
                 # We get here the first time we find a passage that hasn't been
                 # completed, so if it's the passage we're looking for, this is
-                # the user's next passage. Otherwise, we haven't found the
+                # the user's current passage. Otherwise, we haven't found the
                 # passage yet, so it is locked.
                 if story_passage_id == passage_id:
-                    return "next"
+                    if story_passage_id in path_actions_by_passage:
+                        # If this passage has any actions, it is in progress
+                        return "in_progress"
+                    else:
+                        # Otherwise, it is the user's next passage
+                        return "next"
                 else:
                     return "locked"
 
@@ -287,7 +311,7 @@ def finish_passage(passage_id):
         204 no content.
     """
 
-    action = PathAction(passage_id, current_user.id)
+    action = PathAction(passage_id, 0, current_user.id)
     db.session.add(action)
     db.session.commit()
 
