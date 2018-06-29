@@ -8,5 +8,10 @@
     "subject": "Reset your password",
     "body": "We received a request to reset the password for your account, which you can do by clicking the button below. If you didn't request a password reset, feel free to delete this email and keep using Storytime!",
     "button": "Reset Password"
+  },
+  "invite": {
+    "subject": "You've been invited to test Storytime",
+    "body": "Thank you for volunteering to try out Storytime! We really appreciate your time, and are looking forward to hearing about what you think of it. If you have any feedback for us, please let us know! We're looking forward to hearing from you :)",
+    "button": "Accept Invitation"
   }
 }

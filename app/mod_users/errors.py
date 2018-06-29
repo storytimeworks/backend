@@ -76,3 +76,9 @@ def no_pending_email():
 
 def must_confirm_email():
     return error(400, 1125, "You must verify your email address")
+
+def missing_invite_parameters():
+    return error(400, 1126, "Missing necessary invite parameters")
+
+def user_already_exists():
+    return error(409, 1127, "A user already exists with this email address")

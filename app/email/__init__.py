@@ -6,16 +6,23 @@ from pynliner import Pynliner
 class Email(Enum):
     VERIFY_EMAIL = 1
     FORGOT_PASSWORD = 2
+    INVITE = 3
 
-def send(email, user, data):
+def send(email, user=None, data=None, email_address=None):
     # Ensure that the email is valid
     if type(email) is not Email:
         raise Exception("email must be a valid Email type")
 
-    email_address = user.email
+    if user is not None:
+        email_address = user.email
 
-    if email == Email.VERIFY_EMAIL and user.pending_email:
-        email_address = user.pending_email
+        # Make sure to use the correct email address
+        if email == Email.VERIFY_EMAIL and user.pending_email:
+            email_address = user.pending_email
+
+    # Ensure we have an email address to send to
+    elif email_address is None:
+        raise Exception("No email was provided")
 
     # Don't send emails when not in production
     if os.environ["ENVIRONMENT"] != "production":
@@ -38,24 +45,33 @@ def send(email, user, data):
     # Set the name and email address of the sender
     source = "%s <%s>" % ("Storytime", "no-reply@storytime.works")
 
-    # Load user settings to see if the user's first and last names have been
-    # saved. Otherwise, use their username for the email.
-    settings = json.loads(user.settings)
-    username = user.username
-    first_name = settings["profile"]["first_name"]
-    last_name = settings["profile"]["last_name"]
+    destination = None
 
-    if len(first_name) > 0 and len(last_name) > 0:
-        recipient = "%s %s" % (first_name, last_name)
+    if user is not None:
+        # Load user settings to see if the user's first and last names have been
+        # saved. Otherwise, use their username for the email.
+        settings = json.loads(user.settings)
+        username = user.username
+        first_name = settings["profile"]["first_name"]
+        last_name = settings["profile"]["last_name"]
+
+        if len(first_name) > 0 and len(last_name) > 0:
+            recipient = "%s %s" % (first_name, last_name)
+        else:
+            recipient = username
+
+        # Set the recipient name and email address
+        destination = {
+            "ToAddresses": [
+                "%s <%s>" % (recipient, email_address)
+            ]
+        }
     else:
-        recipient = username
-
-    # Set the recipient name and email address
-    destination = {
-        "ToAddresses": [
-            "%s <%s>" % (recipient, email_address)
-        ]
-    }
+        destination = {
+            "ToAddresses": [
+                "<%s>" % email_address
+            ]
+        }
 
     # Read the template HTML
     with open("./app/email/template.html", "r") as f:
@@ -70,6 +86,8 @@ def send(email, user, data):
         html = html.replace("{link}", "https://storytime.works/verify-email?code=%s" % data.code)
     elif email == Email.FORGOT_PASSWORD:
         html = html.replace("{link}", "https://storytime.works/reset-password?code=%s" % data.code)
+    elif email == Email.INVITE:
+        html = html.replace("{link}", "https://storytime.works/register")
 
     # Read the template CSS
     with open("./app/email/template.css", "r") as f:

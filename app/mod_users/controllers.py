@@ -3,11 +3,11 @@ from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required, login_user, logout_user
 
 # Storytime imports
-from app import db, log_error
+from app import admin_required, db, log_error
 from app.email import Email, send
 from app.mod_users import validate_username, validate_email, validate_password
 import app.mod_users.errors as errors
-from app.mod_users.models import User, EmailVerification, PasswordReset
+from app.mod_users.models import User, EmailVerification, Invitation, PasswordReset
 from app.utils import check_body
 
 # Create users Flask blueprint
@@ -59,8 +59,6 @@ def register():
         The JSON data for the new user.
     """
 
-    return errors.registration_is_disabled()
-
     # Check that all necessary data is in the request body
     if not check_body(request, ["username", "email", "password"]):
         return errors.missing_registration_parameters()
@@ -83,6 +81,14 @@ def register():
     password_error = validate_password(password, [username, email])
     if password_error is not None:
         return password_error
+
+    invitation = Invitation.query.filter_by(email=email).first()
+
+    # Make sure this user has received an invitation
+    if invitation is None:
+        return errors.registration_is_disabled()
+    else:
+        Invitation.query.filter_by(email=email).delete()
 
     # Hash the password with bcrypt, this is what we'll save to MySQL
     hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
@@ -450,5 +456,43 @@ def cancel_email_change(user_id):
     # Remove the user's pending email address
     user.pending_email = None
     db.session.commit()
+
+    return ("", 204)
+
+@mod_users.route("/invite", methods=["POST"])
+@admin_required
+def invite_user():
+    """Invites a user to register on Storytime.
+
+    Parameters:
+        email: The email of the user who needs an invitation.
+
+    Returns:
+        204 no content.
+    """
+
+    # Ensure necessary parameters are here
+    if not check_body(request, ["email"]):
+        return errors.missing_invite_parameters()
+
+    email = request.json["email"]
+
+    # See if a user exists with this email address
+    user = User.query.filter_by(email=email).first()
+
+    if user is not None:
+        # Return 400 if a user exists with this email
+        return errors.user_already_exists()
+
+    # Remove all existing invitations to this user
+    Invitation.query.filter_by(email=email).delete()
+
+    # Create invitation and add to database
+    invitation = Invitation(email)
+    db.session.add(invitation)
+    db.session.commit()
+
+    # Send the invitation email
+    send(Email.INVITE, email_address=email)
 
     return ("", 204)
