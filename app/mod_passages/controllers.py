@@ -275,6 +275,24 @@ def update_passage(passage_id):
     # Return updated passage JSON data
     return get_passage(passage_id)
 
+@mod_passages.route("/<passage_id>/finish", methods=["PATCH"])
+@login_required
+def finish_passage(passage_id):
+    """Marks a passage as complete for the authenticated user.
+
+    Args:
+        passage_id: The id of the passage being completed.
+
+    Returns:
+        204 no content.
+    """
+
+    action = PathAction(passage_id, current_user.id)
+    db.session.add(action)
+    db.session.commit()
+
+    return ("", 204)
+
 @mod_passages.route("/name", methods=["GET"])
 def generate_chinese_name():
     # 0 = intelligence, 1 = grace/elegance, 2 = strength/power, 3 = fortune, 4 = beauty/appearance
