@@ -87,7 +87,7 @@ def send(email, user=None, data=None, email_address=None):
     elif email == Email.FORGOT_PASSWORD:
         html = html.replace("{link}", "https://storytime.works/reset-password?code=%s" % data.code)
     elif email == Email.INVITE:
-        html = html.replace("{link}", "https://storytime.works/register")
+        html = html.replace("{link}", "https://storytime.works/register?email=%s" % email_address)
 
     # Read the template CSS
     with open("./app/email/template.css", "r") as f:

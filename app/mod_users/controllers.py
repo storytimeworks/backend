@@ -96,16 +96,20 @@ def register():
     # Create this user in the database
     user = User(username, email, hashed_password)
     db.session.add(user)
-    db.session.commit()
 
-    # Add an email verification object to the database, to be deleted when the
-    # user clicks the link in their inbox
-    verification = EmailVerification(user.id, user.email)
-    db.session.add(verification)
-    db.session.commit()
+    if invitation is None:
+        # Add an email verification object to the database, to be deleted when
+        # the user clicks the link in their inbox
+        verification = EmailVerification(user.id, user.email)
+        db.session.add(verification)
 
-    # Send the verification email
-    send(Email.VERIFY_EMAIL, user, verification)
+        # Send the verification email
+        send(Email.VERIFY_EMAIL, user, verification)
+    else:
+        # If the user is accepting an invitation, they are already verified
+        user.verified = True
+
+    db.session.commit()
 
     # Log the user into the account they just created
     login_user(user, remember=True)
