@@ -107,7 +107,7 @@ def register():
         send(Email.VERIFY_EMAIL, user, verification)
     else:
         # If the user is accepting an invitation, they are already verified
-        user.verified = True
+        user.pending_email = None
 
     db.session.commit()
 

@@ -42,6 +42,7 @@ class User(Base, UserMixin):
         self.password = password
         self.groups = "[]"
         self.settings = json.dumps(default_settings)
+        self.pending_email = email
         self.saved_entry_ids = "[]"
 
     @property
