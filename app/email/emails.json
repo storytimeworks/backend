@@ -11,7 +11,7 @@
   },
   "invite": {
     "subject": "You've been invited to test Storytime",
-    "body": "Thank you for volunteering to try out Storytime! We really appreciate your time, and are looking forward to hearing about what you think of it. If you have any feedback for us, please let us know! We're looking forward to hearing from you :)",
+    "body": "Thank you for volunteering to try out Storytime! We really appreciate your time, and are looking forward to hearing about what you think of what we've built. If you have any feedback for us, please let us know! We're looking forward to hearing from you :)",
     "button": "Accept Invitation"
   }
 }

@@ -19,12 +19,12 @@ tbody, tr, td {
 }
 
 #logo {
-  height: 128px;
+  height: 96px;
 }
 
 #logo img {
   display: block;
-  height: 48px;
+  height: 56px;
   margin: 0 auto;
 }
 
@@ -40,19 +40,25 @@ tbody, tr, td {
   height: 64px;
 }
 
+h1 {
+  text-align: center;
+}
+
 p {
   margin-top: 16px;
   font-size: 16px;
   line-height: 22px;
+  text-align: center;
 }
 
 a {
   background: #6c5ce7;
+  border-radius: 8px;
   color: #fff;
   display: table;
-  padding: 16px 20px;
-  margin-top: 20px;
-  border-radius: 4px;
-  text-decoration: none;
+  font-size: 16px;
   font-weight: bold;
+  margin: 20px auto 0;
+  padding: 16px 20px;
+  text-decoration: none;
 }
