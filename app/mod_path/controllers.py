@@ -28,7 +28,24 @@ def get_path():
 
     # Figure out which passages have been completed
     path_actions = PathAction.query.filter_by(user_id=current_user.id).all()
-    completed_passage_ids = [action.passage_id for action in path_actions]
+    completed_passage_ids = []
+
+    # Create a dictionary that maps passage ids to their actions
+    path_actions_by_passage = {}
+
+    for action in path_actions:
+        # Add this part to the passage's actions list
+        if action.passage_id in path_actions_by_passage:
+            path_actions_by_passage[action.passage_id].append(action.part)
+        else:
+            path_actions_by_passage[action.passage_id] = [action.part]
+
+        # Create array for convenience
+        actions = path_actions_by_passage[action.passage_id]
+
+        # Check if all parts of this passage have been completed
+        if 0 in actions and 1 in actions and 2 in actions and 3 in actions and action.passage_id not in completed_passage_ids:
+            completed_passage_ids.append(action.passage_id)
 
     # True if we've reached the user's furthest passage in the following loop
     reached_furthest_passage = False
@@ -55,9 +72,15 @@ def get_path():
                 if passage_id in completed_passage_ids:
                     passage_data["status"] = "complete"
                 else:
-                    # If not, this is the next passage for the user to complete
-                    # and we've reached their furthest passage
-                    passage_data["status"] = "next"
+                    # If not, this is the user's current passage and we've
+                    # reached their furthest passage
+                    if passage_id in path_actions_by_passage:
+                        # If this passage has any actions, it is in progress
+                        passage_data["status"] = "in_progress"
+                    else:
+                        # Otherwise, it is the user's next passage
+                        passage_data["status"] = "next"
+
                     reached_furthest_passage = True
 
             # Admins have every passage unlocked
