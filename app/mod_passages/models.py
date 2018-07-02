@@ -6,6 +6,8 @@ class Base(db.Model):
     __abstract__ = True
 
     id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
 class Passage(Base):
 
@@ -18,8 +20,6 @@ class Passage(Base):
     new_words = db.Column(db.Text, nullable=False)
     notes = db.Column(db.Text, nullable=False)
     parts = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
-    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
     def __init__(self, name, description, story_id):
         self.name = name
@@ -44,7 +44,7 @@ class Passage(Base):
 
         self.new_words = "[]"
         self.notes = "# Grammar Notes"
-        self.parts = "[]"
+        self.parts = "[\"scribe\", \"scribe\", \"scribe\"]"
 
     def serialize(self):
         return {

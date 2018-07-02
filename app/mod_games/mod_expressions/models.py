@@ -6,6 +6,8 @@ class Base(db.Model):
     __abstract__ = True
 
     id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
 class ExpressionsQuestion(Base):
 
@@ -51,5 +53,7 @@ class ExpressionsQuestion(Base):
             "choice_3_pinyin": pinyin(self.choice_3),
             "choice_4_pinyin": pinyin(self.choice_4),
             "followed_by": self.followed_by,
-            "preceded_by": self.preceded_by
+            "preceded_by": self.preceded_by,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
         }

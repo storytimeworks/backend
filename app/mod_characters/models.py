@@ -5,6 +5,8 @@ class Base(db.Model):
     __abstract__ = True
 
     id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
 class Character(Base):
 
@@ -19,5 +21,7 @@ class Character(Base):
             "id": self.id,
             "english_name": self.english_name,
             "chinese_name": self.chinese_name,
-            "gender": self.gender
+            "gender": self.gender,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
         }

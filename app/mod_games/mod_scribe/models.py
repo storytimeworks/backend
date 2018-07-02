@@ -9,6 +9,8 @@ class ScribeQuestion(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     prompt = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
     def __init__(self, prompt):
         self.prompt = prompt
@@ -18,7 +20,9 @@ class ScribeQuestion(db.Model):
             "id": self.id,
             "pinyin": pinyin(self.prompt),
             "prompt": self.prompt,
-            "words": [word for word in jieba.cut(self.prompt, cut_all=False)]
+            "words": [word for word in jieba.cut(self.prompt, cut_all=False)],
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
         }
 
 class ScribeResult(db.Model):

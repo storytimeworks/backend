@@ -5,6 +5,8 @@ class Base(db.Model):
     __abstract__ = True
 
     id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
 class NLPApp(Base):
 
@@ -27,5 +29,7 @@ class NLPApp(Base):
             "name": self.name,
             "passage_id": self.passage_id,
             "access_token": self.access_token,
-            "app_id": self.app_id
+            "app_id": self.app_id,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
         }

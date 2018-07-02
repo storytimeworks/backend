@@ -258,6 +258,7 @@ def update_passage(passage_id):
         description: A description of the passage, in english.
         data: The passage's components' data.
         notes: The passage's grammar notes.
+        parts: The different games that accompany this passage.
 
     Returns:
         The new passage JSON data.
@@ -292,6 +293,8 @@ def update_passage(passage_id):
         update_word_lists()
     elif key == "notes":
         passage.notes = value
+    elif key == "parts":
+        passage.parts = json.dumps(value)
 
     # Save changes in MySQL
     db.session.commit()
