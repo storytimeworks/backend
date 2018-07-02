@@ -24,13 +24,11 @@ def play_game():
 
     # Loop through all of the questions
     for idx in range(len(questions)):
-        question = questions[idx]
-
-        while question.followed_by != None:
+        while questions[idx].followed_by != None:
             # Add questions that follow the questions that were retrieved
-            question = ExpressionsQuestion.query.filter_by(id=question.followed_by).first()
+            question = ExpressionsQuestion.query.filter_by(id=questions[idx].followed_by).first()
             questions.insert(idx + 1, question)
-            idx += 2
+            idx += 1
 
     # Return JSON data
     questions_data = [question.serialize() for question in questions]
