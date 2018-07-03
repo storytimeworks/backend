@@ -16,7 +16,7 @@ mod_mad_minute_game = Blueprint("mad_minute_game", __name__, url_prefix="/games/
 @mod_mad_minute_game.route("/play", methods=["GET"])
 @login_required
 def play_game():
-    """Retrieves about 30 questions in order to play a game.
+    """Retrieves about 40 questions in order to play a game.
 
     Returns:
         JSON data for all of the questions.
@@ -27,7 +27,7 @@ def play_game():
     # Generate 30 questions for Mad Minute. This needs to be
     # updated later to support more difficult questions,
     # according to the user's experience
-    for _ in range(30):
+    for _ in range(40):
         first_number = 5
         second_number = 10
 
@@ -56,20 +56,26 @@ def play_game():
             answer = convert(first_number - second_number)
             prompt = pinyin(convert(first_number)) + " - " + pinyin(convert(second_number)) + " ="
 
-        # Create the question data
-        question = {
-            "prompt": prompt.lower(),
-            "answer": answer,
-            "answer_pinyin": pinyin(answer).lower(),
-            "words": list(set([
-                convert(first_number),
-                convert(second_number),
-                answer
-            ]))
-        }
+        prompt = prompt.lower()
 
-        # Add this question to the questions array
-        questions.append(question)
+        if len([x for x in questions if x["prompt"] == prompt]) > 0:
+            # Make sure this question isn't a duplicate
+            continue
+        else:
+            # Create the question data
+            question = {
+                "prompt": prompt.lower(),
+                "answer": answer,
+                "answer_pinyin": pinyin(answer).lower(),
+                "words": list(set([
+                    convert(first_number),
+                    convert(second_number),
+                    answer
+                ]))
+            }
+
+            # Add this question to the questions array
+            questions.append(question)
 
     # Return questions array as JSON
     return jsonify(questions)
