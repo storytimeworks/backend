@@ -78,6 +78,7 @@ def configure_app(app):
     from app.mod_games.mod_expressions.controllers import mod_expressions_game as expressions_game_module
     from app.mod_games.mod_mad_minute.controllers import mod_mad_minute_game as mad_minute_game_module
     from app.mod_games.mod_scribe.controllers import mod_scribe_game as scribe_game_module
+    from app.mod_games.mod_writer.controllers import mod_writer_game as writer_game_module
     from app.mod_mastery.controllers import mod_mastery as mastery_module
     from app.mod_nlp.controllers import mod_nlp as nlp_module
     from app.mod_passages.controllers import mod_passages as passages_module
@@ -92,6 +93,7 @@ def configure_app(app):
     app.register_blueprint(expressions_game_module)
     app.register_blueprint(mad_minute_game_module)
     app.register_blueprint(scribe_game_module)
+    app.register_blueprint(writer_game_module)
     app.register_blueprint(mastery_module)
     app.register_blueprint(nlp_module)
     app.register_blueprint(passages_module)
