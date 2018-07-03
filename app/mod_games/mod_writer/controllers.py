@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-import base64, boto3, uuid
+import base64, boto3, os, uuid
 from io import BytesIO
 from PIL import Image
 
