@@ -8,6 +8,7 @@ mod_writer_game = Blueprint("writer_game", __name__, url_prefix="/games/writer")
 
 @mod_writer_game.route("/answer", methods=["POST"])
 def answer_question():
+    character = request.json["character"]
     base64_image = request.json["image"][22:]
     image = Image.open(BytesIO(base64.b64decode(base64_image)))
     image = image.resize((28, 28), Image.ANTIALIAS)
@@ -22,7 +23,8 @@ def answer_question():
         aws_secret_access_key=os.environ["S3_AWS_SECRET_ACCESS_KEY"]
     )
 
-    filename = "2/%s.png" % str(uuid.uuid4())
+    filename = str(character) + "/%s.png" % str(uuid.uuid4())
+    print(filename)
     s3.put_object(Body=data, Bucket="storytime-writer", Key=filename)
 
     return ("", 204)
