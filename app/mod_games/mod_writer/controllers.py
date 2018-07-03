@@ -24,7 +24,6 @@ def answer_question():
     )
 
     filename = str(character) + "/%s.png" % str(uuid.uuid4())
-    print(filename)
     s3.put_object(Body=data, Bucket="storytime-writer", Key=filename)
 
     return ("", 204)
