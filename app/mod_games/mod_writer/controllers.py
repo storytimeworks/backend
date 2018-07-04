@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_file
 
 import base64, boto3, os, uuid
 from io import BytesIO
@@ -116,6 +116,33 @@ def train_model(answer_id):
     WriterAnswer.query.filter_by(id=answer_id).delete()
 
     return ("", 204)
+
+@mod_writer_game.route("/answers/<answer_id>/image", methods=["GET"])
+def get_answer_image(answer_id):
+    """Retrieves an image from S3 for a specified answer.
+
+    Returns:
+        The answer's image.
+    """
+
+    # Get the answer from MySQL
+    answer = WriterAnswer.query.filter_by(id=answer_id).first()
+
+    # Create the S3 client and retrieve the image
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=os.environ["S3_AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["S3_AWS_SECRET_ACCESS_KEY"]
+    )
+
+    image_data = s3.get_object(Bucket="storytime-writer", Key="unclassified/%s.png" % answer.name)["Body"].read()
+
+    # Send the file back to the requester
+    return send_file(
+        BytesIO(image_data),
+        attachment_filename="image.png",
+        mimetype="image/png"
+    )
 
 @mod_writer_game.route("/train", methods=["POST"])
 def train_model_directly():
