@@ -139,10 +139,10 @@ def train_model_directly():
     # Process image so it can be stored for training
     base64_image = image[22:]
     img = Image.open(BytesIO(base64.b64decode(base64_image)))
-    img = Image.resize((28, 28), Image.ANTIALIAS)
+    img = img.resize((28, 28), Image.ANTIALIAS)
 
     data = BytesIO()
-    image.save(data, format="PNG")
+    img.save(data, format="PNG")
     data = data.getvalue()
 
     # Create S3 client and save the image
