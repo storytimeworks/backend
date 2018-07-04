@@ -4,14 +4,31 @@ import base64, boto3, os, uuid
 from io import BytesIO
 from PIL import Image
 
+from app import db
+from app.utils import check_body
+import app.mod_games.mod_writer.errors as errors
 from app.mod_games.mod_writer.model import load_session, make_prediction
+from app.mod_games.mod_writer.models import WriterAnswer
 
 mod_writer_game = Blueprint("writer_game", __name__, url_prefix="/games/writer")
 session = load_session()
 
-@mod_writer_game.route("/answer", methods=["POST"])
+@mod_writer_game.route("/answers", methods=["POST"])
 def answer_question():
-    character = request.json["character"]
+    """Scores a user's answer to a question and saves their answer for review.
+
+    Body:
+        image: A base64 representation of the image drawn by the user.
+
+    Returns:
+        JSON object with the resulting prediction.
+    """
+
+    # Ensure necessary parameters are here
+    if not check_body(request, ["image"]):
+        return errors.missing_answer_parameters()
+
+    # Resize the image for classification and convert to bytes
     base64_image = request.json["image"][22:]
     image = Image.open(BytesIO(base64.b64decode(base64_image)))
     image = image.resize((28, 28), Image.ANTIALIAS)
@@ -20,26 +37,124 @@ def answer_question():
     image.save(data, format="PNG")
     data = data.getvalue()
 
+    # Create client and save the image to S3
     s3 = boto3.client(
         "s3",
         aws_access_key_id=os.environ["S3_AWS_ACCESS_KEY_ID"],
         aws_secret_access_key=os.environ["S3_AWS_SECRET_ACCESS_KEY"]
     )
 
-    filename = str(character) + "/%s.png" % str(uuid.uuid4())
-    s3.put_object(Body=data, Bucket="storytime-writer", Key=filename)
+    filename = str(uuid.uuid4())
+    path = "unclassified/%s.png" % filename
+    s3.put_object(Body=data, Bucket="storytime-writer", Key=path)
+
+    # Save path in S3 to MySQL
+    answer = WriterAnswer(filename)
+    db.session.add(answer)
+    db.session.commit()
+
+    # Predict the number depicted in the image and return the prediction
+    prediction = make_prediction(session, image)
+    return jsonify(prediction=prediction)
+
+@mod_writer_game.route("/answers", methods=["GET"])
+def get_answers():
+    """Returns JSON data of all of the answers that haven't been scored yet.
+
+    Returns:
+        JSON array with unscored image paths.
+    """
+
+    # Retrieve answers from MySQL and return them
+    answers = WriterAnswer.query.all()
+    answers_data = [answer.serialize() for answer in answers]
+    return jsonify(answers_data)
+
+@mod_writer_game.route("/answers/<answer_id>", methods=["DELETE"])
+def train_model(answer_id):
+    """Deletes an answer from MySQL and uses it to train the model.
+
+    Body:
+        classification: The classification for this answer.
+
+    Returns:
+        204 no content.
+    """
+
+    # Ensure necessary parameters are here
+    if not check_body(request, ["classification"]):
+        return errors.missing_train_parameters()
+
+    classification = request.json["classification"]
+
+    if classification < 0 or classification > 10:
+        return errors.invalid_classification()
+
+    # Create client and get the new and old filepaths
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=os.environ["S3_AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["S3_AWS_SECRET_ACCESS_KEY"]
+    )
+
+    answer = WriterAnswer.query.filter_by(id=answer_id).first()
+    new_path = "%d/%s.png" % (classification, answer.name)
+    old_path = "unclassified/%s.png" % answer.name
+
+    # If the classification = 0, the image is just being deleted. Otherwise, it
+    # should be moved to its new location
+    if classification > 0:
+        s3.copy({
+            "Bucket": "storytime-writer",
+            "Key": old_path
+        }, "storytime-writer", new_path)
+
+    # Delete the image from S3
+    s3.delete_object(Bucket="storytime-writer", Key=old_path)
+
+    # Delete answer from MySQL
+    WriterAnswer.query.filter_by(id=answer_id).delete()
 
     return ("", 204)
 
-@mod_writer_game.route("/test", methods=["POST"])
-def test_answer():
-    base64_image = request.json["image"][22:]
+@mod_writer_game.route("/train", methods=["POST"])
+def train_model_directly():
+    """Trains a model directly, without going through the game.
 
-    image = Image.open(BytesIO(base64.b64decode(base64_image)))
-    image = image.resize((28, 28), Image.ANTIALIAS)
+    Body:
+        classification: The classification for this image.
+        image: A base64 representation of the image drawn by the user.
 
-    prediction = make_prediction(session, image)
+    Returns:
+        204 no content.
+    """
 
-    return jsonify({
-        "prediction": int(prediction)
-    })
+    # Ensure necessary parameters are here
+    if not check_body(request, ["classification", "image"]):
+        return errors.missing_train_parameters()
+
+    classification = request.json["classification"]
+    image = request.json["image"]
+
+    # Process image so it can be stored for training
+    base64_image = image[22:]
+    img = Image.open(BytesIO(base64.b64decode(base64_image)))
+    img = Image.resize((28, 28), Image.ANTIALIAS)
+
+    data = BytesIO()
+    image.save(data, format="PNG")
+    data = data.getvalue()
+
+    # Create S3 client and save the image
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=os.environ["S3_AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["S3_AWS_SECRET_ACCESS_KEY"]
+    )
+
+    filename = str(uuid.uuid4())
+    path = "%d/%s.png" % (classification, filename)
+    s3.put_object(Body=data, Bucket="storytime-writer", Key=path)
+
+    # Return nothing, the action is done
+    return ("", 204)

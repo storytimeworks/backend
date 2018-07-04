@@ -55,6 +55,6 @@ def make_prediction(sess, image):
     global x, keep_prob, prediction
 
     image_data = (255 - np.asarray(image.getdata())[:,0].reshape(1, 784).astype(np.float32)) / 255
-    result = sess.run(prediction, {x: image_data, keep_prob: 1.0})[0] + 1
+    result = int(sess.run(prediction, {x: image_data, keep_prob: 1.0})[0] + 1)
 
     return result
