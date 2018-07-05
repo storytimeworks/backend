@@ -45,8 +45,8 @@ def answer_question():
     )
 
     filename = str(uuid.uuid4())
-    path = "unclassified/%s.png" % filename
-    s3.put_object(Body=data, Bucket="storytime-writer", Key=path)
+    path = "writer/unclassified/%s.png" % filename
+    s3.put_object(Body=data, Bucket="storytimeai", Key=path)
 
     # Save path in S3 to MySQL
     answer = WriterAnswer(filename)
@@ -98,19 +98,19 @@ def train_model(answer_id):
     )
 
     answer = WriterAnswer.query.filter_by(id=answer_id).first()
-    new_path = "%d/%s.png" % (classification, answer.name)
-    old_path = "unclassified/%s.png" % answer.name
+    new_path = "writer/%d/%s.png" % (classification, answer.name)
+    old_path = "writer/unclassified/%s.png" % answer.name
 
     # If the classification = 0, the image is just being deleted. Otherwise, it
     # should be moved to its new location
     if classification > 0:
         s3.copy({
-            "Bucket": "storytime-writer",
+            "Bucket": "storytimeai",
             "Key": old_path
-        }, "storytime-writer", new_path)
+        }, "storytimeai", new_path)
 
     # Delete the image from S3
-    s3.delete_object(Bucket="storytime-writer", Key=old_path)
+    s3.delete_object(Bucket="storytimeai", Key=old_path)
 
     # Delete answer from MySQL
     WriterAnswer.query.filter_by(id=answer_id).delete()
@@ -135,7 +135,7 @@ def get_answer_image(answer_id):
         aws_secret_access_key=os.environ["S3_AWS_SECRET_ACCESS_KEY"]
     )
 
-    image_data = s3.get_object(Bucket="storytime-writer", Key="unclassified/%s.png" % answer.name)["Body"].read()
+    image_data = s3.get_object(Bucket="storytimeai", Key="writer/unclassified/%s.png" % answer.name)["Body"].read()
 
     # Send the file back to the requester
     return send_file(
@@ -180,8 +180,8 @@ def train_model_directly():
     )
 
     filename = str(uuid.uuid4())
-    path = "%d/%s.png" % (classification, filename)
-    s3.put_object(Body=data, Bucket="storytime-writer", Key=path)
+    path = "writer/%d/%s.png" % (classification, filename)
+    s3.put_object(Body=data, Bucket="storytimeai", Key=path)
 
     # Return nothing, the action is done
     return ("", 204)
