@@ -126,7 +126,7 @@ def synthesize_chinese():
         if r.headers.get("Content-Type") != "audio/mp3":
             return errors.issue_generating_speech()
 
-        # Save this recording in S3 if it isn't already there
+        # Save this recording in S3
         filename = "%s.mp3" % str(uuid.uuid4())
         s3.put_object(Body=BytesIO(r.content), Bucket="storytimeai", Key="speech/%s" % filename)
 
@@ -153,12 +153,23 @@ def synthesize_english():
     # voice is defined out here so it can be sent to the database later
     voice = 0
 
-    if recording:
-        # If the recording has already been saved, load it from S3
-        url = "https://s3.amazonaws.com/storytime-speech/" + recording.filename
+    # Save this recording in S3 if it isn't already there
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=os.environ["S3_AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["S3_AWS_SECRET_ACCESS_KEY"]
+    )
 
-        # Download the audio file from S3
-        audio_data = requests.get(url).content
+    if recording is not None:
+        # Retrieve audio data from S3
+        audio_data = s3.get_object(Bucket="storytimeai", Key="speech/%s" % recording.filename)["Body"].read()
+
+        # Send the file back to the requester
+        return send_file(
+            BytesIO(audio_data),
+            attachment_filename="speech.mp3",
+            mimetype="audio/mpeg"
+        )
     else:
         # Don't save new recordings in development environment
         if os.environ["ENVIRONMENT"] != "production":
@@ -192,25 +203,18 @@ def synthesize_english():
         # Save audio data from response from AWS Polly
         audio_data = response["AudioStream"].read()
 
-    if not recording:
-        # Save this recording in S3 if it isn't already there
-        s3 = boto3.client(
-            "s3",
-            aws_access_key_id=os.environ["S3_AWS_ACCESS_KEY_ID"],
-            aws_secret_access_key=os.environ["S3_AWS_SECRET_ACCESS_KEY"]
-        )
-
+        # Save this recording in S3
         filename = "%s.mp3" % str(uuid.uuid4())
-        s3.put_object(Body=BytesIO(audio_data), Bucket="storytime-speech", Key=filename)
+        s3.put_object(Body=BytesIO(audio_data), Bucket="storytimeai", Key="speech/%s" % filename)
 
         # Add new audio file to speech database
         synthesis = EnglishSpeechSynthesis(text, filename, voice)
         db.session.add(synthesis)
         db.session.commit()
 
-    # Serve file to the user
-    return send_file(
-        BytesIO(audio_data),
-        attachment_filename="speech.mp3",
-        mimetype="audio/mpeg"
-    )
+        # Serve file to the user
+        return send_file(
+            BytesIO(audio_data),
+            attachment_filename="speech.mp3",
+            mimetype="audio/mpeg"
+        )
