@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
-import jieba
+import jieba, time
 
 from app import admin_required, db
 from app.mod_games.models import GameResult
@@ -22,6 +22,8 @@ def play_game():
         JSON data for all of the questions.
     """
 
+    start_time = time.time()
+
     # Get 10 questions at random
     questions = ScribeQuestion.query.all()
     questions_data = [question.serialize() for question in questions]
@@ -42,21 +44,24 @@ def play_game():
         Mastery.entry_id.in_(entry_ids)
     ).all()
 
+    difficulties = {}
+
+    for entry in entries:
+        mastery = next((x for x in masteries if x.entry_id == entry.id), None)
+
+        if mastery is None:
+            difficulties[entry.chinese] = 10
+        else:
+            difficulties[entry.chinese] = 10 - mastery.mastery
+
     for question in questions_data:
         difficulty = 0
 
         for word in question["words"]:
-            entry = next((x for x in entries if x.chinese == word), None)
-
-            if entry is None:
-                difficulty += 10
+            if word in difficulties:
+                difficulty += difficulties[word]
             else:
-                mastery = next((x for x in masteries if x.entry_id == entry.id), None)
-
-                if mastery is None:
-                    difficulty += 10
-                else:
-                    difficulty += 10 - mastery.mastery
+                difficulty += 10
 
         question["difficulty"] = difficulty
 
