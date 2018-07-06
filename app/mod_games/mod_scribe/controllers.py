@@ -23,7 +23,7 @@ def play_game():
     """
 
     # Get 10 questions at random
-    questions = ScribeQuestion.query.order_by(db.func.rand()).limit(10).all()
+    questions = ScribeQuestion.query.all()
     questions_data = [question.serialize() for question in questions]
 
     words = set()
@@ -60,7 +60,7 @@ def play_game():
 
         question["difficulty"] = difficulty
 
-    # questions_data.sort(key=lambda x: x["difficulty"])
+    questions_data.sort(key=lambda x: x["difficulty"])
 
     # Return JSON data
     return jsonify(questions_data)
