@@ -1,11 +1,14 @@
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
+import jieba
 
 from app import admin_required, db
 from app.mod_games.models import GameResult
 import app.mod_games.mod_scribe.errors as errors
 from app.mod_games.mod_scribe.models import ScribeQuestion, ScribeResult
 from app.mod_mastery import update_masteries
+from app.mod_mastery.models import Mastery
+from app.mod_vocab.models import Entry
 from app.utils import check_body
 
 mod_scribe_game = Blueprint("scribe_game", __name__, url_prefix="/games/scribe")
@@ -20,11 +23,46 @@ def play_game():
     """
 
     # Get 10 questions at random
-    questions = ScribeQuestion.query \
-        .order_by(db.func.rand()).limit(10).all()
+    questions = ScribeQuestion.query.order_by(db.func.rand()).limit(10).all()
+    questions_data = [question.serialize() for question in questions]
+
+    words = set()
+
+    for question in questions_data:
+        question_words = [word for word in jieba.cut(question["chinese"], cut_all=False)]
+        words.update(question_words)
+
+        question["words"] = question_words
+
+    entries = Entry.query.filter(Entry.chinese.in_(words))
+    entry_ids = [entry.id for entry in entries]
+
+    masteries = Mastery.query.filter(
+        (Mastery.user_id == current_user.id) &
+        Mastery.entry_id.in_(entry_ids)
+    ).all()
+
+    for question in questions_data:
+        difficulty = 0
+
+        for word in question["words"]:
+            entry = next((x for x in entries if x.chinese == word), None)
+
+            if entry is None:
+                difficulty += 10
+            else:
+                mastery = next((x for x in masteries if x.entry_id == entry.id), None)
+
+                if mastery is None:
+                    difficulty += 10
+                else:
+                    difficulty += 10 - mastery.mastery
+
+        question["difficulty"] = difficulty
+
+    # questions_data.sort(key=lambda x: x["difficulty"])
 
     # Return JSON data
-    questions_data = [question.serialize() for question in questions]
     return jsonify(questions_data)
 
 @mod_scribe_game.route("/finish", methods=["POST"])
