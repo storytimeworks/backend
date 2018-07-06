@@ -13,8 +13,9 @@ class ScribeQuestion(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
-    def __init__(self, prompt):
-        self.prompt = prompt
+    def __init__(self, chinese, english):
+        self.chinese = chinese
+        self.english = english
 
     def serialize(self):
         return {

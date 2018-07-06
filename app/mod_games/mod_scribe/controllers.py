@@ -97,20 +97,22 @@ def create_question():
     """Creates a question for Scribe.
 
     Body:
-        prompt: The prompt for this question.
+        chinese: The Chinese prompt for this question.
+        english: The english translation of the prompt.
 
     Returns:
         JSON data of the question.
     """
 
     # Ensure necessary parameters are here
-    if not check_body(request, ["prompt"]):
+    if not check_body(request, ["chinese", "english"]):
         return errors.missing_create_question_parameters()
 
-    prompt = request.json["prompt"]
+    chinese = request.json["chinese"]
+    english = request.json["english"]
 
     # Create the question and store it in MySQL
-    question = ScribeQuestion(prompt)
+    question = ScribeQuestion(chinese, english)
     db.session.add(question)
     db.session.commit()
 
