@@ -34,7 +34,7 @@ def play_game():
     questions_data = [question.serialize() for question in questions]
     return jsonify(questions_data)
 
-@mod_expressions_game.route("", methods=["GET"])
+@mod_expressions_game.route("/questions", methods=["GET"])
 @admin_required
 def get_questions():
     """Retrieves all expressions game questions.
@@ -68,7 +68,7 @@ def get_questions():
     questions_data = [question.serialize() for question in questions]
     return jsonify(questions_data)
 
-@mod_expressions_game.route("/<question_id>", methods=["GET"])
+@mod_expressions_game.route("/questions/<question_id>", methods=["GET"])
 @admin_required
 def get_question(question_id):
     """Retrieves a question with a specific id.
@@ -87,7 +87,7 @@ def get_question(question_id):
     else:
         return jsonify(question.serialize())
 
-@mod_expressions_game.route("", methods=["POST"])
+@mod_expressions_game.route("/questions", methods=["POST"])
 @admin_required
 def create_question():
     """Creates a question for the expressions game.
@@ -129,7 +129,7 @@ def create_question():
     # Return JSON data of the question
     return jsonify(question.serialize())
 
-@mod_expressions_game.route("/<question_id>", methods=["PUT"])
+@mod_expressions_game.route("/questions/<question_id>", methods=["PUT"])
 @admin_required
 def update_question(question_id):
     """Updates a question for the expressions game. Currently only one key can

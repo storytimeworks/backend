@@ -66,12 +66,29 @@ def finish_game():
 def get_questions():
     """Retrieves all Scribe questions.
 
+    Parameters:
+        q: The query that should be used for the search.
+
     Returns:
-        JSON array of all questions.
+        JSON data for all the questions.
     """
 
-    # Retrieve all questions and return as JSON data
-    questions = ScribeQuestion.query.all()
+    questions = []
+
+    if "q" in request.args:
+        # Use the query to search for a question if one is included
+        query = "%" + request.args.get("q") + "%"
+
+        # Ensure the correct questions are being returned
+        questions = ScribeQuestion.query.filter(
+            ScribeQuestion.chinese.like(query) |
+            ScribeQuestion.english.like(query)
+        ).all()
+    else:
+        # Retrieve and return all questions
+        questions = ScribeQuestion.query.all()
+
+    # Return questions JSON data
     questions_data = [question.serialize() for question in questions]
     return jsonify(questions_data)
 
