@@ -1,6 +1,7 @@
+from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
-import jieba, time
+import jieba
 
 from app import admin_required, db
 from app.mod_games.models import GameResult
@@ -22,9 +23,12 @@ def play_game():
         JSON data for all of the questions.
     """
 
-    start_time = time.time()
+    two_hours_ago = datetime.now() - timedelta(hours=2)
+    now = datetime.now()
+    recent_results = ScribeResult.query.filter(ScribeResult.timestamp.between(two_hours_ago, now)).all()
 
-    # Get 10 questions at random
+    print(recent_results)
+
     questions = ScribeQuestion.query.all()
     questions_data = [question.serialize() for question in questions]
 
@@ -80,11 +84,12 @@ def finish_game():
     """
 
     # Ensure all necessary parameters are here
-    if not check_body(request, ["correct", "correct_words", "wrong", "wrong_words"]):
+    if not check_body(request, ["correct", "correct_words", "question_ids", "wrong", "wrong_words"]):
         return errors.missing_finish_parameters()
 
     correct = request.json["correct"]
     correct_words = request.json["correct_words"]
+    question_ids = request.json["question_ids"]
     wrong = request.json["wrong"]
     wrong_words = request.json["wrong_words"]
 
@@ -94,7 +99,7 @@ def finish_game():
     db.session.flush()
 
     # Save more detailed Scribe game result
-    scribe_result = ScribeResult(current_user.id, result.id, correct, wrong)
+    scribe_result = ScribeResult(current_user.id, result.id, correct, wrong, question_ids)
     db.session.add(scribe_result)
     db.session.commit()
 
