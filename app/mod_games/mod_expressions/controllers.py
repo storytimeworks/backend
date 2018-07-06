@@ -82,7 +82,7 @@ def get_question(question_id):
 
     question = ExpressionsQuestion.query.filter_by(id=question_id).first()
 
-    if not question:
+    if question is None:
         return errors.question_not_found()
     else:
         return jsonify(question.serialize())

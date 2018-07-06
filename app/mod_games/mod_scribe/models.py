@@ -8,7 +8,8 @@ class ScribeQuestion(db.Model):
     __tablename__ = "scribe_questions"
 
     id = db.Column(db.Integer, primary_key=True)
-    prompt = db.Column(db.String(255), nullable=False)
+    chinese = db.Column(db.String(255), nullable=False)
+    english = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
@@ -18,9 +19,10 @@ class ScribeQuestion(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "pinyin": pinyin(self.prompt),
-            "prompt": self.prompt,
-            "words": [word for word in jieba.cut(self.prompt, cut_all=False)],
+            "chinese": self.chinese,
+            "english": self.english,
+            "pinyin": pinyin(self.chinese),
+            "words": [word for word in jieba.cut(self.chinese, cut_all=False)],
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }

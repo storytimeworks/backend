@@ -75,6 +75,22 @@ def get_questions():
     questions_data = [question.serialize() for question in questions]
     return jsonify(questions_data)
 
+@mod_scribe_game.route("/questions/<question_id>", methods=["GET"])
+@admin_required
+def get_question(question_id):
+    """Retrieves a Scribe question.
+
+    Returns:
+        JSON data of the question.
+    """
+
+    question = ScribeQuestion.query.filter_by(id=question_id).first()
+
+    if question is None:
+        return errors.question_not_found()
+    else:
+        return jsonify(question.serialize())
+
 @mod_scribe_game.route("/questions", methods=["POST"])
 @admin_required
 def create_question():
@@ -132,8 +148,10 @@ def update_question(question_id):
         return errors.question_not_found()
 
     # Update the question accordingly, depending on the key and value
-    if key == "prompt":
-        question.prompt = value
+    if key == "chinese":
+        question.chinese = value
+    elif key == "english":
+        question.english = value
 
     # Save changes in MySQL
     db.session.commit()
