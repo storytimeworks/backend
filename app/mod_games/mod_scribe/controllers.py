@@ -92,7 +92,7 @@ def play_game():
 
     if len(wrong_questions) > 0:
         # Make sure our sample size is not greater than the list's length
-        num_wrong_questions_to_show = min(len(wrong_questions, MAX_WRONG_QUESTIONS))
+        num_wrong_questions_to_show = min(len(wrong_questions), MAX_WRONG_QUESTIONS)
 
         # Randomly sample the wrong_questions list
         wrong_questions_to_show = np.random.choice(wrong_questions, num_wrong_questions_to_show, False)
@@ -214,6 +214,10 @@ def play_game():
             if questions_data[midpoint]["difficulty"] == difficulty:
                 questions_to_show.append(questions_data[midpoint])
                 found = True
+
+                # Delete from questions_data so this question is not randomly
+                # picked again later
+                del questions_data[midpoint]
             else:
                 if difficulty < questions_data[midpoint]["difficulty"]:
                     last = midpoint - 1
@@ -242,13 +246,14 @@ def finish_game():
     """
 
     # Ensure all necessary parameters are here
-    if not check_body(request, ["correct", "correct_words", "question_ids", "wrong", "wrong_words"]):
+    if not check_body(request, ["correct", "correct_question_ids", "correct_words", "wrong", "wrong_question_ids", "wrong_words"]):
         return errors.missing_finish_parameters()
 
     correct = request.json["correct"]
+    correct_question_ids = request.json["correct_question_ids"]
     correct_words = request.json["correct_words"]
-    question_ids = request.json["question_ids"]
     wrong = request.json["wrong"]
+    wrong_question_ids = request.json["wrong_question_ids"]
     wrong_words = request.json["wrong_words"]
 
     # Save generic game result
@@ -257,7 +262,7 @@ def finish_game():
     db.session.flush()
 
     # Save more detailed Scribe game result
-    scribe_result = ScribeResult(current_user.id, result.id, correct, wrong, question_ids)
+    scribe_result = ScribeResult(current_user.id, result.id, correct, wrong, correct_question_ids, wrong_question_ids)
     db.session.add(scribe_result)
     db.session.commit()
 
