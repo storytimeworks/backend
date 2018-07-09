@@ -22,62 +22,139 @@ def play_game():
         JSON data for all of the questions.
     """
 
+    # The number of questions to return
+    NUM_QUESTIONS = 10
+
+    # The greatest number of questions to show the user that they have
+    # previously answered incorrectly
+    MAX_WRONG_QUESTIONS = 3
+
+    # The greatest number of questions to show the user that they have
+    # previously answered correctly
+    MAX_CORRECT_QUESTIONS = 2
+
+    # If the user has answered fewer than MAX_WRONG_QUESTIONS questions
+    # incorrectly, this value may be used in place of MAX_CORRECT_QUESTIONS
+    MAX_CORRECT_QUESTIONS_WITH_FEW_WRONG_QUESTIONS = 3
+
+    # Mean of the normal distribution used to find question difficulties
+    DIFFICULTY_RNORM_MEAN = 17.5
+
+    # Standard deviation of the normal distribution used to find question
+    # difficulties
+    DIFFICULTY_RNORM_STDEV = 5
+
+    # The list of ids of the questions that should be included in the final result
     question_ids_to_show = []
 
-    results = ScribeResult.query.filter_by(user_id=current_user.id).order_by(ScribeResult.timestamp.asc()).all()
+    # Order by timestamp ascending in order to calculate streaks correctly
+    results = ScribeResult.query.filter_by(user_id=current_user.id) \
+                .order_by(ScribeResult.timestamp.asc()).all()
 
+    # Set of the question ids that the user has already seen
+    seen_question_ids = set()
+
+    # Maps question ids to the number of games ago where they were last seen
     question_games_ago = {}
+
+    # Maps question ids to the number of times they've been answered correctly
+    # in a row. If last answered incorrectly, this equals -1. If never seen
+    # before, the question id will not be in this dictionary
     question_streaks = {}
 
+    # Loop through past Scribe results
     for (idx, result) in enumerate(results):
+        # Loop through questions answered correctly to calculate streaks
         for id in json.loads(result.correct_question_ids):
             if id in question_streaks:
                 question_streaks[id] += 1
             else:
                 question_streaks[id] = 1
 
+            # Games ago = number of games played - current index in loop
             question_games_ago[id] = len(results) - idx
 
+            # Add this id to the seen_question_ids set
+            seen_question_ids.add(id)
+
+        # Loop through questions answered incorrectly to reset streaks
         for id in json.loads(result.wrong_question_ids):
             question_streaks[id] = -1
 
+            # Games ago = number of games played - current index in loop
             question_games_ago[id] = len(results) - idx
 
-    previously_wrong_questions = [x for x in question_streaks if question_streaks[x] == -1]
+            # Add this id to the seen_question_ids set
+            seen_question_ids.add(id)
 
-    if len(previously_wrong_questions) > 0:
-        previously_wrong_questions_to_show = np.random.choice(previously_wrong_questions, min(len(previously_wrong_questions), 3), False)
-        question_ids_to_show.extend(previously_wrong_questions_to_show)
+    # Get all of the questions that were last answered incorrectly
+    wrong_questions = [x for x in question_streaks if question_streaks[x] == -1]
 
-    previously_correct_questions = [x for x in question_streaks if question_streaks[x] >= 0 and question_games_ago[x] >= question_streaks[x] ** 2]
+    if len(wrong_questions) > 0:
+        # Make sure our sample size is not greater than the list's length
+        num_wrong_questions_to_show = min(len(wrong_questions, MAX_WRONG_QUESTIONS))
 
-    if len(previously_correct_questions) > 0:
-        num_previously_correct_questions_to_show = 3 if len(previously_wrong_questions) < 3 else 2
+        # Randomly sample the wrong_questions list
+        wrong_questions_to_show = np.random.choice(wrong_questions, num_wrong_questions_to_show, False)
 
-        previously_correct_questions_to_show = np.random.choice(previously_correct_questions, min(len(previously_correct_questions), num_previously_correct_questions_to_show), False)
-        question_ids_to_show.extend(previously_correct_questions_to_show)
+        # Add these question ids to the result list
+        question_ids_to_show.extend(wrong_questions_to_show)
 
-    questions = ScribeQuestion.query.all()
+    # Get all of the questions that were last answered correctly, but make sure
+    # they weren't answered too recently. games_ago must be >= (streak)^2
+    correct_questions = [x for x in question_streaks if question_streaks[x] >= 0 and question_games_ago[x] >= question_streaks[x] ** 2]
+
+    if len(correct_questions) > 0:
+        # Make sure our sample size is not greater than the list's length
+        num_correct_questions_to_show = min(len(correct_questions), MAX_CORRECT_QUESTIONS if len(wrong_questions) < MAX_WRONG_QUESTIONS else MAX_CORRECT_QUESTIONS_WITH_FEW_WRONG_QUESTIONS)
+
+        # Randomly sample the correct questions list
+        correct_questions_to_show = np.random.choice(correct_questions, num_correct_questions_to_show, False)
+
+        # Add these question ids to the result list
+        question_ids_to_show.extend(correct_questions_to_show)
+
+    # Make sure questions that have been seen before but were not selected are
+    # not in the pool of questions that may be picked at random. Include
+    # questions that will be shown to the user so we can get their data
+    excluded_question_ids = list(seen_question_ids)
+    excluded_question_ids = [id for id in excluded_question_ids if id not in question_ids_to_show]
+
+    # Retrieve all Scribe questions that have not been seen before by the user
+    questions = ScribeQuestion.query.filter(ScribeQuestion.id.notin_(excluded_question_ids)).all()
     questions_data = [question.serialize() for question in questions]
 
+    # After getting data of questions to show, remove them from questions_data
+    # so they will not be randomly picked again later
+    questions_to_show = [datum for datum in questions_data if datum["id"] in question_ids_to_show]
+    questions_data = [datum for datum in questions_data if datum["id"] not in question_ids_to_show]
+
+    # A list of all of the words seen in every Scribe question
     words = set()
 
     for question in questions_data:
+        # Get the words in each question's prompt with jieba
         question_words = [word for word in jieba.cut(question["chinese"], cut_all=False)]
-        words.update(question_words)
-
         question["words"] = question_words
 
-    entries = Entry.query.filter(Entry.chinese.in_(words))
+        # Add this question's words to the words set
+        words.update(question_words)
+
+    # Only retrieve the entries that we need
+    entries = Entry.query.filter(Entry.chinese.in_(words)).all()
     entry_ids = [entry.id for entry in entries]
 
+    # Only retrieve the masteries that we need
     masteries = Mastery.query.filter(
         (Mastery.user_id == current_user.id) &
         Mastery.entry_id.in_(entry_ids)
     ).all()
 
+    # Maps Chinese words to their difficulty scores
     difficulties = {}
 
+    # Calculate the difficulty score of each word, using the lists of entries
+    # and the user's masteries with them
     for entry in entries:
         mastery = next((x for x in masteries if x.entry_id == entry.id), None)
 
@@ -86,6 +163,8 @@ def play_game():
         else:
             difficulties[entry.chinese] = 10 - mastery.mastery
 
+    # Calculate the difficulty score of each question, using the word difficulty
+    # scores from above
     for question in questions_data:
         difficulty = 0
 
@@ -97,18 +176,18 @@ def play_game():
 
         question["difficulty"] = difficulty
 
-    questions_to_show = []
-
-    questions_to_show.extend([data for data in questions_data if data["id"] in question_ids_to_show])
-    questions_data = [data for data in questions_data if data["id"] not in question_ids_to_show]
-
+    # Sort questions_data by difficulty scores so we can use binary search
     questions_data.sort(key=lambda x: x["difficulty"])
 
-    num_other_questions = 10 - len(question_ids_to_show)
-    other_questions = []
+    # Count how many questions we need to find at random
+    num_other_questions = NUM_QUESTIONS - len(question_ids_to_show)
 
-    difficulties = [math.floor(x) for x in np.random.normal(17.5, 5, num_other_questions) if x <= 40]
+    # Use the normal distribution to calculate the targeted difficulty levels of
+    # questions we want to find at random
+    difficulties = [math.floor(x) for x in np.random.normal(DIFFICULTY_RNORM_MEAN, DIFFICULTY_RNORM_STDEV, num_other_questions)]
 
+    # Use binary search to find questions that have difficulty scores that match
+    # or are closest to the target difficulty scores in the difficulties array
     for difficulty in difficulties:
         first = 0
         last = len(questions_data) - 1
@@ -118,8 +197,8 @@ def play_game():
             midpoint = (first + last) // 2
 
             if questions_data[midpoint]["difficulty"] == difficulty:
-                found = True
                 questions_to_show.append(questions_data[midpoint])
+                found = True
             else:
                 if difficulty < questions_data[midpoint]["difficulty"]:
                     last = midpoint - 1
@@ -128,6 +207,9 @@ def play_game():
 
         if not found:
             questions_to_show.append(questions_data[first])
+
+            # Delete from questions_data so this question is not randomly picked
+            # again later
             del questions_data[first]
 
     np.random.shuffle(questions_to_show)
