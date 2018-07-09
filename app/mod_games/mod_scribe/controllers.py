@@ -1,7 +1,6 @@
-from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
-import jieba
+import jieba, json, math, numpy as np
 
 from app import admin_required, db
 from app.mod_games.models import GameResult
@@ -23,11 +22,40 @@ def play_game():
         JSON data for all of the questions.
     """
 
-    two_hours_ago = datetime.now() - timedelta(hours=2)
-    now = datetime.now()
-    recent_results = ScribeResult.query.filter(ScribeResult.timestamp.between(two_hours_ago, now)).all()
+    question_ids_to_show = []
 
-    print(recent_results)
+    results = ScribeResult.query.filter_by(user_id=current_user.id).order_by(ScribeResult.timestamp.asc()).all()
+
+    question_games_ago = {}
+    question_streaks = {}
+
+    for (idx, result) in enumerate(results):
+        for id in json.loads(result.correct_question_ids):
+            if id in question_streaks:
+                question_streaks[id] += 1
+            else:
+                question_streaks[id] = 1
+
+            question_games_ago[id] = len(results) - idx
+
+        for id in json.loads(result.wrong_question_ids):
+            question_streaks[id] = -1
+
+            question_games_ago[id] = len(results) - idx
+
+    previously_wrong_questions = [x for x in question_streaks if question_streaks[x] == -1]
+
+    if len(previously_wrong_questions) > 0:
+        previously_wrong_questions_to_show = np.random.choice(previously_wrong_questions, min(len(previously_wrong_questions), 3), False)
+        question_ids_to_show.extend(previously_wrong_questions_to_show)
+
+    previously_correct_questions = [x for x in question_streaks if question_streaks[x] >= 0 and question_games_ago[x] >= question_streaks[x] ** 2]
+
+    if len(previously_correct_questions) > 0:
+        num_previously_correct_questions_to_show = 3 if len(previously_wrong_questions) < 3 else 2
+
+        previously_correct_questions_to_show = np.random.choice(previously_correct_questions, min(len(previously_correct_questions), num_previously_correct_questions_to_show), False)
+        question_ids_to_show.extend(previously_correct_questions_to_show)
 
     questions = ScribeQuestion.query.all()
     questions_data = [question.serialize() for question in questions]
@@ -69,10 +97,43 @@ def play_game():
 
         question["difficulty"] = difficulty
 
+    questions_to_show = []
+
+    questions_to_show.extend([data for data in questions_data if data["id"] in question_ids_to_show])
+    questions_data = [data for data in questions_data if data["id"] not in question_ids_to_show]
+
     questions_data.sort(key=lambda x: x["difficulty"])
 
+    num_other_questions = 10 - len(question_ids_to_show)
+    other_questions = []
+
+    difficulties = [math.floor(x) for x in np.random.normal(17.5, 5, num_other_questions) if x <= 40]
+
+    for difficulty in difficulties:
+        first = 0
+        last = len(questions_data) - 1
+        found = False
+
+        while first <= last and not found:
+            midpoint = (first + last) // 2
+
+            if questions_data[midpoint]["difficulty"] == difficulty:
+                found = True
+                questions_to_show.append(questions_data[midpoint])
+            else:
+                if difficulty < questions_data[midpoint]["difficulty"]:
+                    last = midpoint - 1
+                else:
+                    first = midpoint + 1
+
+        if not found:
+            questions_to_show.append(questions_data[first])
+            del questions_data[first]
+
+    np.random.shuffle(questions_to_show)
+
     # Return JSON data
-    return jsonify(questions_data)
+    return jsonify(questions_to_show)
 
 @mod_scribe_game.route("/finish", methods=["POST"])
 @login_required

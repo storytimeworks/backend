@@ -228,6 +228,8 @@ CREATE TABLE scribe_results (
   game_id INT NOT NULL,
   correct_answers TINYINT NOT NULL,
   wrong_answers TINYINT NOT NULL,
+  correct_question_ids VARCHAR(255) NOT NULL,
+  wrong_question_ids VARCHAR(255) NOT NULL,
   timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   INDEX (user_id)
