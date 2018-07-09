@@ -10,18 +10,21 @@ class ScribeQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chinese = db.Column(db.String(255), nullable=False)
     english = db.Column(db.String(255), nullable=False)
+    other_english_answers = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
-    def __init__(self, chinese, english):
+    def __init__(self, chinese, english, other_english_answers):
         self.chinese = chinese
         self.english = english
+        self.other_english_answers = json.dumps(self.other_english_answers)
 
     def serialize(self):
         return {
             "id": self.id,
             "chinese": self.chinese,
             "english": self.english,
+            "other_english_answers": json.loads(self.other_english_answers),
             "pinyin": pinyin(self.chinese),
             "words": [word for word in jieba.cut(self.chinese, cut_all=False)],
             "created_at": self.created_at,

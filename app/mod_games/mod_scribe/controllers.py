@@ -293,7 +293,8 @@ def get_questions():
         # Ensure the correct questions are being returned
         questions = ScribeQuestion.query.filter(
             ScribeQuestion.chinese.like(query) |
-            ScribeQuestion.english.like(query)
+            ScribeQuestion.english.like(query) |
+            ScribeQuestion.other_english_answers.like(query)
         ).all()
     else:
         # Retrieve and return all questions
@@ -327,20 +328,23 @@ def create_question():
     Body:
         chinese: The Chinese prompt for this question.
         english: The english translation of the prompt.
+        other_english_answers: Other acceptable answers for the English
+            translation of this question.
 
     Returns:
         JSON data of the question.
     """
 
     # Ensure necessary parameters are here
-    if not check_body(request, ["chinese", "english"]):
+    if not check_body(request, ["chinese", "english", "other_english_answers"]):
         return errors.missing_create_question_parameters()
 
     chinese = request.json["chinese"]
     english = request.json["english"]
+    other_english_answers = request.json["other_english_answers"]
 
     # Create the question and store it in MySQL
-    question = ScribeQuestion(chinese, english)
+    question = ScribeQuestion(chinese, english, other_english_answers)
     db.session.add(question)
     db.session.commit()
 
@@ -354,7 +358,10 @@ def update_question(question_id):
     time.
 
     Body:
-        prompt: The prompt for this question.
+        chinese: The Chinese prompt for this question.
+        english: The english translation of the prompt.
+        other_english_answers: Other acceptable answers for the English
+            translation of this question.
 
     Returns:
         JSON data of the question.
@@ -382,6 +389,8 @@ def update_question(question_id):
         question.chinese = value
     elif key == "english":
         question.english = value
+    elif key == "other_english_answers":
+        question.other_english_answers = json.dumps(value)
 
     # Save changes in MySQL
     db.session.commit()
