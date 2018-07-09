@@ -159,22 +159,37 @@ def play_game():
         mastery = next((x for x in masteries if x.entry_id == entry.id), None)
 
         if mastery is None:
-            difficulties[entry.chinese] = 10
+            # An entry exists for this word, but the user has never encountered
+            # it before
+            difficulties[entry.chinese] = {
+                "new": True,
+                "score": 10
+            }
         else:
-            difficulties[entry.chinese] = 10 - mastery.mastery
+            difficulties[entry.chinese] = {
+                "new": False,
+                "score": 10 - mastery.mastery
+            }
 
     # Calculate the difficulty score of each question, using the word difficulty
     # scores from above
     for question in questions_data:
         difficulty = 0
+        new_words = []
 
         for word in question["words"]:
             if word in difficulties:
-                difficulty += difficulties[word]
+                difficulty += difficulties[word]["score"]
+
+                if difficulties[word]["new"]:
+                    new_words.append(word)
             else:
+                # An entry doesn't exist for this word, we don't know if the
+                # user has encountered it before or not
                 difficulty += 10
 
         question["difficulty"] = difficulty
+        question["new_words"] = list(set(new_words))
 
     # Sort questions_data by difficulty scores so we can use binary search
     questions_data.sort(key=lambda x: x["difficulty"])
