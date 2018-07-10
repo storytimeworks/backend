@@ -5,9 +5,11 @@ import jieba, json, math, numpy as np
 from app import admin_required, db
 from app.mod_games.models import GameResult
 import app.mod_games.mod_scribe.errors as errors
+import app.mod_passages.errors as passage_errors
 from app.mod_games.mod_scribe.models import ScribeQuestion, ScribeResult
 from app.mod_mastery import update_masteries
 from app.mod_mastery.models import Mastery
+from app.mod_passages.models import Passage
 from app.mod_vocab.models import Entry
 from app.utils import check_body
 
@@ -15,7 +17,7 @@ mod_scribe_game = Blueprint("scribe_game", __name__, url_prefix="/games/scribe")
 
 @mod_scribe_game.route("/play", methods=["GET"])
 @login_required
-def play_game():
+def play_game(words=None):
     """Retrieves about 10 questions in order to play Scribe.
 
     Returns:
@@ -120,8 +122,23 @@ def play_game():
     excluded_question_ids = list(seen_question_ids)
     excluded_question_ids = [id for id in excluded_question_ids if id not in question_ids_to_show]
 
-    # Retrieve all Scribe questions that have not been seen before by the user
-    questions = ScribeQuestion.query.filter(ScribeQuestion.id.notin_(excluded_question_ids)).all()
+    questions = []
+
+    if words == None or len(words) == 0:
+        # Retrieve all Scribe questions that have not been seen before by the user
+        questions = ScribeQuestion.query.filter(ScribeQuestion.id.notin_(excluded_question_ids)).all()
+    else:
+        # Create a filter that checks for the words provided
+        word_filter = ScribeQuestion.chinese.contains(words[0])
+
+        for word in words[1:]:
+            word_filter = word_filter | ScribeQuestion.chinese.contains(word)
+
+        # Retrieve all Scribe questions that match both filters
+        questions = ScribeQuestion.query.filter(
+            ScribeQuestion.id.notin_(excluded_question_ids) & word_filter
+        ).all()
+
     questions_data = [question.serialize() for question in questions]
 
     # After getting data of questions to show, remove them from questions_data
@@ -235,6 +252,29 @@ def play_game():
 
     # Return JSON data
     return jsonify(questions_to_show)
+
+@mod_scribe_game.route("/play/passages/<passage_id>", methods=["GET"])
+@login_required
+def play_game_for_passage(passage_id):
+    """Plays Scribe according to the contents of a passage.
+
+    Parameters:
+        passage_id: The id of the passage to play this game with.
+
+    Returns:
+        JSON data of the game data.
+    """
+
+    # Retrieve the passage with the id passed to us
+    passage = Passage.query.filter_by(id=passage_id).first()
+
+    # Return 404 if the passage doesn't exist
+    if passage is None:
+        return passage_errors.passage_not_found()
+
+    # Load the passage's new words list and use it to return game data
+    words = json.loads(passage.new_words)
+    return play_game(words)
 
 @mod_scribe_game.route("/finish", methods=["POST"])
 @login_required
