@@ -64,7 +64,7 @@ def update_masteries(user_id, correct_words, wrong_words):
     for update in updates:
         if "entry_id" not in update:
             if sentry is not None:
-                sentry.captureMessage("Entry could not be found for mastery update", extra={
+                sentry.captureMessage("Entry could not be found for mastery update: %s" % update["chinese"], extra={
                     "update": update
                 })
             else:
