@@ -188,6 +188,12 @@ def play_game(words=None):
                 "score": 10 - mastery.mastery
             }
 
+    word_data = {entry.chinese: {
+        "chinese": entry.chinese,
+        "english": entry.english,
+        "pinyin": entry.pinyin
+    } for entry in entries}
+
     # Calculate the difficulty score of each question, using the word difficulty
     # scores from above
     for question in questions_data:
@@ -206,7 +212,10 @@ def play_game(words=None):
                 difficulty += 10
 
         question["difficulty"] = difficulty
-        question["new_words"] = list(set(new_words))
+
+        # Get new word data from word_data above and add to the dictionary
+        new_words = list(set(new_words))
+        question["new_words"] = list(map(lambda x: word_data[x], new_words))
 
     # Sort questions_data by difficulty scores so we can use binary search
     questions_data.sort(key=lambda x: x["difficulty"])
