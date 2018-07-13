@@ -281,14 +281,3 @@ def get_sentences():
     # Return JSON sentences data
     sentences_data = [sentence.serialize() for sentence in sentences]
     return jsonify(sentences_data)
-
-@mod_vocab.route("/update_pinyin", methods=["PUT"])
-@admin_required
-def update_pinyin():
-    entries = Entry.query.all()
-
-    for entry in entries:
-        entry.pinyin = " ".join([x[0] for x in pinyin(entry.chinese)])
-
-    db.session.commit()
-    return ("", 204)
