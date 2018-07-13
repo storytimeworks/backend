@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, session
 from flask_login import current_user, login_required
 import json, re
+from pypinyin import pinyin
 
 from app import db, admin_required
 import app.mod_vocab.errors as errors
@@ -149,10 +150,9 @@ def update_entry(entry_id):
     # Update the entry accordingly, depending on the key and value
     if key == "chinese":
         entry.chinese = value
+        entry.pinyin = pinyin(value).lower()
     elif key == "english":
         entry.english = value
-    elif key == "pinyin":
-        entry.pinyin = value
     elif key == "translations":
         entry.translations = json.dumps(value)
     elif key == "categories":
@@ -281,3 +281,14 @@ def get_sentences():
     # Return JSON sentences data
     sentences_data = [sentence.serialize() for sentence in sentences]
     return jsonify(sentences_data)
+
+@mod_vocab.route("/update_pinyin", methods=["PUT"])
+@admin_required
+def update_pinyin():
+    entries = Entry.query.all()
+
+    for entry in entries:
+        entry.pinyin = " ".join([x[0] for x in pinyin(entry.chinese)])
+
+    db.session.commit()
+    return ("", 204)
