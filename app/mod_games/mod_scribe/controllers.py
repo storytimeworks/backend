@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, Response
 from flask_login import current_user, login_required
 import jieba, json, math, numpy as np
 
@@ -446,3 +446,25 @@ def update_question(question_id):
 
     # Return updated question JSON data
     return jsonify(question.serialize())
+
+@mod_scribe_game.route("/status", methods=["GET"])
+@admin_required
+def get_status():
+    questions = ScribeQuestion.query.all()
+
+    # A list of all of the words seen in every Scribe question
+    words = set()
+
+    for question in questions:
+        # Get the words in each question's prompt with jieba
+        question_words = [word for word in jieba.cut(question.chinese, cut_all=False)]
+
+        # Add this question's words to the words set
+        words.update(question_words)
+
+    entries = Entry.query.filter(Entry.chinese.in_(words)).all()
+
+    for entry in entries:
+        words.remove(entry.chinese)
+
+    return json.dumps(list(words), ensure_ascii=False)
