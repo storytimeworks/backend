@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request, session
 from flask_login import current_user, login_required
 import json, re
-from pypinyin import pinyin
 
 from app import db, admin_required
+from app.chinese import pinyin
 import app.mod_vocab.errors as errors
 from app.mod_vocab.models import Entry, Sentence
 from app.mod_users.models import User
