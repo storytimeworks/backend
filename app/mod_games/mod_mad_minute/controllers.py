@@ -5,10 +5,10 @@ import random
 from shushu import convert
 
 from app import db
+from app.chinese import pinyin
 from app.mod_games.models import GameResult
 from app.mod_games.mod_mad_minute.models import MadMinuteResult
 from app.mod_mastery import update_masteries
-from app.pinyin import pinyin
 from app.utils import check_body
 
 mod_mad_minute_game = Blueprint("mad_minute_game", __name__, url_prefix="/games/mad_minute")

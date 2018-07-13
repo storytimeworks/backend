@@ -3,6 +3,7 @@ from flask_login import current_user, login_required
 import jieba, json, math, numpy as np
 
 from app import admin_required, db
+from app.chinese import segment
 from app.mod_games.models import GameResult
 import app.mod_games.mod_scribe.errors as errors
 import app.mod_passages.errors as passage_errors
@@ -151,7 +152,7 @@ def play_game(words=None):
 
     for question in questions_data:
         # Get the words in each question's prompt with jieba
-        question_words = [word for word in jieba.cut(question["chinese"], cut_all=False)]
+        question_words = [word for word in segment(question["chinese"])]
         question["words"] = question_words
 
         # Add this question's words to the words set
@@ -457,7 +458,7 @@ def get_status():
 
     for question in questions:
         # Get the words in each question's prompt with jieba
-        question_words = [word for word in jieba.cut(question.chinese, cut_all=False)]
+        question_words = [word for word in segment(question.chinese)]
 
         # Add this question's words to the words set
         words.update(question_words)

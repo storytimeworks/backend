@@ -1,5 +1,5 @@
 from app import db
-from app.pinyin import pinyin
+from app.chinese import pinyin
 
 class Base(db.Model):
 

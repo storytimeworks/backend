@@ -1,9 +1,11 @@
 import jieba
 from pypinyin import pinyin as pypinyin
 
+from app import db
+
 def pinyin(text):
     # Separate Chinese sentences into separate words
-    word_generator = jieba.cut(text, cut_all=False)
+    word_generator = jieba.cut(text)
     words = [{"chinese": word, "punctuation": False} for word in word_generator]
 
     # Add pinyin to the word objects
@@ -50,3 +52,29 @@ def pinyin(text):
             sentence += " " + word["pinyin"]
 
     return sentence[1:len(sentence)]
+
+class JiebaException(db.Model):
+
+    __tablename__ = "jieba_exceptions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    word = db.Column(db.String(255), nullable=False)
+    replacement = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+
+def segment(chinese):
+    words = [x for x in jieba.cut(chinese)]
+
+    exceptions = JiebaException.query.filter(JiebaException.word.in_(words)).all()
+    exceptions_map = {exception.word: exception.replacement for exception in exceptions}
+
+    new_words = []
+
+    for word in words:
+        if word in exceptions_map:
+            new_words.extend(exceptions_map[word].split(","))
+        else:
+            new_words.append(word)
+
+    return new_words

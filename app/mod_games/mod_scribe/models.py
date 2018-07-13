@@ -1,7 +1,7 @@
 import jieba, json
 
 from app import db
-from app.pinyin import pinyin
+from app.chinese import pinyin, segment
 
 class ScribeQuestion(db.Model):
 
@@ -26,7 +26,7 @@ class ScribeQuestion(db.Model):
             "english": self.english,
             "other_english_answers": json.loads(self.other_english_answers),
             "pinyin": pinyin(self.chinese),
-            "words": [word for word in jieba.cut(self.chinese, cut_all=False)],
+            "words": [word for word in segment(self.chinese)],
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }

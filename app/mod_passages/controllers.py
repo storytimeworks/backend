@@ -4,6 +4,7 @@ import jieba, json, numpy as np
 from pypinyin import pinyin
 
 from app import db, admin_required
+from app.chinese import segment
 import app.mod_passages.errors as errors
 from app.mod_passages.models import Passage, ChineseNameCharacter
 from app.mod_path.models import PathAction
@@ -114,7 +115,7 @@ def get_passage(passage_id):
         for idx, component in enumerate(passage_data["data"]["components"]):
             if component["type"] == "text":
                 # Separate Chinese sentences into separate words
-                word_generator = jieba.cut(component["text"], cut_all=False)
+                word_generator = segment(component["text"])
                 words = [{"chinese": word, "punctuation": False} for word in word_generator]
 
                 # Add pinyin to the word objects
@@ -227,7 +228,7 @@ def update_word_lists():
         # Use jieba to find the words in each text component
         for component in components:
             if component["type"] == "text":
-                passage_words.extend([word for word in jieba.cut(component["text"], cut_all=False)])
+                passage_words.extend([word for word in segment(component["text"])])
 
         # Use numpy to figure out which words have appeared for the first time
         new_words = np.setdiff1d(passage_words, words).tolist()
