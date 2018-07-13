@@ -64,9 +64,12 @@ def play_game():
         else:
             # Create the question data
             question = {
-                "prompt": prompt.lower(),
+                "addition": addition,
                 "answer": answer,
                 "answer_pinyin": pinyin(answer).lower(),
+                "first_number": first_number,
+                "prompt": prompt.lower(),
+                "second_number": second_number,
                 "words": list(set([
                     convert(first_number),
                     convert(second_number),
