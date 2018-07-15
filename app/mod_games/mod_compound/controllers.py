@@ -5,6 +5,7 @@ from pypinyin import pinyin
 import json
 
 from app import admin_required, db
+import app.mod_games.mod_compound.errors as errors
 from app.mod_games.mod_compound.models import CompoundQuestion
 from app.utils import check_body
 
