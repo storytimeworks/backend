@@ -259,6 +259,16 @@ CREATE TABLE jieba_exceptions (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE compound_questions (
+  id INT NOT NULL AUTO_INCREMENT,
+  prompt VARCHAR(255) NOT NULL,
+  choices VARCHAR(255) NOT NULL,
+  pinyin_choices VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
+
 -- $2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q is a bcrypt hash of "this is my password"
 INSERT INTO users (username, email, password, groups, settings, pending_email, saved_entry_ids) VALUES ("admin", "admin@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[1]", "{}", NULL, "[]");
 INSERT INTO users (username, email, password, groups, settings, pending_email, saved_entry_ids) VALUES ("user", "user@storytime.works", "$2b$12$vdNVmXFt/rJ1csHcYvW1SeYXwXb.PLTGgjy0MIAIkCbhcLu2g9E0q", "[]", "{}", NULL, "[]");
