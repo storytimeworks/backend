@@ -14,9 +14,15 @@ mod_compound_game = Blueprint("compound_game", __name__, url_prefix="/games/comp
 @mod_compound_game.route("/play", methods=["GET"])
 @login_required
 def play_game():
-    questions = CompoundQuestion.query.order_by(db.func.random()).limit(10).all()
-    questions_data = [question.serialize() for question in questions]
-    return jsonify(questions_data)
+    """Retrieves about 10 questions in order to play Compound.
+
+    Returns:
+        JSON data for all of the questions.
+    """
+
+    # Retrieve and return Compound questions for this user
+    questions = CompoundQuestion.play_game()
+    return jsonify(questions)
 
 @mod_compound_game.route("/questions", methods=["GET"])
 @admin_required
