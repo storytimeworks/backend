@@ -8,13 +8,16 @@ from app.mod_games.models import GameResult
 import app.mod_games.mod_compound.errors as errors
 from app.mod_games.mod_compound.models import CompoundQuestion, CompoundResult
 from app.mod_mastery import update_masteries
+import app.mod_passages.errors as passage_errors
+from app.mod_passages.models import Passage
+from app.mod_vocab.models import Entry
 from app.utils import check_body
 
 mod_compound_game = Blueprint("compound_game", __name__, url_prefix="/games/compound")
 
 @mod_compound_game.route("/play", methods=["GET"])
 @login_required
-def play_game():
+def play_game(words=None):
     """Retrieves about 10 questions in order to play Compound.
 
     Returns:
@@ -22,8 +25,31 @@ def play_game():
     """
 
     # Retrieve and return Compound questions for this user
-    questions = CompoundQuestion.play_game()
+    questions = CompoundQuestion.play_game(words)
     return jsonify(questions)
+
+@mod_compound_game.route("/play/passages/<passage_id>", methods=["GET"])
+@login_required
+def play_game_for_passage(passage_id):
+    """Plays Compound according to the contents of a passage.
+
+    Parameters:
+        passage_id: The id of the passage to play this game with.
+
+    Returns:
+        JSON data of the game data.
+    """
+
+    # Retrieve the passage with the id passed to us
+    passage = Passage.query.filter_by(id=passage_id).first()
+
+    # Return 404 if the passage doesn't exist
+    if passage is None:
+        return passage_errors.passage_not_found()
+
+    # Load the passage's new words list and use it to return game data
+    words = json.loads(passage.new_words)
+    return play_game(words)
 
 @mod_compound_game.route("/finish", methods=["POST"])
 @login_required
@@ -188,3 +214,31 @@ def update_question(question_id):
 
     # Return update question JSON data
     return jsonify(question.serialize())
+
+@mod_compound_game.route("/status", methods=["GET"])
+@admin_required
+def get_status():
+    questions = CompoundQuestion.query.all()
+
+    # A list of all of the words seen in every Scribe question
+    words = set()
+
+    for question in questions:
+        # Get the words in each question
+        all_words = []
+        choices = [x for x in json.loads(question.choices) if len(x) > 0]
+
+        for column in choices:
+            all_words.extend([x[0] for x in column])
+
+        all_words.append("".join([x[0][0] for x in choices]))
+
+        # Add this question's words to the words set
+        words.update(all_words)
+
+    entries = Entry.query.filter(Entry.chinese.in_(words)).all()
+
+    for entry in entries:
+        words.remove(entry.chinese)
+
+    return json.dumps(list(words), ensure_ascii=False)

@@ -52,5 +52,5 @@ class CompoundQuestion(Question):
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "translations": translations,
-            "words": words
+            "words": all_choices
         }
