@@ -1,12 +1,13 @@
 from flask import Blueprint, jsonify, request
-from flask_login import login_required
+from flask_login import current_user, login_required
+import json
 from pypinyin import pinyin
 
-import json
-
 from app import admin_required, db
+from app.mod_games.models import GameResult
 import app.mod_games.mod_compound.errors as errors
-from app.mod_games.mod_compound.models import CompoundQuestion
+from app.mod_games.mod_compound.models import CompoundQuestion, CompoundResult
+from app.mod_mastery import update_masteries
 from app.utils import check_body
 
 mod_compound_game = Blueprint("compound_game", __name__, url_prefix="/games/compound")
@@ -23,6 +24,42 @@ def play_game():
     # Retrieve and return Compound questions for this user
     questions = CompoundQuestion.play_game()
     return jsonify(questions)
+
+@mod_compound_game.route("/finish", methods=["POST"])
+@login_required
+def finish_game():
+    """Completes a game and stores any necessary data.
+
+    Returns:
+        JSON data of the completed game.
+    """
+
+    # Ensure all necessary parameters are here
+    if not check_body(request, ["correct", "correct_question_ids", "correct_words", "wrong", "wrong_question_ids", "wrong_words"]):
+        return errors.missing_finish_parameters()
+
+    correct = request.json["correct"]
+    correct_question_ids = request.json["correct_question_ids"]
+    correct_words = request.json["correct_words"]
+    wrong = request.json["wrong"]
+    wrong_question_ids = request.json["wrong_question_ids"]
+    wrong_words = request.json["wrong_words"]
+
+    # Save generic game result
+    result = GameResult(current_user.id, 3, 0)
+    db.session.add(result)
+    db.session.flush()
+
+    # Save more detailed Compound game result
+    compound_result = CompoundResult(current_user.id, result.id, correct, wrong, correct_question_ids, wrong_question_ids)
+    db.session.add(compound_result)
+    db.session.commit()
+
+    # Update all masteries with words the user has practiced
+    update_masteries(current_user.id, correct_words, wrong_words)
+
+    # Return the general game result as JSON data
+    return jsonify(result.serialize())
 
 @mod_compound_game.route("/questions", methods=["GET"])
 @admin_required

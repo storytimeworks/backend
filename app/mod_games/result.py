@@ -1,5 +1,7 @@
 from app import db
 
+import json
+
 class Result(db.Model):
 
     __abstract__ = True

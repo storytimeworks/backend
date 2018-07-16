@@ -41,7 +41,8 @@ class CompoundQuestion(Question):
         all_choices.append("".join([x[0][0] for x in choices]))
 
         entries = Entry.query.filter(Entry.chinese.in_(all_choices)).all()
-        words = {entry.chinese: entry.english for entry in entries}
+        words = [entry.chinese for entry in entries]
+        translations = {entry.chinese: entry.english for entry in entries}
 
         return {
             "id": self.id,
@@ -50,5 +51,6 @@ class CompoundQuestion(Question):
             "pinyin_choices": pinyin_choices,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
+            "translations": translations,
             "words": words
         }
