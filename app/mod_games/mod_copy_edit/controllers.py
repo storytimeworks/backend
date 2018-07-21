@@ -1,3 +1,16 @@
+from flask import Blueprint, jsonify, request
+from flask_login import login_required
+
+from app import admin_required, db
+from app.chinese import segment
+import app.mod_games.mod_copy_edit.errors as errors
+from app.mod_games.mod_copy_edit.models import CopyEditQuestion
+from app.mod_games.mod_copy_edit.models import CopyEditResult
+from app.mod_mastery import update_masteries
+from app.mod_passages.models import Passage
+from app.mod_vocab.models import Entry
+from app.utils import check_body
+
 mod_copy_edit_game = Blueprint("copy_edit_game", __name__, url_prefix="/games/copy_edit")
 
 @mod_copy_edit_game.route("/play", methods=["GET"])
@@ -69,12 +82,151 @@ def finish_game():
     # Update all masteries with words the user has practiced
     update_masteries(current_user.id, correct_words, wrong_words)
 
-    #  Return the general game result as JSON data
-     return jsonify(result.serialize())
+    # Return the general game result as JSON data
+    return jsonify(result.serialize())
 
 @mod_copy_edit_game.route("/questions", methods=["GET"])
 @admin_required
 def get_questions():
-    questions = CopyEditQuestion.query.all()
+    """Retrieves all Copy Edit questions.
+
+    Parameters:
+        q: The query that should be used for the search.
+
+    Returns:
+        JSON data for all the questions.
+    """
+
+    questions = []
+
+    if "q" in request.args:
+        # Use the query to search for questions if one is included
+        query = "%" + request.args.get("q") + "%"
+
+        # Ensure the correct questions are being returned
+        questions = CopyEditQuestion.query.filter(
+            CopyEditQuestion.prompt.like(query) |
+            CopyEditQuestion.explanation.like(query) |
+            CopyEditQuestion.correct_sentence.like(query)
+        ).all()
+    else:
+        # Retrieve and return all questions
+        questions = CopyEditQuestion.query.all()
+
+    # Return questions JSON data
     questions_data = [question.serialize() for question in questions]
     return jsonify(questions_data)
+
+@mod_copy_edit_game.route("/questions/<question_id>", methods=["GET"])
+@admin_required
+def get_question(question_id):
+    """Retrieves a Copy Edit question.
+
+    Returns:
+        JSON data of the question.
+    """
+
+    question = CopyEditQuestion.query.filter_by(id=question_id).first()
+
+    if question is None:
+        return errors.question_not_found()
+    else:
+        return jsonify(question.serialize())
+
+@mod_copy_edit_game.route("/questions", methods=["POST"])
+@admin_required
+def create_question():
+    """Creates a question for Copy Edit.
+
+    Body:
+        prompt: The sentence that needs to be corrected.
+        explanation: The explanation for why the original sentence is wrong.
+        correct_sentence: The correct sentence.
+
+    Returns:
+        JSON data of this question.
+    """
+
+    # Ensure necessary parameters are here
+    if not check_body(request, ["prompt", "explanation", "correct_sentence"]):
+        return errors.missing_create_question_parameters()
+
+    prompt = request.json["prompt"]
+    explanation = request.json["explanation"]
+    correct_sentence = request.json["correct_sentence"]
+
+    # Create the question and store it in MySQL
+    question = CopyEditQuestion(prompt, explanation, correct_sentence)
+    db.session.add(question)
+    db.session.commit()
+
+    # Return JSON data of the question
+    return jsonify(question.serialize())
+
+@mod_copy_edit_game.route("/questions/<question_id>", methods=["PUT"])
+@admin_required
+def update_question(question_id):
+    """Updates a Copy Edit question.Currently only one key can be updated at a
+    time.
+
+    Body:
+        prompt: The sentence that needs to be corrected.
+        explanation: The explanation for why the original sentence is wrong.
+        correct_sentence: The correct sentence.
+
+    Returns:
+        JSON data of this question.
+    """
+
+    key = None
+    value = None
+
+    # Try to get the key and value being updated
+    if request.json is not None and len(request.json.keys()) > 0:
+        key = list(request.json.keys())[0]
+        value = request.json[key]
+    else:
+        return errors.missing_update_question_parameters()
+
+    # Find the question being updated
+    question = CopyEditQuestion.query.filter_by(id=question_id).first()
+
+    # Return 404 if the question doesn't exist
+    if question is None:
+        return errors.question_not_found()
+
+    # Update the question accordingly, depending on the key and value
+    if key == "prompt":
+        question.prompt = value
+    elif key == "explanation":
+        question.explanation = value
+    elif key == "correct_sentence":
+        question.correct_sentence = value
+
+    # Save changes in MySQL
+    db.session.commit()
+
+    # Return updated quesiton JSON data
+    return jsonify(question.serialize())
+
+@mod_copy_edit_game.route("/status", methods=["GET"])
+@admin_required
+def get_status():
+    questions = CopyEditQuestion.query.all()
+
+    # A list of all words seen in all Copy Edit questions
+    words = set()
+
+    for question in questions:
+        # Get the words in each question
+        question_words = [word for word in segment(question.prompt)]
+
+        # Add this question's words to the words set
+        words.update(question_words)
+
+    entries = Entry.query.filter(Entry.chinese.in_(words)).all()
+
+    for entry in entries:
+        words.remove(entry.chinese)
+
+    return json.dumps(list(words), ensure_ascii=False)

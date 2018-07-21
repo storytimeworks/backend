@@ -9,7 +9,6 @@ import app.mod_games.mod_scribe.errors as errors
 import app.mod_passages.errors as passage_errors
 from app.mod_games.mod_scribe.models import ScribeQuestion, ScribeResult
 from app.mod_mastery import update_masteries
-from app.mod_mastery.models import Mastery
 from app.mod_passages.models import Passage
 from app.mod_vocab.models import Entry
 from app.utils import check_body

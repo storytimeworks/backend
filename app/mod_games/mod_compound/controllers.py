@@ -195,7 +195,6 @@ def update_question(question_id):
 
     # Update the question accordingly, depending on the key and value
     if key == "choices":
-        print(request.json)
         question.choices = json.dumps(value)
 
         # Also update pinyin_choices when choices are being updated

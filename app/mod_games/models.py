@@ -29,16 +29,6 @@ class Attempt(Base):
             "attempted_at": self.attempted_at
         }
 
-class CopyEditSentence(Base):
-
-    __tablename__ = "copy_edit_sentences"
-
-    sentence = db.Column(db.Text, nullable=False)
-    explanation = db.Column(db.Text, nullable=False)
-    correct_sentence = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
-    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
-
 class GameResult(Base):
 
     __tablename__ = "game_results"
