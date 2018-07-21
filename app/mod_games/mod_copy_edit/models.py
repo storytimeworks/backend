@@ -1,4 +1,5 @@
 from app import db
+from app.chinese import segment
 from app.mod_games.question import Question
 from app.mod_games.result import Result
 
@@ -25,6 +26,7 @@ class CopyEditQuestion(Question):
             "prompt": self.prompt,
             "explanation": self.explanation,
             "correct_sentence": self.correct_sentence,
+            "words": [word for word in segment(self.prompt)],
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
