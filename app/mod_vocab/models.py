@@ -1,4 +1,5 @@
 from app import db
+from app.chinese import pinyin
 import json
 
 class Base(db.Model):
@@ -19,10 +20,10 @@ class Entry(Base):
     translations = db.Column(db.Text, nullable=False)
     categories = db.Column(db.Text, nullable=False)
 
-    def __init__(self, chinese, english, pinyin):
+    def __init__(self, chinese, english):
         self.chinese = chinese
         self.english = english
-        self.pinyin = pinyin
+        self.pinyin = pinyin(chinese).lower()
         self.translations = "[]"
         self.categories = "[]"
 

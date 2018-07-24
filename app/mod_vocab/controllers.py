@@ -94,15 +94,14 @@ def create_entry():
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["chinese", "english", "pinyin"]):
+    if not check_body(request, ["chinese", "english"]):
         return errors.missing_create_entry_parameters()
 
     chinese = request.json["chinese"]
     english = request.json["english"]
-    pinyin = request.json["pinyin"]
 
     # Add the new entry to the database
-    entry = Entry(chinese, english, pinyin)
+    entry = Entry(chinese, english)
     db.session.add(entry)
     db.session.commit()
 
@@ -118,7 +117,6 @@ def update_entry(entry_id):
     Body:
         chinese: The chinese characters for this entry.
         english: The english translation of this entry.
-        pinyin: The pinyin representation of the chinese characters.
         translations: JSON string representing the translations of this entry.
         categories: JSON string representing the categories this entry falls under.
 
