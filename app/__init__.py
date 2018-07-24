@@ -74,6 +74,7 @@ def configure_app(app):
         return User.query.filter_by(id=user_id).first()
 
     from app.mod_characters.controllers import mod_characters as characters_module
+    from app.mod_dashboard.controllers import mod_dashboard as dashboard_module
     from app.mod_games.controllers import mod_games as games_module
     from app.mod_games.mod_compound.controllers import mod_compound_game as compound_game_module
     from app.mod_games.mod_copy_edit.controllers import mod_copy_edit_game as copy_edit_game_module
@@ -92,6 +93,7 @@ def configure_app(app):
     from app.mod_users.controllers import mod_users as users_module
 
     app.register_blueprint(characters_module)
+    app.register_blueprint(dashboard_module)
     app.register_blueprint(games_module)
     app.register_blueprint(compound_game_module)
     app.register_blueprint(copy_edit_game_module)
