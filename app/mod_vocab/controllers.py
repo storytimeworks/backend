@@ -97,8 +97,8 @@ def create_entry():
     if not check_body(request, ["chinese", "english"]):
         return errors.missing_create_entry_parameters()
 
-    chinese = request.json["chinese"]
-    english = request.json["english"]
+    chinese = request.json["chinese"].strip()
+    english = request.json["english"].strip()
 
     # Add the new entry to the database
     entry = Entry(chinese, english)
@@ -147,10 +147,10 @@ def update_entry(entry_id):
 
     # Update the entry accordingly, depending on the key and value
     if key == "chinese":
-        entry.chinese = value
-        entry.pinyin = pinyin(value).lower()
+        entry.chinese = value.strip()
+        entry.pinyin = pinyin(value.strip()).lower()
     elif key == "english":
-        entry.english = value
+        entry.english = value.strip()
     elif key == "translations":
         entry.translations = json.dumps(value)
     elif key == "categories":
