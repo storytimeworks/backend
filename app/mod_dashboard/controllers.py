@@ -48,6 +48,7 @@ def get_scribe_stats():
         question_words = segment(question.chinese)
         words.update(question_words)
 
+    words.remove("，")
     words.remove("？")
     words.remove("！")
 
