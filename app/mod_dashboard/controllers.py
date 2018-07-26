@@ -20,8 +20,10 @@ def get_expressions_stats():
 
         for choice in choices:
             if len(re.findall(r"[\u4e00-\u9fff]+", choice)) > 0:
-                choice = choice.replace("?", "").replace("？", "").replace("!", "").replace("！", "").replace(".", "").replace("。", "")
+                choice = choice.replace("\n", "").replace("?", "").replace("？", "").replace("!", "").replace("！", "").replace(".", "").replace("。", "")
                 words.add(choice)
+
+    print(words)
 
     total_entries = len(words)
 
