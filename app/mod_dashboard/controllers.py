@@ -4,10 +4,38 @@ import json
 from app import admin_required, db
 from app.chinese import segment
 from app.mod_games.mod_compound.models import CompoundQuestion
+from app.mod_games.mod_expressions.models import ExpressionsQuestion
 from app.mod_games.mod_scribe.models import ScribeQuestion
 from app.mod_vocab.models import Entry
 
 mod_dashboard = Blueprint("dashboard", __name__, url_prefix="/dashboard")
+
+def get_expressions_stats():
+    questions = ExpressionsQuestion.query.all()
+
+    words = set()
+
+    for question in questions:
+        words.add(question.choice_1)
+        words.add(question.choice_2)
+        words.add(question.choice_3)
+        words.add(question.choice_4)
+
+    total_entries = len(words)
+
+    entries = Entry.query.filter(Entry.chinese.in_(words)).all()
+
+    for entry in entries:
+        words.remove(entry.chinese)
+
+    return {
+        "name": "Expressions",
+        "completed_entries": total_entries - len(words),
+        "total_entries": total_entries,
+        "completed_questions": len(questions),
+        "total_questions": 100,
+        "needed_entries": list(words)
+    }
 
 def get_scribe_stats():
     questions = ScribeQuestion.query.all()
@@ -71,6 +99,7 @@ def get_compound_stats():
 def get_stats():
     stats = [
         get_compound_stats(),
+        get_expressions_stats(),
         get_scribe_stats()
     ]
 
