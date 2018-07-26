@@ -20,7 +20,7 @@ def get_expressions_stats():
 
         for choice in choices:
             if len(re.findall(r"[\u4e00-\u9fff]+", choice)) > 0:
-                choice = choice.replace("?", "").replace("？", "").replace("!", "").replace("！", "")
+                choice = choice.replace("?", "").replace("？", "").replace("!", "").replace("！", "").replace(".", "").replace("。", "")
                 words.add(choice)
 
     total_entries = len(words)
@@ -54,6 +54,9 @@ def get_scribe_stats():
 
     for entry in entries:
         words.remove(entry.chinese)
+
+    words.remove("？")
+    words.remove("！")
 
     return {
         "name": "Scribe",
