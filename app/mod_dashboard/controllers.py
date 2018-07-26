@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-import json
+import json, re
 
 from app import admin_required, db
 from app.chinese import segment
@@ -16,10 +16,11 @@ def get_expressions_stats():
     words = set()
 
     for question in questions:
-        words.add(question.choice_1)
-        words.add(question.choice_2)
-        words.add(question.choice_3)
-        words.add(question.choice_4)
+        choices = [question.choice_1, question.choice_2, question.choice_3, question.choice_4]
+
+        for choice in choices:
+            if len(re.findall(r"[\u4e00-\u9fff]+", choice)) > 0:
+                words.add(choice)
 
     total_entries = len(words)
 
