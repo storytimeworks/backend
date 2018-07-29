@@ -67,7 +67,7 @@ def segment(chinese):
     words = [x for x in jieba.cut(chinese)]
 
     exceptions = JiebaException.query.filter(JiebaException.word.in_(words)).all()
-    exceptions_map = {exception.word: exception.replacement for exception in exceptions}
+    exceptions_map = {exception.word: exception.replacement for exception in exceptions if not "," in exception}
 
     new_words = []
 
@@ -77,4 +77,11 @@ def segment(chinese):
         else:
             new_words.append(word)
 
-    return new_words
+    new_words_string = ",".join(new_words)
+
+    reverse_exceptions = JiebaException.query.filter(JiebaException.word.like("%,%")).all()
+
+    for exception in reverse_exceptions:
+        new_words_string.replace(exception.word, exception.replacement)
+
+    return new_words_string.split(",")
