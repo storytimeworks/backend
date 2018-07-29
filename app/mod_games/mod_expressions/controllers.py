@@ -111,11 +111,11 @@ def create_question():
     if not check_body(request, ["prompt", "choice_1", "choice_2", "choice_3", "choice_4", "choice_1_correct", "choice_2_correct", "choice_3_correct", "choice_4_correct"]):
         return errors.missing_create_question_parameters()
 
-    prompt = request.json["prompt"].strip()
-    choice_1 = request.json["choice_1"].strip()
-    choice_2 = request.json["choice_2"].strip()
-    choice_3 = request.json["choice_3"].strip()
-    choice_4 = request.json["choice_4"].strip()
+    prompt = request.json["prompt"]
+    choice_1 = request.json["choice_1"]
+    choice_2 = request.json["choice_2"]
+    choice_3 = request.json["choice_3"]
+    choice_4 = request.json["choice_4"]
     choice_1_correct = request.json["choice_1_correct"]
     choice_2_correct = request.json["choice_2_correct"]
     choice_3_correct = request.json["choice_3_correct"]
@@ -171,15 +171,15 @@ def update_question(question_id):
 
     # Update the question accordingly, depending on the key and value
     if key == "prompt":
-        question.prompt = value.strip()
+        question.prompt = value
     elif key == "choice_1":
-        question.choice_1 = value.strip()
+        question.choice_1 = value
     elif key == "choice_2":
-        question.choice_2 = value.strip()
+        question.choice_2 = value
     elif key == "choice_3":
-        question.choice_3 = value.strip()
+        question.choice_3 = value
     elif key == "choice_4":
-        question.choice_4 = value.strip()
+        question.choice_4 = value
     elif key == "choice_1_correct":
         question.choice_1_correct = value
     elif key == "choice_2_correct":
