@@ -66,8 +66,8 @@ class JiebaException(db.Model):
 def segment(chinese):
     words = [x for x in jieba.cut(chinese)]
 
-    exceptions = JiebaException.query.filter(JiebaException.word.in_(words)).all()
-    exceptions_map = {exception.word: exception.replacement for exception in exceptions if not "," in exception}
+    exceptions = JiebaException.query.filter(JiebaException.word.in_(words) & ~JiebaException.word.like("%,%")).all()
+    exceptions_map = {exception.word: exception.replacement for exception in exceptions}
 
     new_words = []
 
