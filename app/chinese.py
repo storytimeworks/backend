@@ -82,6 +82,6 @@ def segment(chinese):
     reverse_exceptions = JiebaException.query.filter(JiebaException.word.like("%,%")).all()
 
     for exception in reverse_exceptions:
-        new_words_string.replace(exception.word, exception.replacement)
+        new_words_string = new_words_string.replace(exception.word, exception.replacement)
 
     return new_words_string.split(",")
