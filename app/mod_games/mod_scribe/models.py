@@ -30,7 +30,7 @@ class ScribeQuestion(Question):
             "english": self.english,
             "other_english_answers": json.loads(self.other_english_answers),
             "pinyin": pinyin(self.chinese),
-            "words": [word for word in segment(self.chinese)],
+            "words": segment(self.chinese),
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
