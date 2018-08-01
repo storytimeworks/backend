@@ -3,7 +3,8 @@ from flask_login import login_required
 from flask_socketio import emit
 from io import BytesIO
 from scipy.io import wavfile
-import numpy as np, os, requests
+from threading import Thread
+import json, numpy as np, os, requests, wave
 
 from app import admin_required, db, socket
 from app.mod_games.mod_speaker.models import SpeakerQuestion, SpeakerResult
@@ -14,26 +15,68 @@ mod_speaker_game = Blueprint("speaker_game", __name__, url_prefix="/games/speake
 n_quiet = 0
 speaking = False
 
+stream = None
+output = None
+
 @socket.on("audio")
 def audio(data):
-    global n_quiet, speaking
+    global n_quiet, speaking, stream, output
 
-    rate, data = wavfile.read(BytesIO(data))
-    avg = np.mean(data)
+    print("audio")
 
-    if np.abs(avg) < 5:
+    raw_data = BytesIO(data)
+
+    rate, data = wavfile.read(raw_data)
+    avg = np.abs(np.mean(data))
+
+    if avg < 2:
         n_quiet += 1
     else:
+        wav_data = wave.open(raw_data, "rb")
+
         if not speaking:
-            emit("record_audio")
+            print("Recording")
+
+            stream = BytesIO()
+            output = wave.open(stream, "wb")
+
+            output.setparams(wav_data.getparams())
+
+        output.writeframes(wav_data.readframes(wav_data.getnframes()))
 
         n_quiet = 0
         speaking = True
 
-    if n_quiet == 5:
+    if n_quiet == 5 and speaking:
         speaking = False
 
-        emit("send_audio")
+        print("Stopping")
+
+        output.close()
+
+        audio_data = stream.getvalue()
+
+        def process_audio():
+            with open("audio.wav", "wb") as f:
+                f.write(audio_data)
+
+            url = "https://speech.platform.bing.com/speech/recognition/dictation/cognitiveservices/v1" + \
+                "?language=zh-CN" + \
+                "&format=simple"
+
+            headers = {
+                "Content-Type": "audio/wav; codec=audio/pcm; samplerate=" + str(rate),
+                "Ocp-Apim-Subscription-Key": os.environ["BING_SPEECH_API_KEY"]
+            }
+
+            r = requests.post(url, data=audio_data, headers=headers)
+            r.encoding = "utf-8"
+
+            print(r.text)
+            # emit("results", json.loads(r.text))
+
+        process_thread = Thread(target=process_audio)
+        process_thread.start()
 
 @mod_speaker_game.route("/play", methods=["GET"])
 @login_required
@@ -50,9 +93,10 @@ def play_game(words=None):
 
 @mod_speaker_game.route("/check", methods=["POST"])
 @login_required
-def check_answer(audio_data=None):
-    if audio_data is None:
-        audio_data = request.files["file"].read()
+def check_answer():
+    return "", 204
+
+    audio_data = request.files["file"].read()
 
     url = "https://speech.platform.bing.com/speech/recognition/dictation/cognitiveservices/v1" + \
         "?language=zh-CN" + \
