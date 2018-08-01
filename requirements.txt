@@ -1,8 +1,10 @@
 bcrypt==3.1.4
 boto3==1.7.62
+eventlet==0.23.0
 Flask==1.0.2
 Flask-Cors==3.0.6
 Flask-Login==0.4.1
+Flask-SocketIO==3.0.1
 Flask-SQLAlchemy==2.3.2
 Flask-SSLify==0.1.5
 html5lib==1.0.1

@@ -1,12 +1,39 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required
-import os, requests
+from flask_socketio import emit
+from io import BytesIO
+from scipy.io import wavfile
+import numpy as np, os, requests
 
-from app import admin_required, db
+from app import admin_required, db, socket
 from app.mod_games.mod_speaker.models import SpeakerQuestion, SpeakerResult
 from app.utils import check_body
 
 mod_speaker_game = Blueprint("speaker_game", __name__, url_prefix="/games/speaker")
+
+n_quiet = 0
+speaking = False
+
+@socket.on("audio")
+def audio(data):
+    global n_quiet, speaking
+
+    rate, data = wavfile.read(BytesIO(data))
+    avg = np.mean(data)
+
+    if np.abs(avg) < 5:
+        n_quiet += 1
+    else:
+        if not speaking:
+            emit("record_audio")
+
+        n_quiet = 0
+        speaking = True
+
+    if n_quiet == 5:
+        speaking = False
+
+        emit("send_audio")
 
 @mod_speaker_game.route("/play", methods=["GET"])
 @login_required
@@ -23,8 +50,9 @@ def play_game(words=None):
 
 @mod_speaker_game.route("/check", methods=["POST"])
 @login_required
-def check_answer():
-    audio_data = request.files["file"].read()
+def check_answer(audio_data=None):
+    if audio_data is None:
+        audio_data = request.files["file"].read()
 
     url = "https://speech.platform.bing.com/speech/recognition/dictation/cognitiveservices/v1" + \
         "?language=zh-CN" + \
