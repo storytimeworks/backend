@@ -20,7 +20,5 @@ configure_app(application)
 
 # Run the application if it's being called by Elastic Beanstalk server
 if __name__ == "__main__":
-    from app import socket
-
     is_production = os.environ["ENVIRONMENT"] == "production"
-    socket.run(application, debug=not is_production)
+    application.run(debug=not is_production)

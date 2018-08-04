@@ -7,7 +7,6 @@ import os
 
 from flask_cors import CORS
 from flask_login import current_user, LoginManager
-from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from flask_sslify import SSLify
 from raven.contrib.flask import Sentry
@@ -16,7 +15,6 @@ import email
 
 db = None
 sentry = None
-socket = None
 
 def admin_required(func):
     @wraps(func)
@@ -41,7 +39,7 @@ def log_error(message):
         sentry.captureMessage(message)
 
 def configure_app(app):
-    global db, sentry, socket
+    global db, sentry
 
     app.config.from_object("config")
 
@@ -56,8 +54,6 @@ def configure_app(app):
         # Only use Sentry and SSL in production
         sentry = Sentry(app)
         sslify = SSLify(app, permanent=True)
-
-    socket = SocketIO(app, async_mode="eventlet")
 
     # Set up login manager here
     from app.mod_users.models import User
