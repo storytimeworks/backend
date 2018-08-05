@@ -1,9 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required
-from io import BytesIO
-from scipy.io import wavfile
-from threading import Thread
-import json, numpy as np, os, requests, wave
+import json, numpy as np, os, requests
 
 from app import admin_required, db
 from app.mod_games.mod_speaker.models import SpeakerQuestion, SpeakerResult
@@ -28,9 +25,6 @@ def play_game(words=None):
 @login_required
 def check_answer():
     audio_data = request.files["file"].read()
-
-    with open("audio.wav", "wb") as f:
-        f.write(audio_data)
 
     url = "https://speech.platform.bing.com/speech/recognition/dictation/cognitiveservices/v1" + \
         "?language=zh-CN" + \
