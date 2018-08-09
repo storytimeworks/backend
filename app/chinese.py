@@ -64,7 +64,8 @@ class JiebaException(db.Model):
     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
 def segment(chinese):
-    words = [x for x in jieba.cut(chinese)]
+    punctuation = ["。", "？", "！", "，", ".", "!", "?", ","]
+    words = [x for x in jieba.cut(chinese) if x not in punctuation]
 
     exceptions = JiebaException.query.filter(JiebaException.word.in_(words) & ~JiebaException.word.like("%,%")).all()
     exceptions_map = {exception.word: exception.replacement for exception in exceptions}

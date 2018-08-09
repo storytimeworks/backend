@@ -1,31 +1,30 @@
 import jieba, json
 
 from app import db
-from app.chinese import segment
+from app.chinese import pinyin, segment
+from app.mod_games.mod_scribe.models import ScribeQuestion
 from app.mod_games.question import Question
 from app.mod_games.result import Result
 
 class SpeakerResult(Result):
     __tablename__ = "speaker_results"
 
-class SpeakerQuestion(Question):
+class SpeakerQuestion(ScribeQuestion):
 
-    __tablename__ = "speaker_questions"
+    __table_args__ = {"extend_existing": True}
+    __tablename__ = "scribe_questions"
 
+    num_questions = 3
     result_type = SpeakerResult
-
-    prompt = db.Column(db.String(255), nullable=False)
-    words = db.Column(db.String(255), nullable=False)
-
-    def __init__(self, prompt):
-        self.prompt = prompt
-        self.words = json.dumps(segment(prompt))
 
     def serialize(self):
         return {
             "id": self.id,
-            "prompt": self.prompt,
-            "words": json.loads(self.words),
+            "chinese": self.chinese,
+            "english": self.english,
+            "other_english_answers": json.loads(self.other_english_answers),
+            "words": segment(self.chinese),
+            "words_pinyin": [pinyin(word) for word in segment(self.chinese)],
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
