@@ -1,6 +1,7 @@
 bcrypt==3.1.4
 boto3==1.7.62
 eventlet==0.23.0
+ffmpeg-python==0.1.16
 Flask==1.0.2
 Flask-Cors==3.0.6
 Flask-Login==0.4.1

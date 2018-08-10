@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required
-import boto3, json, numpy as np, os, requests, uuid
+from io import BytesIO
+import boto3, ffmpeg, json, numpy as np, os, requests, uuid
 
 from app import admin_required, db
 from app.mod_games.mod_speaker.models import SpeakerQuestion, SpeakerResult
@@ -26,7 +27,13 @@ def play_game(words=None):
 def check_answer():
     # Retrieve audio and answer data from the request
     answer = request.args.get("answer")
-    audio_data = request.files["file"].read()
+    audio_input = request.files["file"].read()
+
+    # Make the audio file smaller so that it doesn't take up a ton of space in S3
+    audio_data, _ = ffmpeg \
+        .input("pipe:") \
+        .output("pipe:", format="wav", acodec="mp3", ac=1, ar="16k", audio_bitrate=16000) \
+        .run(capture_stdout=True, input=audio_input)
 
     # Send this audio to Bing's Speech Recognition API
     url = "https://speech.platform.bing.com/speech/recognition/dictation/cognitiveservices/v1" + \
