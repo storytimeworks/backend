@@ -93,10 +93,6 @@ def get_scribe_stats():
         question_words = segment(question.chinese)
         words.update(question_words)
 
-    words.remove("，")
-    words.remove("？")
-    words.remove("！")
-
     total_entries = len(words)
 
     entries = Entry.query.filter(Entry.chinese.in_(words)).all()
