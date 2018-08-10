@@ -17,7 +17,7 @@ class Question(db.Model):
     @classmethod
     def play_game(cls, words=None):
         # The number of questions to return
-        NUM_QUESTIONS = cls.num_questions or 10
+        NUM_QUESTIONS = cls.num_questions if hasattr(cls, "num_questions") else 10
 
         # The greatest number of questions to show the user that they have
         # previously answered incorrectly

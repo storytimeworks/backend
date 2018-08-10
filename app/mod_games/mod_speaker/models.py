@@ -23,8 +23,8 @@ class SpeakerQuestion(ScribeQuestion):
             "chinese": self.chinese,
             "english": self.english,
             "other_english_answers": json.loads(self.other_english_answers),
-            "words": segment(self.chinese),
-            "words_pinyin": [pinyin(word) for word in segment(self.chinese)],
+            "words": json.loads(self.words),
+            "words_pinyin": json.loads(self.words_pinyin),
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }

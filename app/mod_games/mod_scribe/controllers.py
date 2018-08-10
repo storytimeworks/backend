@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 import jieba, json, math, numpy as np
 
 from app import admin_required, db
-from app.chinese import segment
+from app.chinese import pinyin, segment
 from app.mod_games.models import GameResult
 import app.mod_games.mod_scribe.errors as errors
 import app.mod_passages.errors as passage_errors
@@ -202,6 +202,9 @@ def update_question(question_id):
     # Update the question accordingly, depending on the key and value
     if key == "chinese":
         question.chinese = value
+        question.pinyin = pinyin(value)
+        question.words = json.dumps(segment(value))
+        question.words_pinyin = json.dumps([pinyin(word) for word in segment(value)])
     elif key == "english":
         question.english = value
     elif key == "other_english_answers":
@@ -234,3 +237,16 @@ def get_status():
         words.remove(entry.chinese)
 
     return json.dumps(list(words), ensure_ascii=False)
+
+@mod_scribe_game.route("/update", methods=["PUT"])
+@admin_required
+def update_scribe_questions():
+    questions = ScribeQuestion.query.all()
+
+    for question in questions:
+        question.pinyin = pinyin(question.chinese)
+        question.words = json.dumps(segment(question.chinese))
+        question.words_pinyin = json.dumps([pinyin(word) for word in segment(question.chinese)])
+
+    db.session.commit()
+    return "", 204
