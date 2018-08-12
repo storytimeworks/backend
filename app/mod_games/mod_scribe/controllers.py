@@ -4,6 +4,7 @@ import jieba, json, math, numpy as np
 
 from app import admin_required, db
 from app.chinese import pinyin, segment
+from app.mod_games import Game
 from app.mod_games.models import GameResult
 import app.mod_games.mod_scribe.errors as errors
 import app.mod_passages.errors as passage_errors
@@ -72,7 +73,7 @@ def finish_game():
     wrong_words = request.json["wrong_words"]
 
     # Save generic game result
-    result = GameResult(current_user.id, 2, 0)
+    result = GameResult(current_user.id, Game.SCRIBE, 0)
     db.session.add(result)
     db.session.flush()
 

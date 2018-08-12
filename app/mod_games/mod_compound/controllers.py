@@ -4,6 +4,7 @@ import json
 from pypinyin import pinyin
 
 from app import admin_required, db
+from app.mod_games import Game
 from app.mod_games.models import GameResult
 import app.mod_games.mod_compound.errors as errors
 from app.mod_games.mod_compound.models import CompoundQuestion, CompoundResult
@@ -72,7 +73,7 @@ def finish_game():
     wrong_words = request.json["wrong_words"]
 
     # Save generic game result
-    result = GameResult(current_user.id, 3, 0)
+    result = GameResult(current_user.id, Game.COMPOUND, 0)
     db.session.add(result)
     db.session.flush()
 

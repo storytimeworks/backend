@@ -6,6 +6,7 @@ from shushu import convert
 
 from app import db
 from app.chinese import pinyin
+from app.mod_games import Game
 from app.mod_games.models import GameResult
 from app.mod_games.mod_mad_minute.models import MadMinuteResult
 from app.mod_mastery import update_masteries
@@ -102,7 +103,7 @@ def finish_game():
     wrong_words = request.json["wrong_words"]
 
     # Save generic game result
-    result = GameResult(current_user.id, 1, 0)
+    result = GameResult(current_user.id, Game.MAD_MINUTE, 0)
     db.session.add(result)
     db.session.flush()
 

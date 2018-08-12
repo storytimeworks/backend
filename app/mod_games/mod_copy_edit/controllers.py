@@ -3,6 +3,7 @@ from flask_login import login_required
 
 from app import admin_required, db
 from app.chinese import segment
+from app.mod_games import Game
 import app.mod_games.mod_copy_edit.errors as errors
 from app.mod_games.mod_copy_edit.models import CopyEditQuestion
 from app.mod_games.mod_copy_edit.models import CopyEditResult
@@ -70,7 +71,7 @@ def finish_game():
     wrong_words = request.json["wrong_words"]
 
     # Save generic game result
-    result = GameResult(current_user.id, 4, 0)
+    result = GameResult(current_user.id, Game.COPY_EDIT, 0)
     db.session.add(result)
     db.session.flush()
 

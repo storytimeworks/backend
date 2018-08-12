@@ -4,6 +4,7 @@ from io import BytesIO
 import boto3, ffmpeg, json, numpy as np, os, requests, uuid
 
 from app import admin_required, db
+from app.mod_games import Game
 from app.mod_games.models import GameResult
 from app.mod_games.mod_speaker.models import SpeakerQuestion, SpeakerResult
 from app.mod_mastery import update_masteries
@@ -105,7 +106,7 @@ def finish_game():
     wrong_words = request.json["wrong_words"]
 
     # Save generic game result
-    result = GameResult(current_user.id, 5, 0)
+    result = GameResult(current_user.id, Game.SPEAKER, 0)
     db.session.add(result)
     db.session.flush()
 
