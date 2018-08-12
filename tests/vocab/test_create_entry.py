@@ -15,8 +15,7 @@ def test_create_entry(app):
     # Data for the 你好 vocabulary entry
     data = {
         "chinese": "你好",
-        "english": "hello",
-        "pinyin": "nǐ hǎo"
+        "english": "hello"
     }
 
     # Create this entry on backend
@@ -28,14 +27,13 @@ def test_create_entry(app):
     assert data["id"] > 0
     assert data["chinese"] == "你好"
     assert data["english"] == "hello"
-    assert data["pinyin"] == "nǐ hǎo"
+    assert data["pinyin"] == "nǐhǎo"
 
 def test_not_authenticated(app):
     # Data for the 你好 vocabulary entry
     data = {
         "chinese": "你好",
-        "english": "hello",
-        "pinyin": "nǐ hǎo"
+        "english": "hello"
     }
 
     # Try to create this entry without authentication
@@ -54,8 +52,7 @@ def test_normal_user(app):
     # Data for the 你好 vocabulary entry
     data = {
         "chinese": "你好",
-        "english": "hello",
-        "pinyin": "nǐ hǎo"
+        "english": "hello"
     }
 
     # Create this entry on backend

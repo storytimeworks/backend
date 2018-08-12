@@ -19,7 +19,7 @@ class ScribeQuestion(Question):
     words = db.Column(db.String(255), nullable=False)
     words_pinyin = db.Column(db.String(255), nullable=False)
     english = db.Column(db.String(255), nullable=False)
-    other_english_answers = db.Column(db.String, nullable=False)
+    other_english_answers = db.Column(db.Text, nullable=False)
 
     def __init__(self, chinese, english, other_english_answers):
         self.chinese = chinese

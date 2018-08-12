@@ -28,7 +28,7 @@ class User(Base, UserMixin):
     username = db.Column(db.Text, nullable=False)
     email = db.Column(db.String(60), nullable=False)
     password = db.Column(db.Text, nullable=False)
-    groups = db.Column(db.Text, nullable=False)
+    roles = db.Column(db.Text, nullable=False)
     settings = db.Column(db.Text, nullable=False)
     pending_email = db.Column(db.Text)
     saved_entry_ids = db.Column(db.Text, nullable=False)
@@ -40,14 +40,14 @@ class User(Base, UserMixin):
         self.username = username
         self.email = email
         self.password = password
-        self.groups = "[]"
+        self.roles = "[]"
         self.settings = json.dumps(default_settings)
         self.pending_email = email
         self.saved_entry_ids = "[]"
 
     @property
     def is_admin(self):
-        return UserGroup.ADMIN.value in json.loads(self.groups)
+        return UserGroup.ADMIN.value in json.loads(self.roles)
 
     @property
     def is_anonymous(self):
@@ -83,7 +83,7 @@ class User(Base, UserMixin):
             "username": self.username,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
-            "groups": json.loads(self.groups)
+            "roles": json.loads(self.roles)
         }
 
         if full:
