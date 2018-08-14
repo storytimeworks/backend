@@ -40,7 +40,7 @@ class GameResult(Base):
 
     def __init__(self, user_id, game, score):
         self.user_id = user_id
-        self.game = game
+        self.game = game.value
         self.score = score
 
     def serialize(self):
