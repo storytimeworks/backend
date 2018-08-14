@@ -35,7 +35,7 @@ def check_answer():
     # Make the audio file smaller so that it doesn't take up a ton of space in S3
     audio_data, _ = ffmpeg \
         .input("pipe:") \
-        .output("pipe:", format="wav", acodec="mp3", ac=1, ar="16k", audio_bitrate=16000) \
+        .output("pipe:", format="wav", acodec="pcm_s16le", ac=1, ar="16k", audio_bitrate=16000) \
         .run(capture_stdout=True, input=audio_input)
 
     # Send this audio to Bing's Speech Recognition API
