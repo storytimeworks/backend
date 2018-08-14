@@ -247,7 +247,7 @@ def update_scribe_questions():
     for question in questions:
         question.pinyin = pinyin(question.chinese)
         question.words = json.dumps(segment(question.chinese))
-        question.words_pinyin = json.dumps([pinyin(word) for word in segment(question.chinese)])
+        question.words_pinyin = json.dumps([pinyin(word).lower() for word in segment(question.chinese)])
 
     db.session.commit()
     return "", 204
