@@ -19,6 +19,7 @@ python-dotenv==0.9.1
 raven[flask]==6.9.0
 requests==2.19.1
 shushu==0.1
+stripe==2.4.0
 tensorflow==1.9.0
 validators==0.12.2
 zxcvbn-python==4.4.24

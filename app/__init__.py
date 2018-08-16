@@ -10,7 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_sslify import SSLify
 from raven.contrib.flask import Sentry
 
-import email
+import email, stripe
 
 db = None
 sentry = None
@@ -60,6 +60,8 @@ def configure_app(app):
     login_manager = LoginManager()
     login_manager.init_app(app)
 
+    stripe.api_key = os.environ["STRIPE_SECRET_KEY"]
+
     @login_manager.unauthorized_handler
     def unauthorized():
         data = {
@@ -73,6 +75,7 @@ def configure_app(app):
     def load_user(user_id):
         return User.query.filter_by(id=user_id).first()
 
+    from app.mod_billing.controllers import mod_billing as billing_module
     from app.mod_characters.controllers import mod_characters as characters_module
     from app.mod_dashboard.controllers import mod_dashboard as dashboard_module
     from app.mod_games.controllers import mod_games as games_module
@@ -92,6 +95,7 @@ def configure_app(app):
     from app.mod_vocab.controllers import mod_vocab as vocab_module
     from app.mod_users.controllers import mod_users as users_module
 
+    app.register_blueprint(billing_module)
     app.register_blueprint(characters_module)
     app.register_blueprint(dashboard_module)
     app.register_blueprint(games_module)
