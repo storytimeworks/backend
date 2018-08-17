@@ -1,4 +1,5 @@
 from flask import Flask
+from dotenv import load_dotenv
 import os
 
 from app import configure_app
@@ -11,6 +12,8 @@ if not "ENVIRONMENT" in os.environ:
     os.environ["RDS_PASSWORD"] = ""
     os.environ["RDS_USERNAME"] = "root"
     os.environ["SECRET_KEY"] = "secret"
+
+    load_dotenv()
 
 # Include application callable here so it can be used by WSGI
 application = Flask(__name__)

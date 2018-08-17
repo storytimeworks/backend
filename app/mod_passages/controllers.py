@@ -121,7 +121,7 @@ def get_passage(passage_id):
                 # Add pinyin to the word objects
                 pinyin_words = [pinyin(word["chinese"]) for word in words]
                 flattened_pinyin_words = [[j for i in words for j in i] for words in pinyin_words]
-                joined_pinyin_words = [" ".join(words) for words in flattened_pinyin_words]
+                joined_pinyin_words = ["".join(words) for words in flattened_pinyin_words]
 
                 # True if the next word in the loop needs to be capitalized
                 capitalize_next_word = True
