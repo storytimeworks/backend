@@ -109,7 +109,8 @@ def get_questions():
         # Ensure the correct questions are being returned
         questions = CompoundQuestion.query.filter(
             CompoundQuestion.prompt.like(query) |
-            CompoundQuestion.choices.like(query)
+            CompoundQuestion.choices.like(query) |
+            CompoundQuestion.answer.like(query)
         ).all()
     else:
         # Retrieve and return all questions
@@ -149,14 +150,15 @@ def create_question():
     """
 
     # Ensure necessary parameters are here
-    if not check_body(request, ["prompt", "choices"]):
+    if not check_body(request, ["prompt", "choices", "answer"]):
         return errors.missing_create_question_parameters()
 
     prompt = request.json["prompt"]
     choices = request.json["choices"]
+    answer = request.json["answer"]
 
     # Create the question and store it in MySQL
-    question = CompoundQuestion(prompt, choices)
+    question = CompoundQuestion(prompt, choices, answer)
     db.session.add(question)
     db.session.commit()
 
@@ -207,60 +209,3 @@ def update_question(question_id):
 
     # Return update question JSON data
     return jsonify(question.serialize())
-
-@mod_compound_game.route("/status", methods=["GET"])
-@admin_required
-def get_status():
-    questions = CompoundQuestion.query.all()
-
-    # A list of all of the words seen in every Scribe question
-    words = set()
-
-    for question in questions:
-        # Get the words in each question
-        all_words = []
-        choices = [x for x in json.loads(question.choices) if len(x) > 0]
-
-        for column in choices:
-            all_words.extend([x[0] for x in column])
-
-        all_words.append("".join([x[0][0] for x in choices]))
-
-        # Add this question's words to the words set
-        words.update(all_words)
-
-    entries = Entry.query.filter(Entry.chinese.in_(words)).all()
-
-    for entry in entries:
-        words.remove(entry.chinese)
-
-    return json.dumps(list(words), ensure_ascii=False)
-
-@mod_compound_game.route("/update", methods=["PUT"])
-@admin_required
-def update_questions():
-    questions = CompoundQuestion.query.all()
-
-    for question in questions:
-        choices = json.loads(question.choices)
-
-        for (idx, column) in enumerate(choices):
-            for (jdx, option) in enumerate(column):
-                chinese = choices[idx][jdx]
-                entry = Entry.query.filter_by(chinese=chinese).first()
-                translation = "translation"
-
-                if entry is not None:
-                    translation = entry.english
-
-                choices[idx][jdx] = {
-                    "character": chinese,
-                    "pinyin": pinyin(chinese)[0][0],
-                    "translation": translation
-                }
-
-        print("%d: %s" % (question.id, json.dumps(choices)))
-        question.choices = json.dumps(choices)
-
-    db.session.commit()
-    return "", 204

@@ -18,9 +18,10 @@ class CompoundQuestion(Question):
     choices = db.Column(db.Text, nullable=False)
     answer = db.Column(db.String(255), nullable=False)
 
-    def __init__(self, prompt, choices):
+    def __init__(self, prompt, choices, answer):
         self.prompt = prompt
         self.choices = json.dumps(choices)
+        self.answer = answer
 
     def serialize(self):
         all_choices = []
