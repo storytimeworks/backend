@@ -195,17 +195,10 @@ def update_question(question_id):
         return errors.question_not_found()
 
     # Update the question accordingly, depending on the key and value
-    if key == "choices":
+    if key == "answer":
+        question.answer = value
+    elif key == "choices":
         question.choices = json.dumps(value)
-
-        # Also update pinyin_choices when choices are being updated
-        pinyin_choices = value
-
-        for idx, choice in enumerate(pinyin_choices):
-            for jdx, option in enumerate(choice):
-                pinyin_choices[idx][jdx] = pinyin(option)[0][0]
-
-        question.pinyin_choices = json.dumps(pinyin_choices)
     elif key == "prompt":
         question.prompt = value
 
@@ -242,3 +235,32 @@ def get_status():
         words.remove(entry.chinese)
 
     return json.dumps(list(words), ensure_ascii=False)
+
+@mod_compound_game.route("/update", methods=["PUT"])
+@admin_required
+def update_questions():
+    questions = CompoundQuestion.query.all()
+
+    for question in questions:
+        choices = json.loads(question.choices)
+
+        for (idx, column) in enumerate(choices):
+            for (jdx, option) in enumerate(column):
+                chinese = choices[idx][jdx]
+                entry = Entry.query.filter_by(chinese=chinese).first()
+                translation = "translation"
+
+                if entry is not None:
+                    translation = entry.english
+
+                choices[idx][jdx] = {
+                    "character": chinese,
+                    "pinyin": pinyin(chinese)[0][0],
+                    "translation": translation
+                }
+
+        print("%d: %s" % (question.id, json.dumps(choices)))
+        question.choices = json.dumps(choices)
+
+    db.session.commit()
+    return "", 204
