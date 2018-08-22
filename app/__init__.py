@@ -79,12 +79,8 @@ def configure_app(app):
     from app.mod_characters.controllers import mod_characters as characters_module
     from app.mod_dashboard.controllers import mod_dashboard as dashboard_module
     from app.mod_games.controllers import mod_games as games_module
-    from app.mod_games.mod_compound.controllers import mod_compound_game as compound_game_module
-    from app.mod_games.mod_copy_edit.controllers import mod_copy_edit_game as copy_edit_game_module
     from app.mod_games.mod_expressions.controllers import mod_expressions_game as expressions_game_module
     from app.mod_games.mod_mad_minute.controllers import mod_mad_minute_game as mad_minute_game_module
-    from app.mod_games.mod_narrative.controllers import mod_narrative_game as narrative_game_module
-    from app.mod_games.mod_scribe.controllers import mod_scribe_game as scribe_game_module
     from app.mod_games.mod_speaker.controllers import mod_speaker_game as speaker_game_module
     from app.mod_games.mod_writer.controllers import mod_writer_game as writer_game_module
     from app.mod_mastery.controllers import mod_mastery as mastery_module
@@ -100,12 +96,8 @@ def configure_app(app):
     app.register_blueprint(characters_module)
     app.register_blueprint(dashboard_module)
     app.register_blueprint(games_module)
-    app.register_blueprint(compound_game_module)
-    app.register_blueprint(copy_edit_game_module)
     app.register_blueprint(expressions_game_module)
     app.register_blueprint(mad_minute_game_module)
-    app.register_blueprint(narrative_game_module)
-    app.register_blueprint(scribe_game_module)
     app.register_blueprint(speaker_game_module)
     app.register_blueprint(writer_game_module)
     app.register_blueprint(mastery_module)

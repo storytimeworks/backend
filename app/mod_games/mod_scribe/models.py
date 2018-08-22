@@ -27,7 +27,7 @@ class ScribeQuestion(Question):
         self.words = json.dumps(segment(chinese))
         self.words_pinyin = json.dumps([pinyin(word) for word in segment(chinese)])
         self.english = english
-        self.other_english_answers = json.dumps(self.other_english_answers)
+        self.other_english_answers = json.dumps(other_english_answers)
 
     def serialize(self):
         return {

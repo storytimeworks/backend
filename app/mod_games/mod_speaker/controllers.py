@@ -12,19 +12,6 @@ from app.utils import check_body
 
 mod_speaker_game = Blueprint("speaker_game", __name__, url_prefix="/games/speaker")
 
-@mod_speaker_game.route("/play", methods=["GET"])
-@login_required
-def play_game(words=None):
-    """Retrieves about 3 questions in order to play Speaker.
-
-    Returns:
-        JSON data for all of the questions.
-    """
-
-    # Retrieve and return Speaker questions for this user
-    questions = SpeakerQuestion.play_game(words)
-    return jsonify(questions)
-
 @mod_speaker_game.route("/check", methods=["POST"])
 @login_required
 def check_answer():
@@ -84,39 +71,3 @@ def check_answer():
     }
 
     return jsonify(result)
-
-@mod_speaker_game.route("/finish", methods=["POST"])
-@login_required
-def finish_game():
-    """Completes a game and stores any necessary data.
-
-    Returns:
-        JSON data of the completed game.
-    """
-
-    # Ensure all necessary parameters are here
-    if not check_body(request, ["correct", "correct_question_ids", "correct_words", "wrong", "wrong_question_ids", "wrong_words"]):
-        return errors.missing_finish_parameters()
-
-    correct = request.json["correct"]
-    correct_question_ids = request.json["correct_question_ids"]
-    correct_words = request.json["correct_words"]
-    wrong = request.json["wrong"]
-    wrong_question_ids = request.json["wrong_question_ids"]
-    wrong_words = request.json["wrong_words"]
-
-    # Save generic game result
-    result = GameResult(current_user.id, Game.SPEAKER, 0)
-    db.session.add(result)
-    db.session.flush()
-
-    # Save more detailed Speaker game result
-    speaker_result = SpeakerResult(current_user.id, result.id, correct, wrong, correct_question_ids, wrong_question_ids)
-    db.session.add(speaker_result)
-    db.session.commit()
-
-    # Update all masteries with words the user has practiced
-    update_masteries(current_user.id, correct_words, wrong_words)
-
-    # Return the general game result as JSON data
-    return jsonify(result.serialize())
