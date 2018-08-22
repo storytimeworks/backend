@@ -5,5 +5,5 @@ def error(status_code, code, message, data=None):
     else:
         return (jsonify(code=code, message=message, data=data), status_code)
 
-def missing_create_question_parameters():
-    return error(400, 1801, "Missing parameters needed to create a question")
+def missing_attempt_parameters():
+    return error(400, 2301, "Missing attempt parameters")

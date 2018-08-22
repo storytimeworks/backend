@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required
 
 from app import db, admin_required
-import app.mod_games.mod_expressions.errors as errors
 from app.mod_games.mod_expressions.models import ExpressionsQuestion
 from app.utils import check_body
 

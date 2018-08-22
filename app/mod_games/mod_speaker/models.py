@@ -1,9 +1,6 @@
-import jieba, json
+import json
 
-from app import db
-from app.chinese import pinyin, segment
 from app.mod_games.mod_scribe.models import ScribeQuestion
-from app.mod_games.question import Question
 from app.mod_games.result import Result
 
 class SpeakerResult(Result):

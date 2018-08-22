@@ -1,4 +1,4 @@
-import jieba, json
+import json
 
 from app import db
 from app.chinese import pinyin, segment
