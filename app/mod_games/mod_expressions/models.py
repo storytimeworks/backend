@@ -1,15 +1,12 @@
 from app import db
 from app.chinese import pinyin
+from app.mod_games.question import Question
+from app.mod_games.result import Result
 
-class Base(db.Model):
+class ExpressionsResult(Result):
+    __tablename__ = "expressions_results"
 
-    __abstract__ = True
-
-    id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
-    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
-
-class ExpressionsQuestion(Base):
+class ExpressionsQuestion(Question):
 
     __tablename__ = "expressions_questions"
 
