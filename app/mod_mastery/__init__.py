@@ -1,5 +1,5 @@
 from app import db, sentry
-from app.mod_vocab.models import Entry
+from app.mod_vocab import Entry
 from .models import Mastery
 
 def update_masteries(user_id, correct_words, wrong_words):

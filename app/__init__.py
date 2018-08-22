@@ -55,7 +55,7 @@ def configure_app(app):
         sslify = SSLify(app, permanent=True)
 
     # Set up login manager here
-    from app.mod_users.models import User
+    from app.mod_users import User
 
     login_manager = LoginManager()
     login_manager.init_app(app)

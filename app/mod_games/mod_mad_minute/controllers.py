@@ -7,8 +7,8 @@ from shushu import convert
 from app import db
 from app.chinese import pinyin
 from app.mod_games import Game
-from app.mod_games.models import GameResult
-from app.mod_games.mod_mad_minute.models import MadMinuteResult
+from app.mod_games import GameResult
+from app.mod_games.mod_mad_minute import MadMinuteResult
 from app.mod_mastery import update_masteries
 from app.utils import check_body
 
@@ -94,7 +94,7 @@ def finish_game():
     """
 
     # Ensure all necessary parameters are here
-    if not check_body(request, ["correct", "correct_words", "wrong", "wrong_words"]):
+    if not check_body(["correct", "correct_words", "wrong", "wrong_words"]):
         return errors.missing_finish_parameters()
 
     correct = request.json["correct"]

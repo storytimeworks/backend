@@ -12,7 +12,7 @@ def log_attempt():
     """
 
     # Ensure necessary parameters are here
-    if not check_body(request, ["entry_id", "correct"]):
+    if not check_body(["entry_id", "correct"]):
         return errors.missing_attempt_parameters()
 
     entry_id = request.json["entry_id"]

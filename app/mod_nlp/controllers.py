@@ -3,7 +3,7 @@ import json, os, requests, uuid
 
 from app import admin_required, db
 import app.mod_nlp.errors as errors
-from app.mod_nlp.models import NLPApp
+from app.mod_nlp import NLPApp
 from app.utils import check_body
 
 mod_nlp = Blueprint("nlp", __name__, url_prefix="/nlp")
@@ -43,7 +43,7 @@ def create_nlp_app():
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["passage_id"]):
+    if not check_body(["passage_id"]):
         return errors.missing_create_app_parameters()
 
     passage_id = request.json["passage_id"]

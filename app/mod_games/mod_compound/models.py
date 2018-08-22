@@ -1,7 +1,7 @@
 from app import db
 from app.mod_games.question import Question
 from app.mod_games.result import Result
-from app.mod_vocab.models import Entry
+from app.mod_vocab import Entry
 
 import json
 

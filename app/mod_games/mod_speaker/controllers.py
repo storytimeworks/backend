@@ -5,8 +5,8 @@ import boto3, ffmpeg, json, numpy as np, os, requests, uuid
 
 from app import admin_required, db
 from app.mod_games import Game
-from app.mod_games.models import GameResult
-from app.mod_games.mod_speaker.models import SpeakerQuestion, SpeakerResult
+from app.mod_games import GameResult
+from app.mod_games.mod_speaker import SpeakerQuestion, SpeakerResult
 from app.mod_mastery import update_masteries
 from app.utils import check_body
 

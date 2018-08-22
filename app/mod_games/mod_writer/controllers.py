@@ -8,7 +8,7 @@ from app import db
 from app.utils import check_body
 import app.mod_games.mod_writer.errors as errors
 from app.mod_games.mod_writer.model import load_session, make_prediction
-from app.mod_games.mod_writer.models import WriterAnswer
+from app.mod_games.mod_writer import WriterAnswer
 
 mod_writer_game = Blueprint("writer_game", __name__, url_prefix="/games/writer")
 session = load_session()
@@ -25,7 +25,7 @@ def answer_question():
     """
 
     # Ensure necessary parameters are here
-    if not check_body(request, ["image"]):
+    if not check_body(["image"]):
         return errors.missing_answer_parameters()
 
     # Resize the image for classification and convert to bytes
@@ -82,7 +82,7 @@ def train_model(answer_id):
     """
 
     # Ensure necessary parameters are here
-    if not check_body(request, ["classification"]):
+    if not check_body(["classification"]):
         return errors.missing_train_parameters()
 
     classification = request.json["classification"]
@@ -157,7 +157,7 @@ def train_model_directly():
     """
 
     # Ensure necessary parameters are here
-    if not check_body(request, ["classification", "image"]):
+    if not check_body(["classification", "image"]):
         return errors.missing_train_parameters()
 
     classification = request.json["classification"]

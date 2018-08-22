@@ -8,7 +8,7 @@ mod_billing = Blueprint("billing", __name__, url_prefix="/billing")
 
 @mod_billing.route("/charge", methods=["POST"])
 def charge():
-    if not check_body(request, ["plan", "transaction"]):
+    if not check_body(["plan", "transaction"]):
         return errors.missing_charge_parameters()
 
     plan = int(request.json["plan"])

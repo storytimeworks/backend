@@ -6,10 +6,10 @@ from pypinyin import pinyin
 from app import db, admin_required
 from app.chinese import segment
 import app.mod_passages.errors as errors
-from app.mod_passages.models import Passage, ChineseNameCharacter
-from app.mod_path.models import PathAction
-from app.mod_stories.models import Story
-from app.mod_users.models import User
+from app.mod_passages import Passage, ChineseNameCharacter
+from app.mod_path import PathAction
+from app.mod_stories import Story
+from app.mod_users import User
 from app.utils import check_body
 
 mod_passages = Blueprint("passages", __name__, url_prefix="/passages")
@@ -176,7 +176,7 @@ def create_passage():
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["name", "description", "story_id"]):
+    if not check_body(["name", "description", "story_id"]):
         return errors.missing_create_passage_parameters()
 
     name = request.json["name"]

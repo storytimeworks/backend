@@ -1,4 +1,6 @@
-def check_body(request, keys):
+from flask import request
+
+def check_body(keys):
     if request.json == None:
         return False
     else:

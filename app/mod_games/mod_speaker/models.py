@@ -1,6 +1,6 @@
 import json
 
-from app.mod_games.mod_scribe.models import ScribeQuestion
+from app.mod_games.mod_scribe import ScribeQuestion
 from app.mod_games.result import Result
 
 class SpeakerResult(Result):

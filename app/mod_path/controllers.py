@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request, session
 from flask_login import current_user, login_required
 
-from app.mod_passages.models import Passage
-from app.mod_path.models import PathAction
-from app.mod_stories.models import Story
+from app.mod_passages import Passage
+from app.mod_path import PathAction
+from app.mod_stories import Story
 
 mod_path = Blueprint("path", __name__, url_prefix="/path")
 

@@ -3,11 +3,11 @@ import json, re
 
 from app import admin_required, db
 from app.chinese import segment
-from app.mod_games.mod_compound.models import CompoundQuestion
-from app.mod_games.mod_copy_edit.models import CopyEditQuestion
-from app.mod_games.mod_expressions.models import ExpressionsQuestion
-from app.mod_games.mod_scribe.models import ScribeQuestion
-from app.mod_vocab.models import Entry
+from app.mod_games.mod_compound import CompoundQuestion
+from app.mod_games.mod_copy_edit import CopyEditQuestion
+from app.mod_games.mod_expressions import ExpressionsQuestion
+from app.mod_games.mod_scribe import ScribeQuestion
+from app.mod_vocab import Entry
 
 mod_dashboard = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 

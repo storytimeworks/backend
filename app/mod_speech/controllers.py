@@ -6,8 +6,8 @@ from io import BytesIO
 
 from app import db
 import app.mod_speech.errors as errors
-from app.mod_speech.models import ChineseSpeechSynthesis, EnglishSpeechSynthesis
-from app.mod_users.models import User
+from app.mod_speech import ChineseSpeechSynthesis, EnglishSpeechSynthesis
+from app.mod_users import User
 
 # Variable used to store the Baidu access token. Is replaced with the actual
 # access token when the first speech request is made

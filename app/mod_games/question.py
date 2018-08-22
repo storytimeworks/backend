@@ -1,7 +1,7 @@
 from app import db
 from app.chinese import segment
-from app.mod_mastery.models import Mastery
-from app.mod_vocab.models import Entry
+from app.mod_mastery import Mastery
+from app.mod_vocab import Entry
 
 from flask_login import current_user
 import json, math, numpy as np

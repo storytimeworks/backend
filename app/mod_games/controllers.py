@@ -4,13 +4,13 @@ import inspect, json, random
 
 from app import admin_required, db
 from app.mod_games import Game
-from app.mod_games.models import GameResult
+from app.mod_games import GameResult
 import app.mod_games.errors as errors
-from app.mod_games.models import Attempt
+from app.mod_games import Attempt
 from app.mod_mastery import update_masteries
 import app.mod_passages.errors as passage_errors
-from app.mod_passages.models import Passage
-from app.mod_vocab.models import Entry
+from app.mod_passages import Passage
+from app.mod_vocab import Entry
 from app.utils import check_body
 
 mod_games = Blueprint("games", __name__, url_prefix="/games")
@@ -75,7 +75,7 @@ def finish_game(game_name):
     """
 
     # Ensure all necessary parameters are here
-    if not check_body(request, ["correct", "correct_question_ids", "correct_words", "wrong", "wrong_question_ids", "wrong_words"]):
+    if not check_body(["correct", "correct_question_ids", "correct_words", "wrong", "wrong_question_ids", "wrong_words"]):
         return errors.missing_finish_parameters()
 
     correct = request.json["correct"]
@@ -168,7 +168,7 @@ def create_question(game_name):
     arguments = inspect.getargspec(g.game.question.__init__).args
     arguments.remove("self")
 
-    if not check_body(request, arguments):
+    if not check_body(arguments):
         return errors.missing_create_question_parameters()
 
     # Generate data for the question constructor

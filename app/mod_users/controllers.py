@@ -7,7 +7,7 @@ from app import admin_required, db, log_error
 from app.email import Email, send
 from app.mod_users import validate_username, validate_email, validate_password
 import app.mod_users.errors as errors
-from app.mod_users.models import User, EmailVerification, Invitation, PasswordReset
+from app.mod_users import User, EmailVerification, Invitation, PasswordReset
 from app.utils import check_body
 
 # Create users Flask blueprint
@@ -60,7 +60,7 @@ def register():
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["username", "email", "password"]):
+    if not check_body(["username", "email", "password"]):
         return errors.missing_registration_parameters()
 
     username = request.json["username"]
@@ -134,7 +134,7 @@ def update_user(user_id):
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["section", "data"]):
+    if not check_body(["section", "data"]):
         return errors.missing_update_parameters()
 
     section = request.json["section"]
@@ -219,7 +219,7 @@ def login():
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["username", "password"]):
+    if not check_body(["username", "password"]):
         return errors.missing_login_parameters()
 
     username = request.json["username"]
@@ -283,7 +283,7 @@ def update_password(user_id):
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["current_password", "new_password"]):
+    if not check_body(["current_password", "new_password"]):
         return errors.missing_password_update_parameters()
 
     current_password = request.json["current_password"]
@@ -334,7 +334,7 @@ def reset_password():
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["username"]):
+    if not check_body(["username"]):
         return errors.missing_password_reset_parameters()
 
     username = request.json["username"]
@@ -366,7 +366,7 @@ def verify_email():
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["code"]):
+    if not check_body(["code"]):
         return errors.missing_verify_email_parameters()
 
     code = request.json["code"]
@@ -476,7 +476,7 @@ def invite_user():
     """
 
     # Ensure necessary parameters are here
-    if not check_body(request, ["email"]):
+    if not check_body(["email"]):
         return errors.missing_invite_parameters()
 
     email = request.json["email"]

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required
 
-from app.mod_mastery.models import Mastery
+from app.mod_mastery import Mastery
 
 mod_mastery = Blueprint("mastery", __name__, url_prefix="/mastery")
 

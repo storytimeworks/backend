@@ -2,7 +2,7 @@ import re, validators
 from zxcvbn import zxcvbn
 
 from . import errors
-from .models import User
+from .models import EmailVerification, Invitation, PasswordReset, User
 
 def validate_username(username):
     if len(username) < 4:

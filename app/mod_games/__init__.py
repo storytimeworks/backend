@@ -1,10 +1,11 @@
 from enum import Enum
 
-from app.mod_games.mod_compound.models import CompoundQuestion, CompoundResult
-from app.mod_games.mod_expressions.models import ExpressionsQuestion, ExpressionsResult
-from app.mod_games.mod_mad_minute.models import MadMinuteResult
-from app.mod_games.mod_narrative.models import NarrativeQuestion, NarrativeResult
-from app.mod_games.mod_scribe.models import ScribeQuestion, ScribeResult
+from .models import Attempt, GameResult
+from .mod_compound import CompoundQuestion, CompoundResult
+from .mod_expressions import ExpressionsQuestion, ExpressionsResult
+from .mod_mad_minute import MadMinuteResult
+from .mod_narrative import NarrativeQuestion, NarrativeResult
+from .mod_scribe import ScribeQuestion, ScribeResult
 
 class Game(Enum):
     MAD_MINUTE = 1

@@ -4,8 +4,8 @@ import json
 
 from app import db, admin_required
 import app.mod_stories.errors as errors
-from app.mod_passages.models import Passage
-from app.mod_stories.models import Story
+from app.mod_passages import Passage
+from app.mod_stories import Story
 from app.utils import check_body
 
 mod_stories = Blueprint("stories", __name__, url_prefix="/stories")
@@ -69,7 +69,7 @@ def create_story():
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["name", "description", "position"]):
+    if not check_body(["name", "description", "position"]):
         return errors.missing_create_story_parameters()
 
     name = request.json["name"]

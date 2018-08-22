@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from app.mod_characters.models import Character
+from app.mod_characters import Character
 
 mod_characters = Blueprint("characters", __name__, url_prefix="/characters")
 

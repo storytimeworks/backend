@@ -5,8 +5,8 @@ import json, re
 from app import db, admin_required
 from app.chinese import pinyin
 import app.mod_vocab.errors as errors
-from app.mod_vocab.models import Entry, Sentence
-from app.mod_users.models import User
+from app.mod_vocab import Entry, Sentence
+from app.mod_users import User
 from app.utils import check_body
 
 mod_vocab = Blueprint("vocab", __name__, url_prefix="/vocabulary")
@@ -94,7 +94,7 @@ def create_entry():
     """
 
     # Check that all necessary data is in the request body
-    if not check_body(request, ["chinese", "english"]):
+    if not check_body(["chinese", "english"]):
         return errors.missing_create_entry_parameters()
 
     chinese = request.json["chinese"]

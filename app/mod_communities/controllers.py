@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request, session
 import json
 
 from app import db
-from app.mod_communities.models import Community, Post
+from app.mod_communities import Community, Post
 
 mod_communities = Blueprint("communities", __name__, url_prefix="/communities")
 

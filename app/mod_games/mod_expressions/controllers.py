@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required
 
 from app import db, admin_required
-from app.mod_games.mod_expressions.models import ExpressionsQuestion
+from app.mod_games.mod_expressions import ExpressionsQuestion
 from app.utils import check_body
 
 mod_expressions_game = Blueprint("expressions_game", __name__, url_prefix="/games/expressions")
