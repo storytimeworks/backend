@@ -19,15 +19,8 @@ class NarrativeQuestion(Question):
     words = db.Column(db.String(255), nullable=False)
 
     def __init__(self, prompts, choices):
-        self.prompts = json.dumps(prompts)
-        self.choices = json.dumps(choices)
-
-        words = []
-
-        for prompt in prompts:
-            words.extend(segment(prompt))
-
-        self.words = json.dumps(words)
+        self.update("prompt", prompts)
+        self.update("choices", choices)
 
     def serialize(self):
         return {
@@ -38,3 +31,16 @@ class NarrativeQuestion(Question):
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
+
+    def update(self, key, value):
+        if key == "prompts":
+            self.prompts = json.dumps(value)
+
+            words = []
+
+            for prompt in prompts:
+                words.extend(segment(prompt))
+
+            self.words = json.dumps(words)
+        elif key == "choices":
+            self.choices = json.dumps(value)

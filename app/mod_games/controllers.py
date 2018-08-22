@@ -185,23 +185,17 @@ def create_question(game_name):
 @mod_games.route("/<game_name>/questions/<question_id>", methods=["PUT"])
 @admin_required
 def update_question(game_name, question_id):
-    """Updates a question.
+    """Updates attributes for a question.
 
     Body:
-        Whatever the necessary parameters are for this game's question.
+        Whatever the parameters are for this game's question.
 
     Returns:
         JSON data of the question.
     """
 
-    key = None
-    value = None
-
-    # Try to get the key and value being updated for this question
-    if request.json and len(request.json.keys()) > 0:
-        key = list(request.json.keys())[0]
-        value = request.json[key]
-    else:
+    # Make sure something was passed to us
+    if not request.json or len(request.json.keys()) == 0:
         return errors.missing_update_question_parameters()
 
     # Find the question being updated
@@ -212,7 +206,8 @@ def update_question(game_name, question_id):
         return errors.question_not_found()
 
     # Update the question accordingly, depending on the key and value
-    setattr(question, key, value)
+    for key, value in request.json.items():
+        question.update(key, value)
 
     # Save changes in MySQL
     db.session.commit()

@@ -22,12 +22,9 @@ class ScribeQuestion(Question):
     other_english_answers = db.Column(db.Text, nullable=False)
 
     def __init__(self, chinese, english, other_english_answers):
-        self.chinese = chinese
-        self.pinyin = pinyin(chinese)
-        self.words = json.dumps(segment(chinese))
-        self.words_pinyin = json.dumps([pinyin(word) for word in segment(chinese)])
-        self.english = english
-        self.other_english_answers = json.dumps(other_english_answers)
+        update("chinese", chinese)
+        update("english", english)
+        update("other_english_answers", other_english_answers)
 
     def serialize(self):
         return {
@@ -40,3 +37,14 @@ class ScribeQuestion(Question):
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
+
+    def update(self, key, value):
+        if key == "chinese":
+            self.chinese = value
+            self.pinyin = pinyin(value)
+            self.words = json.dumps(segment(value))
+            self.words_pinyin = json.dumps([pinyin(word) for word in segment(value)])
+        elif key == "other_english_answers":
+            self.other_english_answers = json.dumps(value)
+        else:
+            super(ScribeQuestion, self).update(key, value)

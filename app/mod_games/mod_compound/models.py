@@ -19,9 +19,9 @@ class CompoundQuestion(Question):
     answer = db.Column(db.String(255), nullable=False)
 
     def __init__(self, prompt, choices, answer):
-        self.prompt = prompt
-        self.choices = json.dumps(choices)
-        self.answer = answer
+        update("prompt", prompt)
+        update("choices", choices)
+        update("answer", answer)
 
     def serialize(self):
         all_choices = []
@@ -46,3 +46,9 @@ class CompoundQuestion(Question):
             "translations": translations,
             "words": all_choices
         }
+
+    def update(self, key, value):
+        if key == "choices":
+            self.choices = json.dumps(value)
+        else:
+            super(CompoundQuestion, self).update(key, value)

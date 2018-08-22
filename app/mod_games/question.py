@@ -14,6 +14,17 @@ class Question(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
+    def update(self, key, value):
+        # Make sure we don't try to set a value for a column that doesn't exist
+        keys = self.__table__.columns.keys()
+        keys.remove("id")
+        keys.remove("created_at")
+        keys.remove("updated_at")
+
+        # Set the attribute if we can
+        if key in keys:
+            setattr(self, key, value)
+
     @classmethod
     def play_game(cls, words=None):
         # The number of questions to return
