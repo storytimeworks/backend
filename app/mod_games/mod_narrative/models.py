@@ -14,33 +14,29 @@ class NarrativeQuestion(Question):
 
     result_type = NarrativeResult
 
-    prompts = db.Column(db.Text, nullable=False)
-    choices = db.Column(db.Text, nullable=False)
+    parts = db.Column(db.Text, nullable=False)
     words = db.Column(db.String(255), nullable=False)
 
-    def __init__(self, prompts, choices):
-        self.update("prompt", prompts)
-        self.update("choices", choices)
+    def __init__(self, parts):
+        self.update("parts", parts)
 
     def serialize(self):
         return {
             "id": self.id,
-            "prompts": json.loads(self.prompts),
-            "choices": json.loads(self.choices),
+            "parts": json.loads(self.parts),
             "words": json.loads(self.words),
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
 
     def update(self, key, value):
-        if key == "prompts":
-            self.prompts = json.dumps(value)
+        if key == "parts":
+            self.parts = json.dumps(value)
 
             words = []
 
-            for prompt in prompts:
-                words.extend(segment(prompt))
+            for part in value:
+                if "prompt" in part:
+                    words.extend(segment(part["prompt"]))
 
             self.words = json.dumps(words)
-        elif key == "choices":
-            self.choices = json.dumps(value)
