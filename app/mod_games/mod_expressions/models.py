@@ -1,5 +1,5 @@
 from app import db
-from app.chinese import pinyin
+from app.chinese import pinyin, segment
 from app.mod_games.question import Question
 from app.mod_games.result import Result
 
@@ -9,6 +9,7 @@ class ExpressionsResult(Result):
 class ExpressionsQuestion(Question):
 
     __tablename__ = "expressions_questions"
+    result_type = ExpressionsResult
 
     prompt = db.Column(db.String(255), nullable=False)
     choice_1 = db.Column(db.String(255), nullable=False)
@@ -34,6 +35,12 @@ class ExpressionsQuestion(Question):
         self.choice_4_correct = choice_4_correct
 
     def serialize(self):
+        words = []
+        words.extend(segment(self.choice_1))
+        words.extend(segment(self.choice_2))
+        words.extend(segment(self.choice_3))
+        words.extend(segment(self.choice_4))
+
         return {
             "id": self.id,
             "prompt": self.prompt,
@@ -51,6 +58,7 @@ class ExpressionsQuestion(Question):
             "choice_4_pinyin": pinyin(self.choice_4),
             "followed_by": self.followed_by,
             "preceded_by": self.preceded_by,
+            "words": words,
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }

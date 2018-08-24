@@ -17,11 +17,15 @@ mod_games = Blueprint("games", __name__, url_prefix="/games")
 
 @mod_games.before_request
 def before_request():
+    # Separate parts of the URL path to check the game name
     parts = request.path.split("/")
 
     if len(parts) < 3:
+        # Return 404 if the request doesn't specify a game
         abort(404)
+        return
     else:
+        # Otherwise, save the game to g and continue
         game_name = parts[2]
 
         try:
