@@ -1,5 +1,5 @@
 bcrypt==3.1.4
-boto3==1.7.81
+boto3==1.8.6
 ffmpeg-python==0.1.16
 Flask==1.0.2
 Flask-Cors==3.0.6
@@ -13,12 +13,12 @@ numpy==1.14.5
 Pillow==5.2.0
 pynliner==0.8.0
 pypinyin==0.33.0
-pytest==3.7.2
+pytest==3.7.4
 python-dotenv==0.9.1
 raven[flask]==6.9.0
 requests==2.19.1
 shushu==0.1
-stripe==2.5.0
-tensorflow==1.10.0
+stripe==2.6.0
+tensorflow==1.10.1
 validators==0.12.2
-zxcvbn-python==4.4.24
+zxcvbn==4.4.27
