@@ -6,6 +6,7 @@ from .mod_expressions import ExpressionsQuestion, ExpressionsResult
 from .mod_mad_minute import MadMinuteResult
 from .mod_narrative import NarrativeQuestion, NarrativeResult
 from .mod_scribe import ScribeQuestion, ScribeResult
+from .mod_speaker import SpeakerQuestion, SpeakerResult
 
 class Game(Enum):
     MAD_MINUTE = 1
